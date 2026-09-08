@@ -1,0 +1,54 @@
+{
+  "name": "meeting-room-booking-client",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "test": "vitest",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -b",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test -- --run && npm run build"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-router": "^1.134.7",
+    "@tanstack/react-router-devtools": "^1.134.7",
+    "luxon": "^3.7.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.65.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@tanstack/router-plugin": "^1.134.7",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^24.9.2",
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "jsdom": "^27.0.0",
+    "msw": "^2.11.6",
+    "prettier": "^3.6.2",
+    "sass": "^1.93.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2",
+    "vite": "^7.1.9",
+    "vite-plugin-svgr": "^4.5.0",
+    "vitest": "^3.2.4"
+  }
+}
