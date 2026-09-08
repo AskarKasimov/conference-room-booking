@@ -1,5 +1,6 @@
 import * as Popover from '@radix-ui/react-popover';
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import CalendarIcon from '../assets/icons/calendar.svg?react';
 import ChevronDownIcon from '../assets/icons/chevron-down.svg?react';
 import styles from './DatePicker.module.scss';
@@ -69,6 +70,9 @@ export function DatePicker({
   ariaDescribedBy,
   placeholder,
   disabled = false,
+  triggerLabel,
+  hideLabel = false,
+  leadingIcon,
 }: {
   label?: string;
   value: string;
@@ -81,6 +85,9 @@ export function DatePicker({
   ariaDescribedBy?: string | undefined;
   placeholder?: string;
   disabled?: boolean;
+  triggerLabel?: string;
+  hideLabel?: boolean;
+  leadingIcon?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState(() => monthStart(dateFromValue(value)));
@@ -102,7 +109,17 @@ export function DatePicker({
 
   return (
     <div className={`${styles.field} ${className ?? ''}`}>
-      <span className={disabled ? styles.fieldLabelDisabled : styles.fieldLabel}>{label}</span>
+      <span
+        className={
+          hideLabel
+            ? styles.visuallyHidden
+            : disabled
+              ? styles.fieldLabelDisabled
+              : styles.fieldLabel
+        }
+      >
+        {label}
+      </span>
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger
           id={id}
@@ -112,8 +129,8 @@ export function DatePicker({
           aria-describedby={ariaDescribedBy}
           disabled={disabled}
         >
-          <CalendarIcon aria-hidden="true" />
-          {value ? dateLabel(selected) : placeholder}
+          {leadingIcon ?? <CalendarIcon aria-hidden="true" />}
+          {triggerLabel ?? (value ? dateLabel(selected) : placeholder)}
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Content className={styles.calendar} align="start" sideOffset={6}>

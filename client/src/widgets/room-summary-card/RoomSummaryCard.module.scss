@@ -1,4 +1,7 @@
 .summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 1.5rem;
@@ -9,12 +12,18 @@
   font-size: 1.5rem;
   line-height: 1.35;
 }
+.titleSection {
+  display: grid;
+  gap: 0.5rem;
+}
 .summary p {
+  margin: 0;
   color: var(--color-muted);
   font-size: 0.875rem;
 }
-.summary hr {
-  margin: 1rem 0;
+.divider {
+  width: 100%;
+  margin: 0;
   border: 0;
   border-top: 1px solid var(--color-border);
 }
@@ -32,9 +41,7 @@
   font-size: 0.875rem;
 }
 .featureList svg {
-  flex: 0 0 1.25rem;
-  width: 1.25rem;
-  height: 1.25rem;
+  flex: 0 0 1.125rem;
   color: var(--color-primary);
 }
 @media (max-width: 560px) {

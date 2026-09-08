@@ -32,7 +32,7 @@ function bookingAt(startTime: string, durationMinutes: number, userId = 'user-1'
 }
 
 describe('DaySchedule', () => {
-  it('places a 90-minute 10:30 booking one-sixth down the workday', () => {
+  it('places a 90-minute 10:30 booking at its hour-grid position', () => {
     render(
       <DaySchedule
         date="2026-09-10"
@@ -43,8 +43,8 @@ describe('DaySchedule', () => {
     );
 
     const block = screen.getByText('Планирование').closest('li');
-    expect(block?.style.top).toBe('13.6364%');
-    expect(block?.style.height).toBe('13.6364%');
+    expect(block?.style.top).toBe('12.5%');
+    expect(block?.style.height).toBe('12.5%');
   });
 
   it('shows own title and hides another user’s title', () => {
@@ -76,9 +76,9 @@ describe('DaySchedule', () => {
     );
 
     const blocks = screen.getAllByRole('listitem');
-    expect(blocks[0]).toHaveStyle({ top: '9.0909%', height: '2.2727%' });
-    expect(blocks[1]).toHaveStyle({ top: '11.3636%', height: '2.2727%' });
-    expect(blocks[2]).toHaveStyle({ top: '97.7273%', height: '2.2727%' });
+    expect(blocks[0]).toHaveStyle({ top: '8.3333%', height: '2.0833%' });
+    expect(blocks[1]).toHaveStyle({ top: '10.4167%', height: '2.0833%' });
+    expect(blocks[2]).toHaveStyle({ top: '89.5833%', height: '2.0833%' });
     expect(blocks[0]).toHaveAccessibleName('Планирование, 10:00–10:15');
     expect(blocks[1]).toHaveAccessibleName('Занято, 10:15–10:30');
     expect(screen.getByText('20:00')).toBeInTheDocument();

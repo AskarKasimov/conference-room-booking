@@ -6,7 +6,7 @@
 .breadcrumbs ol {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -18,9 +18,8 @@
   gap: 0.5rem;
 }
 
-.breadcrumbs li + li::before {
-  color: #9aacbf;
-  content: '›';
+.breadcrumbs li > img {
+  display: block;
 }
 
 .breadcrumbs a {

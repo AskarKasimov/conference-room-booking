@@ -4,6 +4,7 @@ import { ScheduleBlock } from './ScheduleBlock';
 import styles from './Schedule.module.scss';
 
 const WORKDAY_MINUTES = 660;
+const DISPLAYED_TIMELINE_MINUTES = 12 * 60;
 
 export function DaySchedule({
   bookings,
@@ -27,8 +28,8 @@ export function DaySchedule({
     return [
       {
         booking,
-        top: `${((topMinutes / WORKDAY_MINUTES) * 100).toFixed(4)}%`,
-        height: `${(((bottomMinutes - topMinutes) / WORKDAY_MINUTES) * 100).toFixed(4)}%`,
+        top: `${((topMinutes / DISPLAYED_TIMELINE_MINUTES) * 100).toFixed(4)}%`,
+        height: `${(((bottomMinutes - topMinutes) / DISPLAYED_TIMELINE_MINUTES) * 100).toFixed(4)}%`,
       },
     ];
   });

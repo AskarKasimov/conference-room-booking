@@ -27,9 +27,8 @@
   color: white;
   background: var(--color-primary);
 }
-.logoMark svg {
-  width: 1.15rem;
-  height: 1.15rem;
+.logoMark img {
+  display: block;
 }
 .nav {
   position: absolute;
@@ -87,14 +86,24 @@
   font-weight: 600;
 }
 .user {
+  position: relative;
+  overflow: hidden;
   display: grid;
   place-items: center;
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
   color: white;
-  background: #5478db;
+  border: 1px solid var(--color-border);
   font-weight: 700;
+}
+.user img {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+}
+.user span {
+  position: relative;
 }
 @media (max-width: 640px) {
   .header {
