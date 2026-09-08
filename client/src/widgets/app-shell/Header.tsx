@@ -1,4 +1,5 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import { useCurrentUserQuery } from '../../entities/user';
 import { useSlidingIndicator } from '../../shared/lib';
 import CalendarCheckIcon from '../../shared/assets/icons/calendar-check-room-detail.svg?react';
@@ -8,7 +9,9 @@ import styles from './Header.module.scss';
 export function Header({ roomsHref, bookingsHref }: { roomsHref: string; bookingsHref: string }) {
   const { pathname } = useLocation();
   const { containerRef, indicatorStyle, ready } = useSlidingIndicator(pathname);
-  const user = useCurrentUserQuery().data;
+  const userQuery = useCurrentUserQuery();
+  const user = userQuery.data;
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const displayName = user?.displayName ?? 'Загрузка профиля…';
   const displayNameParts = displayName.trim().split(/\s+/);
   const firstName = displayNameParts[0];
@@ -50,8 +53,27 @@ export function Header({ roomsHref, bookingsHref }: { roomsHref: string; booking
       <div className={styles.profile}>
         <span className={styles.userName}>{shortDisplayName}</span>
         <span className={styles.user} aria-label={`${displayName}, ${initials}`}>
-          <AvatarCircleIcon aria-hidden="true" />
-          <span>{initials}</span>
+          {userQuery.isPending ? (
+            <span className={styles.avatarSkeleton} role="status" aria-label="Загрузка аватара…" />
+          ) : (
+            <>
+              <span className={styles.avatarFallback} aria-hidden="true">
+                <AvatarCircleIcon aria-hidden="true" />
+                <span>{initials}</span>
+              </span>
+              {user?.avatarUrl && failedAvatarUrl !== user.avatarUrl && (
+                <img
+                  className={styles.avatarImage}
+                  src={user.avatarUrl}
+                  alt="Аватар пользователя"
+                  onError={(event) => {
+                    event.currentTarget.hidden = true;
+                    setFailedAvatarUrl(user.avatarUrl);
+                  }}
+                />
+              )}
+            </>
+          )}
         </span>
       </div>
     </header>
