@@ -23,9 +23,13 @@ export function BookingRow({ booking, canCancel }: { booking: BookingView; canCa
         <p className={styles.metadata}>
           <OfficeIcon aria-hidden="true" />
           <span className={styles.roomName}>{booking.room.name}</span>
-          <span className={styles.metadataSeparator} aria-hidden="true">•</span>
+          <span className={styles.metadataSeparator} aria-hidden="true">
+            •
+          </span>
           <span className={styles.metadataItem}>{booking.room.floor} этаж</span>
-          <span className={styles.metadataSeparator} aria-hidden="true">•</span>
+          <span className={styles.metadataSeparator} aria-hidden="true">
+            •
+          </span>
           <span className={styles.metadataItem}>
             {formatLocalTime(booking.startsAt, booking.office.timezone)}–
             {formatLocalTime(booking.endsAt, booking.office.timezone)} МСК

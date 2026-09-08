@@ -127,9 +127,7 @@ describe('RoomFilters', () => {
       />,
     );
 
-    expect(screen.getByRole('combobox', { name: 'Длительность' })).toHaveTextContent(
-      '10 ч 45 мин',
-    );
+    expect(screen.getByRole('combobox', { name: 'Длительность' })).toHaveTextContent('10 ч 45 мин');
   });
 
   it('declines hours correctly', () => {
@@ -148,8 +146,6 @@ describe('RoomFilters', () => {
       />,
     );
 
-    expect(screen.getByRole('combobox', { name: 'Вместимость' })).toHaveTextContent(
-      'Мин. 8 чел.',
-    );
+    expect(screen.getByRole('combobox', { name: 'Вместимость' })).toHaveTextContent('Мин. 8 чел.');
   });
 });

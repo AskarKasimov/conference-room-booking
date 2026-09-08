@@ -27,7 +27,8 @@ export function RoomSummaryCard({ room }: { room: Room & { office: Office } }) {
           Вместимость: до {room.capacity} человек
         </li>
         {room.features.map((feature) => {
-          const FeatureIcon = featureIcons[feature.code as keyof typeof featureIcons] ?? DisplayIcon;
+          const FeatureIcon =
+            featureIcons[feature.code as keyof typeof featureIcons] ?? DisplayIcon;
 
           return (
             <li key={feature.code}>
