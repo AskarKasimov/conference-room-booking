@@ -36,6 +36,17 @@
   font-weight: 400;
   text-align: left;
   white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.trigger:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+.trigger:active:not(:disabled) {
+  border-color: #94a3b8;
+  background: #f1f5f9;
 }
 .trigger:disabled {
   color: #cbd5e1;
@@ -92,6 +103,10 @@
 .calendarNav:hover {
   background: #f1f5f9;
 }
+.calendarNav:active {
+  color: #334155;
+  background: #e2e8f0;
+}
 
 .calendarNav svg {
   width: 1rem;
@@ -138,6 +153,9 @@
 .calendarDays button:hover:not(:disabled):not(.selectedDay) {
   background: #e7f7f4;
 }
+.calendarDays button:active:not(:disabled):not(.selectedDay) {
+  background: #ccfbf1;
+}
 
 .calendarDays button:disabled {
   cursor: not-allowed;
@@ -152,4 +170,8 @@
 
 .calendarDays .selectedDay:hover {
   background: var(--color-primary-dark);
+}
+
+.calendarDays button.selectedDay:active {
+  background: #06675f;
 }

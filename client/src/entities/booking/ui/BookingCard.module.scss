@@ -74,6 +74,16 @@
   background: white;
   border-color: var(--color-danger);
 }
+.action :global(button:hover:not(:disabled)) {
+  color: #dc2626;
+  background: #fff1f2;
+  border-color: #dc2626;
+}
+.action :global(button:active:not(:disabled)) {
+  color: #b91c1c;
+  background: #ffe4e6;
+  border-color: #b91c1c;
+}
 @media (max-width: 640px) {
   .row {
     grid-template-columns: 1fr;

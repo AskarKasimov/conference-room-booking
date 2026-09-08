@@ -175,6 +175,9 @@
   color: #94a3b8;
   background: transparent;
   cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 .successDismiss svg {
   width: 0.875rem;
@@ -182,6 +185,11 @@
 }
 .successDismiss:hover {
   color: var(--color-text);
+  background: #f8fafc;
+}
+.successDismiss:active {
+  color: #334155;
+  background: #f1f5f9;
 }
 .successDismiss:focus-visible {
   border-radius: 0.25rem;

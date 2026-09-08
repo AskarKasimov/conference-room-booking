@@ -116,6 +116,17 @@
   font-size: 0.875rem;
   font-weight: 400;
   text-align: left;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.select:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+.select:active:not(:disabled) {
+  border-color: #94a3b8;
+  background: #f1f5f9;
 }
 .select:disabled {
   color: #cbd5e1;
