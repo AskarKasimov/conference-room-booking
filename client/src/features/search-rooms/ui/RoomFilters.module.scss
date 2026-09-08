@@ -48,6 +48,12 @@
   font: inherit;
   text-align: left;
 }
+.select:focus-visible {
+  border-color: var(--color-primary);
+  outline: 1px solid rgb(15 157 145 / 0.35);
+  outline-offset: 1px;
+  box-shadow: none;
+}
 .timeField .select,
 .capacityField .select,
 .durationField .select {

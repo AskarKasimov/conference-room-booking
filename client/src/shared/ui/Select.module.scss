@@ -17,6 +17,12 @@
   color: var(--color-text);
   background: white;
 }
+.select:focus-visible {
+  border-color: var(--color-primary);
+  outline: 1px solid rgb(15 157 145 / 0.35);
+  outline-offset: 1px;
+  box-shadow: none;
+}
 .chevron {
   flex: 0 0 auto;
   width: 1rem;
