@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { DateTime } from 'luxon';
-import { ErrorState } from '../../shared/ui';
-import { PageSkeleton } from '../../shared/ui';
-import { Button } from '../../shared/ui';
+import { Button, PageState } from '../../shared/ui';
 import { DaySchedule, getDefaultDuration, getNextSlot } from '../../entities/booking';
 import type { RoomWithOffice } from '../../entities/room';
 import { useRoomScheduleQuery } from '../../entities/booking';
 import { useContextRegistration } from '../../shared/lib';
 import { useCurrentUserQuery } from '../../entities/user';
 import { BookingDialog } from '../../features/create-booking';
+import AlertTriangleIcon from '../../shared/assets/icons/alert-triangle.svg?react';
 import { ScheduleDateControl } from './ScheduleDateControl';
 import styles from './RoomScheduleWidget.module.scss';
 
@@ -33,38 +32,54 @@ export function RoomScheduleWidget({
     date === today ? getNextSlot(room.office.timezone) : { date, startTime: '09:00' };
 
   return (
-    <div className={styles.scheduleWrap}>
-      <div className={styles.scheduleHeader}>
-        <div>
-          <h2>Расписание на день</h2>
-          <p>
-            {DateTime.fromISO(date, { zone: room.office.timezone })
-              .setLocale('ru')
-              .toFormat('cccc, d LLLL')}
-          </p>
-        </div>
-        <ScheduleDateControl value={date} min={today} max={maxDate} onChange={onDateChange} />
-      </div>
-      {schedule.isLoading ? (
-        <PageSkeleton label="Загрузка расписания…" />
-      ) : schedule.isError ? (
-        <ErrorState
-          title="Не удалось загрузить расписание"
-          description="Попробуйте обновить расписание."
-          onRetry={() => void schedule.refetch()}
-        />
-      ) : (
-        <DaySchedule
-          bookings={schedule.data ?? []}
-          timezone={room.office.timezone}
-          date={date}
-          currentUserId={currentUser.data?.id}
-        />
-      )}
-      <div className={styles.scheduleActions}>
-        <Button type="button" onClick={() => setBookingOpen(true)}>
-          Забронировать комнату
-        </Button>
+    <>
+      <div className={`${styles.scheduleWrap} ${schedule.isError ? styles.scheduleErrorCard : ''}`}>
+        {schedule.isError ? (
+          <PageState
+            className={styles.scheduleError}
+            variant="error"
+            icon={<AlertTriangleIcon />}
+            title="Не удалось загрузить расписание"
+            description="Произошла ошибка при загрузке расписания переговорной"
+            action={<Button onClick={() => void schedule.refetch()}>Попробовать снова</Button>}
+          />
+        ) : (
+          <>
+            <div className={styles.scheduleHeader}>
+              <div>
+                <h2>Расписание на день</h2>
+                <p>
+                  {DateTime.fromISO(date, { zone: room.office.timezone })
+                    .setLocale('ru')
+                    .toFormat('cccc, d MMMM')}
+                </p>
+              </div>
+              <ScheduleDateControl value={date} min={today} max={maxDate} onChange={onDateChange} />
+            </div>
+            {schedule.isLoading ? (
+              <div
+                className={styles.scheduleSkeleton}
+                role="status"
+                aria-label="Загрузка расписания…"
+              >
+                <div className={styles.scheduleSkeletonHeader} />
+                <div className={styles.scheduleSkeletonRows} />
+              </div>
+            ) : (
+              <DaySchedule
+                bookings={schedule.data ?? []}
+                timezone={room.office.timezone}
+                date={date}
+                currentUserId={currentUser.data?.id}
+              />
+            )}
+            <div className={styles.scheduleActions}>
+              <Button type="button" onClick={() => setBookingOpen(true)}>
+                Забронировать комнату
+              </Button>
+            </div>
+          </>
+        )}
       </div>
       <BookingDialog
         selection={{
@@ -76,6 +91,6 @@ export function RoomScheduleWidget({
         open={bookingOpen}
         onOpenChange={setBookingOpen}
       />
-    </div>
+    </>
   );
 }

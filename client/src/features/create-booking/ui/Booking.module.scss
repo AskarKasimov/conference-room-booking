@@ -1,27 +1,45 @@
 .form {
   display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
+  gap: 1.25rem;
+  margin-top: 0;
 }
 .form label {
   display: grid;
-  gap: var(--space-2);
+  gap: 0.375rem;
   color: var(--color-muted);
+  font-size: 0.875rem;
   font-weight: 600;
+}
+.form label > span {
+  line-height: 1.125rem;
 }
 .form input,
 .form textarea,
 .form select {
-  min-height: 2.75rem;
+  box-sizing: border-box;
+  min-height: 2.4375rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 0.5rem 0.75rem;
   color: var(--color-text);
   background: white;
 }
+.form input,
+.form textarea,
+.form select,
+.form :global(button[role='combobox']),
+.form :global(button[aria-haspopup='dialog']) {
+  font-weight: 400;
+}
 .roomMeta {
-  margin: 0.65rem 0 0;
+  margin: 0.5rem 0 0;
   color: var(--color-muted);
+  font-size: 0.875rem;
+}
+.formDivider {
+  margin: 1.4375rem 0;
+  border: 0;
+  border-top: 1px solid #e2e8f0;
 }
 .roomMeta strong {
   color: var(--color-primary);
@@ -53,18 +71,26 @@
   font-weight: 600;
 }
 .summary {
-  margin: 0.25rem 0 0;
+  margin: 0.125rem 0 0;
+  min-height: 2.875rem;
+  box-sizing: border-box;
   border-radius: var(--radius-sm);
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 0.875rem;
   color: var(--color-primary-dark);
   background: var(--color-accent);
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
-  margin-top: var(--space-3);
+  margin-top: 0.25rem;
+}
+.actions button {
+  min-height: 2.4375rem;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.875rem;
 }
 .conflict {
   display: grid;

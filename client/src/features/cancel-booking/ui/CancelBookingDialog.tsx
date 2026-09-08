@@ -48,6 +48,7 @@ export function CancelBookingDialog({
     <Dialog
       open={open}
       title="Отменить бронирование?"
+      size="compact"
       onOpenChange={(nextOpen) => {
         if (!nextOpen) setBlockedAttempt(false);
         onOpenChange(nextOpen);
@@ -66,8 +67,8 @@ export function CancelBookingDialog({
         <p>
           <CalendarIcon aria-hidden="true" />
           {formatBookingDate(booking.startsAt, booking.office.timezone)},{' '}
-          {formatLocalTime(booking.startsAt, booking.office.timezone)} –{' '}
-          {formatLocalTime(booking.endsAt, booking.office.timezone)} ({booking.office.timezone})
+          {formatLocalTime(booking.startsAt, booking.office.timezone)} -{' '}
+          {formatLocalTime(booking.endsAt, booking.office.timezone)}
         </p>
       </div>
       {hasStarted || blockedAttempt ? (

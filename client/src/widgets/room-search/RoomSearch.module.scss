@@ -125,60 +125,10 @@
   flex-direction: column;
   margin-bottom: calc(var(--space-10) * -1);
 }
-.roomsErrorState {
-  display: flex;
-  flex: 1 0 0;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  gap: 1.5rem;
-  margin-inline: calc(var(--page-gutter) * -1);
-  padding: 5rem var(--page-gutter) 7.5rem;
-  background: #f8fafc;
-  text-align: center;
-}
-.roomsErrorIcon {
-  display: grid;
-  width: 7.5rem;
-  height: 7.5rem;
-  place-items: center;
-  border-radius: 50%;
-  background: #fee2e2;
-}
-.roomsErrorText {
-  display: flex;
-  width: min(100%, 30rem);
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-.roomsErrorText h1,
-.roomsErrorText p {
-  margin: 0;
-}
-.roomsErrorText h1 {
-  color: #0f172a;
-  font-size: 1.375rem;
-  font-weight: 800;
-}
-.roomsErrorText p {
-  color: #475569;
-  font-size: 0.9375rem;
-}
-.roomsErrorState .errorRetryButton {
-  min-height: 0;
-  border: 0;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  color: #fff;
-  background: #0d9488;
-  font-size: 0.875rem;
-  font-weight: 700;
-}
 .results {
   min-height: 42rem;
-  padding: 2.75rem var(--page-gutter) var(--space-10);
+  margin-inline: calc(var(--page-gutter) * -1);
+  padding: 2.5rem var(--page-gutter) var(--space-10);
   background: #f8fafc;
 }
 .results h1 {
@@ -192,13 +142,93 @@
   gap: 1.5rem;
   padding-top: 2rem;
 }
+.loadingResults {
+  min-height: 42rem;
+  margin-inline: calc(var(--page-gutter) * -1);
+  padding: 2.5rem var(--page-gutter) var(--space-10);
+  background: #f8fafc;
+}
+.loadingResults h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.375rem;
+  font-weight: 800;
+}
+.loadingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  padding-top: 2rem;
+}
+.roomCardSkeleton {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 15.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  background: #fff;
+}
+.roomCardSkeleton i {
+  display: block;
+  border-radius: 0.375rem;
+  background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 37%, #f1f5f9 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+.skeletonCardTop {
+  display: grid;
+  gap: 0.25rem;
+}
+.skeletonCardTop i:first-child {
+  width: 7.5rem;
+  height: 1.5625rem;
+}
+.skeletonCardTop i:last-child {
+  width: 3.125rem;
+  height: 1.125rem;
+}
+.skeletonCardMiddle {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.skeletonCardMiddle i {
+  height: 1.125rem;
+}
+.skeletonCardMiddle i:last-child {
+  width: 65%;
+}
+.skeletonAvailability {
+  height: 2.25rem;
+  margin-top: 1rem;
+}
+.skeletonCardActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.skeletonCardActions i {
+  height: 2.4375rem;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
 @media (max-width: 840px) {
-  .grid {
+  .grid,
+  .loadingGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (max-width: 560px) {
-  .grid {
+  .grid,
+  .loadingGrid {
     grid-template-columns: 1fr;
   }
 }

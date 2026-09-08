@@ -109,3 +109,14 @@ export function formatLocalDate(value: string, timezone: string): string {
 export function formatLocalTime(value: string, timezone: string): string {
   return DateTime.fromISO(value, { setZone: true }).setZone(timezone).toFormat('HH:mm');
 }
+
+export function formatMoscowOffset(timezone: string, value: string): string {
+  const local = DateTime.fromISO(value, { setZone: true }).setZone(timezone);
+  const offset = local.offset - local.setZone('Europe/Moscow').offset;
+  if (!Number.isFinite(offset)) return '';
+  if (offset === 0) return 'MSK';
+  const hours = Math.floor(Math.abs(offset) / 60);
+  const minutes = Math.abs(offset) % 60;
+  const suffix = `${hours}${minutes ? `:${String(minutes).padStart(2, '0')}` : ''}`;
+  return `MSK${offset > 0 ? '+' : '-'}${suffix}`;
+}

@@ -1,35 +1,57 @@
 .notFound {
-  display: grid;
-  min-height: calc(100vh - 12rem);
-  align-content: center;
-  justify-items: center;
-  gap: var(--space-4);
+  display: flex;
+  min-height: calc(100vh - 4.5rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: -2.25rem;
+  margin-bottom: calc(var(--space-10) * -1);
   text-align: center;
 }
-.notFound h1,
-.notFound p {
+.illustration {
+  width: min(100%, 30rem);
+}
+.illustration h1,
+.illustration p {
   margin: 0;
 }
-.notFound h1 {
-  font-size: clamp(2rem, 3vw, 2.75rem);
+.illustration h1 {
+  margin-top: 0.75rem;
+  color: #0f172a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 2.375rem;
 }
-.notFound > p:not(.code) {
-  max-width: 38rem;
-  color: var(--color-muted);
-  font-size: 1.125rem;
+.illustration > p:not(.code) {
+  margin-top: 0.75rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
 }
 .code {
   color: var(--color-primary);
-  font-size: clamp(5rem, 10vw, 7rem);
+  font-size: 6rem;
   font-weight: 800;
-  letter-spacing: -0.08em;
+  line-height: 7.5rem;
 }
 .primaryLink {
-  margin-top: var(--space-3);
+  display: inline-flex;
+  width: 17.9375rem;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   border-radius: var(--radius-sm);
-  padding: 0.875rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   color: white;
   background: var(--color-primary);
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   text-decoration: none;
+}
+.primaryLink svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  stroke-width: 2;
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DateTime } from 'luxon';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
@@ -20,6 +21,7 @@ import { BookingSuccessNotice, type BookingSuccess } from './BookingSuccessNotic
 import { createBookingSchema, type BookingFormValues } from '../model/bookingSchema';
 import { useCreateBookingMutation } from '../model/useCreateBookingMutation';
 import { useQueryClient } from '@tanstack/react-query';
+import ClockIcon from '../../../shared/assets/icons/clock.svg?react';
 import { scheduleQueryKeys } from '../../../entities/booking';
 import { roomQueryKeys } from '../../../entities/room';
 import { useClock } from '../../../shared/lib';
@@ -175,6 +177,18 @@ export function BookingDialog({
     if (fieldId) document.getElementById(fieldId)?.focus();
   };
   const selectedDate = form.watch('date');
+  const selectedStartTime = form.watch('startTime');
+  const selectedDuration = Number(form.watch('durationMinutes'));
+  const summaryStart = DateTime.fromISO(`${selectedDate}T${selectedStartTime}`, {
+    zone: selection.room.office.timezone,
+  }).setLocale('ru');
+  const summaryEnd = summaryStart.plus({ minutes: selectedDuration });
+  const dateLabel = summaryStart.toFormat('cccc, d MMMM');
+  const formattedDateLabel = `${dateLabel.slice(0, 1).toUpperCase()}${dateLabel.slice(1)}`;
+  const capitalizedDateLabel = formattedDateLabel.replace(
+    / ([^ ]+)$/,
+    (_, month: string) => ` ${month.slice(0, 1).toUpperCase()}${month.slice(1)}`,
+  );
   const availableTimes = getBookableTimeOptions(selectedDate, selection.room.office.timezone, now);
   const dateBounds = getBookableDateBounds(selection.room.office.timezone, now);
   const durationOptions = getDurationOptions(form.watch('startTime'));
@@ -188,6 +202,7 @@ export function BookingDialog({
         <Dialog
           open={open}
           title="Время уже занято"
+          size="compact"
           onOpenChange={onOpenChange}
           {...(onCloseComplete ? { onCloseComplete } : {})}
           showClose={false}
@@ -225,6 +240,7 @@ export function BookingDialog({
       <Dialog
         open={open}
         title="Новое бронирование"
+        size="wide"
         onOpenChange={onOpenChange}
         {...(onCloseComplete ? { onCloseComplete } : {})}
         showClose={false}
@@ -233,6 +249,7 @@ export function BookingDialog({
           Переговорная: <strong>{selection.room.name}</strong> ({selection.room.office.name},{' '}
           {selection.room.floor} этаж)
         </p>
+        <hr className={styles.formDivider} />
         {mutationError ? (
           <Alert variant="error">
             {mutationError instanceof ApiError
@@ -245,7 +262,9 @@ export function BookingDialog({
           onSubmit={(event) => void form.handleSubmit(onSubmit, focusFirstInvalidField)(event)}
         >
           <label className={form.formState.errors.title ? styles.invalid : undefined}>
-            Тема встречи <span aria-hidden="true">*</span>
+            <span>
+              Тема встречи <span aria-hidden="true">*</span>
+            </span>
             <input
               id="booking-title"
               {...form.register('title')}
@@ -295,6 +314,7 @@ export function BookingDialog({
             <div>
               <Select
                 label="Время начала"
+                leadingIcon={ClockIcon}
                 id="booking-start-time"
                 ariaInvalid={Boolean(form.formState.errors.startTime)}
                 ariaDescribedBy={
@@ -331,7 +351,12 @@ export function BookingDialog({
             }
             options={durationOptions.map((minutes) => ({
               value: String(minutes),
-              label: formatDuration(minutes),
+              label: `${formatDuration(minutes)} (до ${DateTime.fromISO(
+                `${form.watch('date')}T${form.watch('startTime')}`,
+                { zone: selection.room.office.timezone },
+              )
+                .plus({ minutes })
+                .toFormat('HH:mm')})`,
             }))}
           />
           {form.formState.errors.durationMinutes ? (
@@ -355,8 +380,8 @@ export function BookingDialog({
             </span>
           ) : null}
           <p className={styles.summary}>
-            ⓘ Бронирование на {form.watch('date')}, {form.watch('startTime')} —{' '}
-            {formatDuration(Number(form.watch('durationMinutes')))}
+            ⓘ Бронирование на {capitalizedDateLabel}, {selectedStartTime} –{' '}
+            {summaryEnd.toFormat('HH:mm')} ({formatDuration(selectedDuration)})
           </p>
           <div className={styles.actions}>
             <Button

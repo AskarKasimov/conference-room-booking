@@ -2,19 +2,25 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
-  margin-top: var(--space-8);
+  margin-top: 1.5rem;
+}
+.actions button {
+  min-height: 2.6875rem;
+  font-size: 0.875rem;
 }
 .confirmation {
-  margin: var(--space-3) 0 var(--space-8);
+  margin: 0.5rem 0 0;
   color: var(--color-muted);
-  font-size: 1.1rem;
-  line-height: 1.35;
+  font-size: 0.875rem;
+  line-height: 1.1875rem;
 }
 .bookingDetails {
   display: grid;
-  gap: var(--space-3);
+  gap: 0.5rem;
+  box-sizing: border-box;
+  min-height: 6.625rem;
   border-radius: var(--radius-sm);
-  padding: var(--space-6);
+  padding: 1rem;
   background: #f5f8f9;
 }
 .bookingDetails p {
@@ -23,11 +29,16 @@
   gap: var(--space-2);
   margin: 0;
   color: var(--color-muted);
-  font-size: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.125rem;
 }
 .bookingDetails svg {
   flex: 0 0 auto;
-  width: 1.25rem;
-  height: 1.25rem;
-  stroke-width: 2.5;
+  width: 0.875rem;
+  height: 0.875rem;
+  stroke-width: 2;
+}
+.bookingDetails > strong {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }

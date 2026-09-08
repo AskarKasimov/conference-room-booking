@@ -1,16 +1,19 @@
-import { useSearchParams } from 'react-router-dom';
-import { EmptyState } from '../../../shared/ui';
-import { ErrorState } from '../../../shared/ui';
-import { PageSkeleton } from '../../../shared/ui';
+import { Link, useSearchParams } from 'react-router-dom';
+import { DateTime } from 'luxon';
+import { Button, PageState } from '../../../shared/ui';
 import { useBookingsQuery } from '../../../entities/booking';
 import { useOfficesQuery } from '../../../entities/office';
 import { useCurrentUserQuery } from '../../../entities/user';
 import { BookingList, BookingTabs, BookingsFilters } from '../../../widgets/booking-list';
+import AlertTriangleIcon from '../../../shared/assets/icons/alert-triangle.svg?react';
+import CalendarPlusIcon from '../../../shared/assets/icons/calendar-plus.svg?react';
 import styles from './BookingsPage.module.scss';
 
 export function BookingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const scopeValue = searchParams.get('scope');
+  const periodValue = searchParams.get('period');
+  const period = periodValue === '30d' || periodValue === '90d' ? periodValue : 'all';
   const scope: 'upcoming' | 'past' | 'all' =
     scopeValue === 'past' || scopeValue === 'all' ? scopeValue : 'upcoming';
   const search = {
@@ -24,69 +27,130 @@ export function BookingsPage() {
     ...(search.officeId !== undefined ? { officeId: search.officeId } : {}),
   });
 
+  const rawItems = bookings.data ?? [];
+  const items =
+    period === 'all'
+      ? rawItems
+      : rawItems.filter((booking) => {
+          const days = period === '30d' ? 30 : 90;
+          const cutoff = DateTime.now().minus({ days }).toMillis();
+          return DateTime.fromISO(booking.startsAt, { setZone: true }).toMillis() >= cutoff;
+        });
+  const loading = offices.isLoading || bookings.isLoading || bookings.isPlaceholderData;
+  const error = offices.isError || bookings.isError;
+  const empty = !loading && !error && items.length === 0;
+
+  function updateFilters(next: { officeId?: string | undefined; period?: string | undefined }) {
+    const params = new URLSearchParams();
+    params.set('scope', search.scope);
+    const officeId = 'officeId' in next ? next.officeId : search.officeId;
+    const nextPeriod = next.period ?? period;
+    if (officeId) params.set('officeId', officeId);
+    if (nextPeriod !== 'all') params.set('period', nextPeriod);
+    setSearchParams(params);
+  }
+
   let content: React.ReactNode;
-  if (offices.isLoading || bookings.isLoading) {
-    content = <PageSkeleton label="Загрузка бронирований…" />;
-  } else if (offices.isError || bookings.isError) {
+  if (loading) {
     content = (
-      <ErrorState
-        title="Не удалось загрузить бронирования"
-        description="Попробуйте повторить запрос."
-        onRetry={() => {
-          void offices.refetch();
-          void bookings.refetch();
-        }}
+      <div className={styles.skeletonList} role="status" aria-label="Загрузка бронирований…">
+        {[0, 1].map((row) => (
+          <div className={styles.bookingSkeleton} key={row}>
+            <i />
+            <i />
+            <i />
+          </div>
+        ))}
+      </div>
+    );
+  } else if (error) {
+    content = (
+      <PageState
+        className={styles.bookingsError}
+        variant="error"
+        icon={<AlertTriangleIcon />}
+        title="Не удалось загрузить данные"
+        description="Произошла ошибка при загрузке ваших бронирований"
+        action={
+          <Button
+            onClick={() => {
+              void offices.refetch();
+              void bookings.refetch();
+            }}
+          >
+            Попробовать снова
+          </Button>
+        }
+      />
+    );
+  } else if (items.length) {
+    content = (
+      <BookingList
+        bookings={items}
+        canCancel={search.scope === 'upcoming'}
+        currentUserId={currentUser.data?.id}
+        scope={search.scope}
       />
     );
   } else {
-    const items = bookings.data ?? [];
-
     content = (
-      <>
+      <PageState
+        className={styles.bookingsEmpty}
+        variant="empty"
+        icon={<CalendarPlusIcon />}
+        title="Нет бронирований"
+        description={
+          <>
+            У вас пока нет предстоящих бронирований.
+            <br />
+            Перейдите в раздел переговорных, чтобы забронировать комнату.
+          </>
+        }
+        action={<Link to="/rooms">Перейти к переговорным</Link>}
+      />
+    );
+  }
+
+  return (
+    <div className={`${styles.page} ${empty || error ? styles.pageFullHeight : ''}`}>
+      {loading ? (
+        <div className={styles.pageHeader} aria-hidden="true">
+          <div className={styles.headerTitleSkeleton} />
+          <div className={styles.headerFiltersSkeleton}>
+            <i />
+            <i />
+          </div>
+        </div>
+      ) : (
         <div className={styles.pageHeader}>
           <h1>Мои бронирования</h1>
           <div className={styles.toolbar}>
             <BookingsFilters
               offices={offices.data ?? []}
               value={search.officeId}
-              onChange={(officeId) => {
-                const params = new URLSearchParams();
-                params.set('scope', search.scope);
-                if (officeId) params.set('officeId', officeId);
-                setSearchParams(params);
-              }}
+              period={period}
+              onChange={(officeId) => updateFilters({ officeId })}
+              onPeriodChange={(nextPeriod) => updateFilters({ period: nextPeriod })}
             />
           </div>
         </div>
+      )}
+      {loading ? (
+        <div className={styles.tabsSkeleton} aria-hidden="true">
+          <i />
+          <i />
+        </div>
+      ) : (
         <BookingTabs
           scope={search.scope}
           officeId={search.officeId}
-          count={bookings.isPlaceholderData ? undefined : items.length}
+          period={period}
+          count={items.length}
         />
-        {bookings.isPlaceholderData ? (
-          <PageSkeleton label="Загрузка бронирований…" />
-        ) : items.length ? (
-          <BookingList
-            bookings={items}
-            canCancel={search.scope === 'upcoming'}
-            currentUserId={currentUser.data?.id}
-            scope={search.scope}
-          />
-        ) : (
-          <EmptyState
-            title={
-              search.scope === 'upcoming'
-                ? 'Нет предстоящих бронирований'
-                : search.scope === 'past'
-                  ? 'Нет прошедших бронирований'
-                  : 'Нет бронирований'
-            }
-            description="Здесь появятся ваши бронирования. Перейдите в раздел переговорных, чтобы забронировать комнату."
-          />
-        )}
-      </>
-    );
-  }
-
-  return <div className={styles.page}>{content}</div>;
+      )}
+      <section className={`${styles.stateRegion} ${empty || error ? styles.stateRegionFull : ''}`}>
+        {content}
+      </section>
+    </div>
+  );
 }

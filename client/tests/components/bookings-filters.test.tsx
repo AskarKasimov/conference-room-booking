@@ -6,7 +6,9 @@ it('hides the office label while retaining an accessible name for the bookings f
   render(
     <BookingsFilters
       value={undefined}
+      period="all"
       onChange={vi.fn()}
+      onPeriodChange={vi.fn()}
       offices={[{ id: 'moscow', name: 'Москва', address: 'Тверская', timezone: 'Europe/Moscow' }]}
     />,
   );

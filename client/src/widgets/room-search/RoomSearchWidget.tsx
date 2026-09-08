@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { EmptyState } from '../../shared/ui';
-import { PageSkeleton } from '../../shared/ui';
-import { Button } from '../../shared/ui';
+import { Button, EmptyState, PageState } from '../../shared/ui';
 import { OfficeSelector } from '../../features/select-office';
 import { OfficeMeta, type Office } from '../../entities/office';
 import { RoomFilters, type RoomFilterValue } from '../../features/search-rooms';
@@ -126,21 +124,41 @@ export function RoomSearchWidget({
       />
     );
   } else if (rooms.isLoading) {
-    results = <PageSkeleton label="Загрузка комнат…" />;
+    results = (
+      <section className={styles.loadingResults} role="status" aria-label="Загрузка переговорных…">
+        <h1>Загрузка переговорных…</h1>
+        <div className={styles.loadingGrid} aria-hidden="true">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div className={styles.roomCardSkeleton} key={index}>
+              <div className={styles.skeletonCardTop}>
+                <i />
+                <i />
+              </div>
+              <div className={styles.skeletonCardMiddle}>
+                <i />
+                <i />
+              </div>
+              <i className={styles.skeletonAvailability} />
+              <div className={styles.skeletonCardActions}>
+                <i />
+                <i />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
   } else if (rooms.isError) {
     results = (
-      <section className={styles.roomsErrorState} role="alert">
-        <span className={styles.roomsErrorIcon} aria-hidden="true">
-          <AlertTriangleIcon />
-        </span>
-        <div className={styles.roomsErrorText}>
-          <h1>Не удалось загрузить данные</h1>
-          <p>Произошла ошибка при загрузке списка переговорных</p>
-        </div>
-        <Button className={styles.errorRetryButton} onClick={() => void rooms.refetch()}>
-          Попробовать снова
-        </Button>
-      </section>
+      <PageState
+        variant="error"
+        bleed
+        headingLevel={1}
+        icon={<AlertTriangleIcon />}
+        title="Не удалось загрузить данные"
+        description="Произошла ошибка при загрузке списка переговорных"
+        action={<Button onClick={() => void rooms.refetch()}>Попробовать снова</Button>}
+      />
     );
   } else if (rooms.data?.length) {
     results = (
@@ -158,7 +176,32 @@ export function RoomSearchWidget({
     );
   } else {
     results = (
-      <EmptyState title="Комнаты не найдены" description="Измените фильтры и попробуйте снова." />
+      <PageState
+        variant="empty"
+        bleed
+        headingLevel={1}
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.8" />
+            <path d="m16 16 4.5 4.5" />
+          </svg>
+        }
+        title="Нет доступных переговорных"
+        description="Попробуйте изменить параметры фильтрации или выбрать другой офис"
+        action={
+          <Button
+            onClick={() => {
+              onFiltersChange({
+                date: filters.date,
+                startTime: filters.startTime,
+                duration: filters.duration,
+              });
+            }}
+          >
+            Сбросить фильтры
+          </Button>
+        }
+      />
     );
   }
 

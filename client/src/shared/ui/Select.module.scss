@@ -8,14 +8,24 @@
 .select {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   justify-content: space-between;
   width: 100%;
-  min-height: 2.75rem;
+  min-height: 2.4375rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 0.5rem 0.75rem;
   color: var(--color-text);
   background: white;
+}
+.leadingIcon {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  color: #475569;
+}
+.withIcon {
+  justify-content: flex-start;
 }
 .chevron {
   flex: 0 0 auto;
@@ -25,7 +35,9 @@
 }
 .content {
   z-index: calc(var(--z-dialog) + 2);
+  width: max-content;
   min-width: var(--radix-select-trigger-width);
+  max-width: calc(100vw - 2rem);
   max-height: min(19rem, var(--radix-select-content-available-height));
   overflow: hidden;
   border: 1px solid var(--color-border);
@@ -46,6 +58,7 @@
   padding: var(--space-2) var(--space-3);
   cursor: pointer;
   outline: 0;
+  white-space: nowrap;
 }
 .item[data-highlighted] {
   background: var(--color-select-highlight);

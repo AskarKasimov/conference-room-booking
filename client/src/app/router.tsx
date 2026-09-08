@@ -13,8 +13,8 @@ export function AppRoutes() {
         <Route path="/rooms" element={<RoomsPage />} />
         <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
-      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

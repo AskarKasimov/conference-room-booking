@@ -124,7 +124,7 @@ it('uses the selected schedule date to initialize a booking after the workday', 
     await screen.findByRole('heading', { name: 'Эверест' });
     await userEvent.setup().click(screen.getByRole('button', { name: 'Забронировать комнату' }));
 
-    expect(screen.getByText(/Бронирование на 2026-10-21, 09:00/)).toBeInTheDocument();
+    expect(screen.getByText(/Бронирование на Среда, 21 Октября, 09:00/)).toBeInTheDocument();
   } finally {
     getNextSlot.mockRestore();
   }

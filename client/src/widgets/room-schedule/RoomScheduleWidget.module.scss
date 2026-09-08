@@ -1,7 +1,7 @@
 .scheduleWrap {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 1.9rem;
+  padding: 1.75rem;
   background: white;
 }
 .scheduleHeader {
@@ -29,6 +29,65 @@
   display: flex;
   justify-content: end;
   margin-top: 1.5rem;
+}
+.scheduleError {
+  box-sizing: border-box;
+  min-height: 28.6875rem !important;
+  gap: 1.5rem !important;
+  padding: 0 !important;
+  background: #fff !important;
+}
+.scheduleError h2 {
+  color: #0f172a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.875rem;
+}
+.scheduleError p {
+  max-width: 26.25rem;
+  color: #475569;
+  font-size: 0.9375rem;
+  line-height: 1.4375rem;
+}
+.scheduleError button {
+  min-height: 2.6875rem;
+  width: 11.625rem;
+  border: 0;
+  padding: 0.625rem 1.25rem;
+  color: #fff;
+  background: #0d9488;
+  font-size: 0.875rem;
+}
+.scheduleErrorCard {
+  min-height: 28.6875rem;
+  padding: 0;
+}
+.scheduleSkeleton {
+  display: grid;
+  gap: 2rem;
+  min-height: 36rem;
+  padding-top: 1.5rem;
+}
+.scheduleSkeletonHeader,
+.scheduleSkeletonRows {
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 37%, #f1f5f9 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+.scheduleSkeletonHeader {
+  height: 3.5rem;
+}
+.scheduleSkeletonRows {
+  height: 30rem;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
 }
 @media (max-width: 560px) {
   .scheduleHeader {

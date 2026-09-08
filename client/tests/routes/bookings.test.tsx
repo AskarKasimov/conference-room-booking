@@ -98,12 +98,12 @@ it.each([
   ).toBeTruthy();
 });
 
-it('updates the past tab and sends the office filter', async () => {
+it('updates the past tab, selects an office, and clears it with All offices', async () => {
   const user = userEvent.setup();
-  let requestedUrl = '';
+  const requestedUrls: string[] = [];
   server.use(
     http.get('*/api/v1/bookings', ({ request }) => {
-      requestedUrl = request.url;
+      requestedUrls.push(request.url);
       return HttpResponse.json({ items: [] });
     }),
   );
@@ -113,9 +113,20 @@ it('updates the past tab and sends the office filter', async () => {
   await user.click(screen.getByRole('combobox', { name: 'Офис' }));
   await user.click(await screen.findByRole('option', { name: officeFixture.name }));
 
-  expect(new URL(requestedUrl).searchParams.get('scope')).toBe('past');
-  expect(new URL(requestedUrl).searchParams.get('officeId')).toBe(officeFixture.id);
-  expect(new URL(requestedUrl).searchParams.get('scope')).toBe('past');
+  await waitFor(() => {
+    const latestUrl = new URL(requestedUrls.at(-1)!);
+    expect(latestUrl.searchParams.get('scope')).toBe('past');
+    expect(latestUrl.searchParams.get('officeId')).toBe(officeFixture.id);
+  });
+
+  await user.click(screen.getByRole('combobox', { name: 'Офис' }));
+  await user.click(await screen.findByRole('option', { name: 'Все офисы' }));
+
+  await waitFor(() => {
+    const latestUrl = new URL(requestedUrls.at(-1)!);
+    expect(latestUrl.searchParams.get('scope')).toBe('past');
+    expect(latestUrl.searchParams.has('officeId')).toBe(false);
+  });
 });
 
 it('moves the active underline with the booking tab', async () => {
@@ -184,7 +195,7 @@ it('moves the active underline with the booking tab', async () => {
   });
 });
 
-it('keeps the booking tabs mounted while the other scope loads for the first time', async () => {
+it('shows the bookings loading state while the other scope loads for the first time', async () => {
   const user = userEvent.setup();
   let markPastRequestStarted!: () => void;
   const pastRequestStarted = new Promise<void>((resolve) => {
@@ -201,14 +212,12 @@ it('keeps the booking tabs mounted while the other scope loads for the first tim
   );
   renderBookings();
 
-  const navigation = await screen.findByRole('navigation', { name: 'Фильтр бронирований' });
-  const indicator = navigation.querySelector('[aria-hidden="true"]');
+  await screen.findByRole('navigation', { name: 'Фильтр бронирований' });
 
   await user.click(screen.getByRole('link', { name: 'Прошедшие' }));
   await pastRequestStarted;
 
-  expect(screen.getByRole('navigation', { name: 'Фильтр бронирований' })).toBe(navigation);
-  expect(navigation.querySelector('[aria-hidden="true"]')).toBe(indicator);
+  expect(screen.getByRole('status', { name: 'Загрузка бронирований…' })).toBeInTheDocument();
 });
 
 it('shows the filtered booking count only in the active tab', async () => {
@@ -266,10 +275,17 @@ it('retries a failed bookings request and renders an empty state', async () => {
   );
   renderBookings();
 
-  expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось загрузить бронирования');
-  await userEvent.setup().click(screen.getByRole('button', { name: 'Повторить' }));
-  expect(
-    await screen.findByRole('heading', { name: 'Нет предстоящих бронирований' }),
-  ).toBeInTheDocument();
+  expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось загрузить данные');
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Попробовать снова' }));
+  expect(await screen.findByRole('heading', { name: 'Нет бронирований' })).toBeInTheDocument();
+  const emptyDescription = screen.getByText(/У вас пока нет предстоящих бронирований/);
+  expect(emptyDescription).toHaveTextContent(
+    'У вас пока нет предстоящих бронирований.Перейдите в раздел переговорных, чтобы забронировать комнату.',
+  );
+  expect(emptyDescription.querySelector('br')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Перейти к переговорным' })).toHaveAttribute(
+    'href',
+    '/rooms',
+  );
   expect(requests).toBe(2);
 });

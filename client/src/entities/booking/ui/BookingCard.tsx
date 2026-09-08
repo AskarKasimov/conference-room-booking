@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { DateTime } from 'luxon';
 import OfficeIcon from '../../../shared/assets/icons/office.svg?react';
-import { formatLocalTime } from '../../../shared/lib';
+import { formatLocalTime, formatMoscowOffset } from '../../../shared/lib';
 import type { BookingView } from '../model/types';
 import styles from './BookingCard.module.scss';
 
@@ -28,8 +28,9 @@ export function BookingCard({ booking, action }: { booking: BookingView; action?
             •
           </span>
           <span className={styles.metadataItem}>
-            {formatLocalTime(booking.startsAt, booking.office.timezone)}–
-            {formatLocalTime(booking.endsAt, booking.office.timezone)} ({booking.office.timezone})
+            {formatLocalTime(booking.startsAt, booking.office.timezone)} -{' '}
+            {formatLocalTime(booking.endsAt, booking.office.timezone)}{' '}
+            {formatMoscowOffset(booking.office.timezone, booking.startsAt)}
           </span>
         </p>
       </div>

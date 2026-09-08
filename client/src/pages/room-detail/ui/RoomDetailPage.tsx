@@ -3,7 +3,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { ErrorState } from '../../../shared/ui';
 import { Breadcrumbs, type BreadcrumbItem } from '../../../shared/ui';
-import { PageSkeleton } from '../../../shared/ui';
 import { RoomSummaryCard } from '../../../widgets/room-summary-card';
 import { RoomScheduleWidget } from '../../../widgets/room-schedule';
 import { useRoomDetailQuery } from '../../../entities/room';
@@ -22,7 +21,16 @@ export function RoomDetailPage() {
   ];
 
   if (roomQuery.isLoading) {
-    content = <PageSkeleton label="Загрузка комнаты…" />;
+    content = (
+      <div className={styles.loadingLayout} role="status" aria-label="Загрузка комнаты…">
+        <div className={styles.infoSkeleton} />
+        <div className={styles.scheduleSkeleton}>
+          <div />
+          <div />
+          <div />
+        </div>
+      </div>
+    );
   } else if (roomQuery.isError || !roomQuery.data) {
     content = (
       <ErrorState

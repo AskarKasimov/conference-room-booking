@@ -1,4 +1,5 @@
 import * as Primitive from '@radix-ui/react-select';
+import type { ComponentType, SVGProps } from 'react';
 import ChevronDownIcon from '../assets/icons/chevron-down.svg?react';
 import styles from './Select.module.scss';
 
@@ -15,6 +16,7 @@ export function Select({
   id,
   ariaInvalid,
   ariaDescribedBy,
+  leadingIcon: LeadingIcon,
 }: {
   label: string;
   value: string;
@@ -26,6 +28,7 @@ export function Select({
   id?: string | undefined;
   ariaInvalid?: boolean | undefined;
   ariaDescribedBy?: string | undefined;
+  leadingIcon?: ComponentType<SVGProps<SVGSVGElement>> | undefined;
 }) {
   const radixValue = value || (options.some((option) => option.value === '') ? emptyValue : '');
   return (
@@ -37,11 +40,12 @@ export function Select({
       >
         <Primitive.Trigger
           id={id}
-          className={styles.select}
+          className={`${styles.select} ${LeadingIcon ? styles.withIcon : ''}`}
           aria-label={label}
           aria-invalid={ariaInvalid}
           aria-describedby={ariaDescribedBy}
         >
+          {LeadingIcon ? <LeadingIcon className={styles.leadingIcon} aria-hidden="true" /> : null}
           <Primitive.Value placeholder={placeholder} />
           <ChevronDownIcon className={styles.chevron} aria-hidden="true" />
         </Primitive.Trigger>

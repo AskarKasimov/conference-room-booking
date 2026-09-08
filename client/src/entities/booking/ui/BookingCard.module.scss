@@ -1,11 +1,13 @@
 .row {
+  box-sizing: border-box;
+  min-height: 8rem;
   display: grid;
-  grid-template-columns: 5.125rem 1fr auto;
+  grid-template-columns: 5rem 1fr auto;
   align-items: center;
   gap: var(--space-6);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: var(--space-6);
+  padding: 1.4375rem;
   background: white;
 }
 .row h2,
@@ -64,6 +66,10 @@
   font-weight: 800;
 }
 .action :global(button) {
+  width: 6.3125rem;
+  min-height: 2.4375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
   color: var(--color-danger);
   background: white;
   border-color: var(--color-danger);

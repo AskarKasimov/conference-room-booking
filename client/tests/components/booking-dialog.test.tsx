@@ -84,8 +84,8 @@ it('keeps the duration within the workday after moving the start to 19:45', asyn
 
   expect(screen.getByRole('combobox', { name: 'Продолжительность' })).toHaveTextContent('15 мин');
   await user.click(screen.getByRole('combobox', { name: 'Продолжительность' }));
-  expect(screen.getByRole('option', { name: '15 мин' })).toBeInTheDocument();
-  await user.click(screen.getByRole('option', { name: '15 мин' }));
+  expect(screen.getByRole('option', { name: '15 мин (до 20:00)' })).toBeInTheDocument();
+  await user.click(screen.getByRole('option', { name: '15 мин (до 20:00)' }));
 
   await user.type(screen.getByLabelText('Тема встречи *'), 'Последний слот');
   await user.click(screen.getByRole('button', { name: 'Забронировать' }));
@@ -106,7 +106,7 @@ it('uses the shared calendar control for the booking date', async () => {
 
   expect(screen.getByRole('button', { name: '21 Октября, Ср' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: '21 Октября, Ср' }));
-  expect(screen.getByText(/Бронирование на 2026-10-21/)).toBeInTheDocument();
+  expect(screen.getByText(/Бронирование на Среда, 21 Октября/)).toBeInTheDocument();
 });
 
 it('shows and clears the comment validation error without sending an invalid request', async () => {
@@ -187,7 +187,7 @@ it('resets to the latest schedule selection when a new form opens', async () => 
     </AppProviders>,
   );
 
-  expect(await screen.findByText(/Бронирование на 2026-10-21, 13:30/)).toBeInTheDocument();
+  expect(await screen.findByText(/Бронирование на Среда, 21 Октября, 13:30/)).toBeInTheDocument();
   expect(screen.getByLabelText('Тема встречи *')).toHaveValue('');
 });
 
