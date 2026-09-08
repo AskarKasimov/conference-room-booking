@@ -25,6 +25,7 @@ import ClockIcon from '../../../shared/assets/icons/clock.svg?react';
 import { scheduleQueryKeys } from '../../../entities/booking';
 import { roomQueryKeys } from '../../../entities/room';
 import { useClock } from '../../../shared/lib';
+import AlertTriangleIcon from '../../../shared/assets/icons/alert-triangle.svg?react';
 import styles from './Booking.module.scss';
 
 export interface BookingSelection {
@@ -203,13 +204,14 @@ export function BookingDialog({
           open={open}
           title="Время уже занято"
           size="compact"
+          layout="centered"
           onOpenChange={onOpenChange}
           {...(onCloseComplete ? { onCloseComplete } : {})}
           showClose={false}
         >
           <div className={styles.conflict}>
             <span className={styles.conflictIcon} aria-hidden="true">
-              !
+              <AlertTriangleIcon />
             </span>
             <p>
               Выбранный интервал был забронирован другим сотрудником.{' '}

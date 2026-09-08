@@ -13,6 +13,7 @@ interface DialogProps extends PropsWithChildren {
   showClose?: boolean;
   onCloseComplete?: () => void;
   size?: 'default' | 'wide' | 'compact';
+  layout?: 'default' | 'centered';
 }
 
 export function Dialog({
@@ -24,6 +25,7 @@ export function Dialog({
   showClose = true,
   onCloseComplete,
   size = 'default',
+  layout = 'default',
   children,
 }: DialogProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -32,7 +34,7 @@ export function Dialog({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className={styles.overlay} onClick={() => onOpenChange(false)} />
         <DialogPrimitive.Content
-          className={`${styles.dialog} ${styles[size]}`}
+          className={`${styles.dialog} ${styles[size]} ${layout === 'centered' ? styles.centered : ''}`}
           aria-describedby={description ? 'dialog-description' : undefined}
           onOpenAutoFocus={(event) => {
             event.preventDefault();

@@ -40,6 +40,25 @@
 .compact .content {
   padding: var(--space-8);
 }
+.centered {
+  width: min(calc(100% - 1rem), 21rem);
+  border-radius: 0.75rem;
+}
+.centered .content {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+.centered .header {
+  display: contents;
+}
+.centered .header h2 {
+  order: 2;
+  text-align: center;
+  font-size: 1.375rem;
+  line-height: 1.5rem;
+}
 .compact .header :global(h2) {
   font-size: 1.375rem;
   line-height: 1.6875rem;
