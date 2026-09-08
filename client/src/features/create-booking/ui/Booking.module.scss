@@ -159,8 +159,6 @@
 }
 .successDismiss:focus-visible {
   border-radius: 0.25rem;
-  outline: none;
-  box-shadow: var(--focus-ring);
 }
 @media (max-width: 560px) {
   .intervalFields {
