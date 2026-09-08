@@ -1,0 +1,23 @@
+.dialog {
+  width: min(100% - 2rem, 34rem);
+  border: 0;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+}
+.dialog::backdrop {
+  background: rgb(23 48 66 / 0.45);
+}
+.content {
+  padding: var(--space-6);
+}
+.header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.header h2 {
+  margin: 0;
+}

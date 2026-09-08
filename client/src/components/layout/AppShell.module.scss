@@ -1,0 +1,8 @@
+.shell {
+  min-height: 100vh;
+}
+.main {
+  width: min(100% - 2rem, var(--content-width));
+  margin: 0 auto;
+  padding: var(--space-8) 0 var(--space-10);
+}
