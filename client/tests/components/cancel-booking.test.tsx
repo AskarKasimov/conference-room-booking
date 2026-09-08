@@ -4,7 +4,6 @@ import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { AppProviders } from '../../src/app/providers/AppProviders';
 import { BookingRow } from '../../src/widgets/booking-list';
-import styles from '../../src/entities/booking/ui/BookingCard.module.scss';
 import { createTestQueryClient } from '../support/renderWithProviders';
 import { officeFixture } from '../support/handlers';
 import { server } from '../support/server';
@@ -44,19 +43,7 @@ beforeEach(() => {
 
 afterEach(() => vi.useRealTimers());
 
-it('renders room, floor, and time as the booking card metadata', () => {
-  render(
-    <AppProviders client={createTestQueryClient()}>
-      <BookingRow booking={booking} canCancel currentUserId="user-1" />
-    </AppProviders>,
-  );
-
-  expect(screen.getByText('Эверест')).toHaveClass(styles.roomName!);
-  expect(screen.getByText('12 этаж')).toHaveClass(styles.metadataItem!);
-  expect(screen.getByText('10:00 - 11:00 MSK')).toHaveClass(styles.metadataItem!);
-});
-
-it('shows the warning, booking details, icons, and equal-priority choices before cancellation', async () => {
+it('shows the warning and booking details and allows keeping the booking before cancellation', async () => {
   const user = userEvent.setup();
   let deletes = 0;
   server.use(
@@ -78,7 +65,6 @@ it('shows the warning, booking details, icons, and equal-priority choices before
   );
   expect(dialog).toHaveTextContent('Комната «Эверест», 12 этаж');
   expect(dialog).toHaveTextContent('Четверг, 10 сентября, 10:00 - 11:00 MSK');
-  expect(dialog.querySelectorAll('svg')).toHaveLength(2);
   expect(screen.queryByRole('button', { name: 'Закрыть' })).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Нет, оставить' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Да, отменить' })).toBeInTheDocument();

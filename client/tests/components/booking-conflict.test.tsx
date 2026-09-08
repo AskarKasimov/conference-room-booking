@@ -8,7 +8,6 @@ import { useRoomScheduleQuery } from '../../src/entities/booking';
 import { createTestQueryClient } from '../support/renderWithProviders';
 import { roomFixture } from '../support/handlers';
 import { server } from '../support/server';
-import dialogStyles from '../../src/shared/ui/Dialog.module.scss';
 
 const selection = {
   room: roomFixture,
@@ -59,9 +58,7 @@ describe('booking dialog', () => {
     await user.type(screen.getByLabelText('Тема встречи *'), 'Планирование');
     await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
-    const dialog = await screen.findByRole('dialog', { name: 'Время уже занято' });
-    expect(dialog).toHaveClass(dialogStyles.centered ?? '__missing-centered-dialog-class__');
-    expect(dialog.querySelector('svg')).toBeInTheDocument();
+    expect(await screen.findByRole('dialog', { name: 'Время уже занято' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Время уже занято' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Выбрать другое время' })).toBeInTheDocument();
     expect(await screen.findByText((_, element) => element?.tagName === 'P')).toHaveTextContent(

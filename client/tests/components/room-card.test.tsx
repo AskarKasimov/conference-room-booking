@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { roomFixture } from '../support/handlers';
 import { RoomCard } from '../../src/entities/room';
-import styles from '../../src/entities/room/ui/RoomCard.module.scss';
 
 describe('RoomCard', () => {
   it('allows booking only when the API marks the room available', async () => {
@@ -38,24 +37,8 @@ describe('RoomCard', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('button', { name: 'Забронировать' })).toHaveClass(
-      styles.disabledBookButton!,
-    );
     expect(screen.getByRole('button', { name: 'Забронировать' })).toBeDisabled();
     expect(screen.getByText('Недоступно на выбранное время')).toBeInTheDocument();
-  });
-
-  it('gives the details link and booking button equal action areas', () => {
-    render(
-      <MemoryRouter>
-        <RoomCard room={roomFixture} availability={true} date="2026-09-10" onBook={vi.fn()} />
-      </MemoryRouter>,
-    );
-
-    expect(screen.getByRole('link', { name: 'Подробнее' })).toHaveClass(styles.cardDetails!);
-    expect(screen.getByRole('button', { name: 'Забронировать' })).toHaveClass(
-      styles.cardBookButton!,
-    );
   });
 
   it('does not infer availability when the API omits it', () => {

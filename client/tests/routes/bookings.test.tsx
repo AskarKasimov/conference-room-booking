@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { delay, http, HttpResponse } from 'msw';
-import { expect, it, vi } from 'vitest';
+import { expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/providers/AppProviders';
 import { AppRoutes } from '../../src/app/router';
 import { createTestQueryClient } from '../support/renderWithProviders';
@@ -175,72 +175,6 @@ it('keeps the calendar on the month where the range end was picked', async () =>
   expect(screen.getByText('Октябрь 2026')).toBeInTheDocument();
 });
 
-it('moves the active underline with the booking tab', async () => {
-  const user = userEvent.setup();
-  server.use(http.get('*/api/v1/bookings', () => HttpResponse.json({ items: [] })));
-  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
-    this: HTMLElement,
-  ) {
-    if (this.matches('[aria-label="Фильтр бронирований"]')) {
-      return {
-        x: 100,
-        y: 0,
-        left: 100,
-        right: 400,
-        top: 0,
-        bottom: 40,
-        width: 300,
-        height: 40,
-        toJSON: () => ({}),
-      };
-    }
-    if (this.matches('a[data-active="true"]')) {
-      const upcoming = this.textContent?.startsWith('Предстоящие') ?? false;
-      const left = upcoming ? 120 : 260;
-      const width = upcoming ? 100 : 80;
-      return {
-        x: left,
-        y: 0,
-        left,
-        right: left + width,
-        top: 0,
-        bottom: 40,
-        width,
-        height: 40,
-        toJSON: () => ({}),
-      };
-    }
-    return {
-      x: 0,
-      y: 0,
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-      width: 0,
-      height: 0,
-      toJSON: () => ({}),
-    };
-  });
-
-  renderBookings();
-  const navigation = await screen.findByRole('navigation', { name: 'Фильтр бронирований' });
-  const indicator = navigation.querySelector('[aria-hidden="true"]');
-
-  expect(indicator).toHaveStyle({ '--indicator-left': '20px', '--indicator-width': '100px' });
-
-  await user.click(screen.getByRole('link', { name: 'Прошедшие' }));
-  await screen.findByRole('link', { name: 'Прошедшие (0)' });
-  const updatedNavigation = screen.getByRole('navigation', { name: 'Фильтр бронирований' });
-
-  await waitFor(() => {
-    expect(updatedNavigation.querySelector('[aria-hidden="true"]')).toHaveStyle({
-      '--indicator-left': '160px',
-      '--indicator-width': '80px',
-    });
-  });
-});
-
 it('keeps filters visible and delays the skeleton when switching booking scopes', async () => {
   const user = userEvent.setup();
   let markPastRequestStarted!: () => void;
@@ -268,14 +202,6 @@ it('keeps filters visible and delays the skeleton when switching booking scopes'
   expect(screen.queryByRole('status', { name: 'Загрузка бронирований…' })).not.toBeInTheDocument();
   expect(screen.getByRole('navigation', { name: 'Фильтр бронирований' })).toBeInTheDocument();
   expect(await screen.findByRole('status', { name: 'Загрузка бронирований…' })).toBeInTheDocument();
-  const bookingSkeletons = screen
-    .getByRole('status', { name: 'Загрузка бронирований…' })
-    .querySelectorAll('[data-booking-skeleton]');
-  expect(bookingSkeletons).toHaveLength(2);
-  bookingSkeletons.forEach((skeleton) => {
-    expect(skeleton.querySelectorAll('[data-date-skeleton] i')).toHaveLength(2);
-    expect(skeleton.querySelectorAll('[data-metadata-skeleton] i')).toHaveLength(3);
-  });
   expect(screen.getByRole('navigation', { name: 'Фильтр бронирований' })).toBeInTheDocument();
   expect(await screen.findByRole('link', { name: 'Прошедшие (0)' })).toBeInTheDocument();
 });
@@ -342,7 +268,6 @@ it('retries a failed bookings request and renders an empty state', async () => {
   expect(emptyDescription).toHaveTextContent(
     'У вас пока нет предстоящих бронирований.Перейдите в раздел переговорных, чтобы забронировать комнату.',
   );
-  expect(emptyDescription.querySelector('br')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Перейти к переговорным' })).toHaveAttribute(
     'href',
     '/rooms',

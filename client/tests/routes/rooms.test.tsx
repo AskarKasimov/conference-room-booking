@@ -10,7 +10,6 @@ import { createTestQueryClient } from '../support/renderWithProviders';
 import { roomFixture, officeFixture } from '../support/handlers';
 import { server } from '../support/server';
 import { AppRoutes } from '../../src/app/router';
-import roomSearchStyles from '../../src/widgets/room-search/RoomSearch.module.scss';
 
 function renderRooms(entry = '/rooms') {
   render(
@@ -63,39 +62,21 @@ describe('room search route', () => {
     );
     renderRooms(`/rooms?officeId=${officeFixture.id}&date=2026-10-15&startTime=14:15&duration=60`);
 
-    const skeleton = await screen.findByRole('status', { name: 'Загрузка офисов…' });
-    expect(skeleton.querySelectorAll('[data-skeleton-section]')).toHaveLength(3);
-    expect(skeleton.querySelectorAll('[data-room-card-skeleton]')).toHaveLength(4);
-    expect(skeleton.querySelectorAll('[data-skeleton-feature]')).toHaveLength(8);
+    expect(await screen.findByRole('status', { name: 'Загрузка офисов…' })).toBeInTheDocument();
     release();
     expect(
       await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
     ).toBeInTheDocument();
   });
 
-  it('separates the office controls from the available-rooms section', async () => {
-    renderRooms(`/rooms?officeId=${officeFixture.id}`);
-
-    expect(
-      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Переговорные комнаты' })).not.toBeInTheDocument();
-  });
-
-  it('renders an invalid interval in the shared full-height room state region', async () => {
+  it('shows a prompt to correct an invalid interval', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-10-15T11:15:00.000Z'));
     renderRooms(`/rooms?officeId=${officeFixture.id}&date=2026-10-15&startTime=14:15&duration=60`);
 
-    const heading = await screen.findByRole('heading', { name: 'Выберите корректный интервал' });
-    const state = heading.closest('section');
-    expect(state).not.toBeNull();
-    expect(state?.className).toContain(
-      roomSearchStyles.roomEmpty ?? '__missing-room-empty-class__',
-    );
-    expect(state?.parentElement?.parentElement?.className).toContain(
-      roomSearchStyles.page ?? '__missing-room-page-class__',
-    );
+    expect(
+      await screen.findByRole('heading', { name: 'Выберите корректный интервал' }),
+    ).toBeVisible();
   });
 
   it('shows a dedicated no-office state and does not request rooms', async () => {

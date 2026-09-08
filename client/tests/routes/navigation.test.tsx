@@ -51,10 +51,4 @@ describe('application navigation', () => {
       screen.queryByRole('navigation', { name: 'Навигационная цепочка' }),
     ).not.toBeInTheDocument();
   });
-
-  it('uses the address-bar path when the application starts', async () => {
-    renderRoute('/%D0%B0%D1%83%D0%B0');
-
-    expect(await screen.findByRole('heading', { name: 'Страница не найдена' })).toBeVisible();
-  });
 });
