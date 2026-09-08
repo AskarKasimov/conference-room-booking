@@ -5,10 +5,12 @@ export function OfficeSelector({
   offices,
   value,
   onChange,
+  className,
 }: {
   offices: Office[];
   value?: string;
   onChange: (officeId: string) => void;
+  className?: string;
 }) {
   return (
     <Select
@@ -17,6 +19,7 @@ export function OfficeSelector({
       placeholder="Выберите офис"
       onValueChange={onChange}
       options={offices.map((office) => ({ value: office.id, label: office.name }))}
+      className={className}
     />
   );
 }

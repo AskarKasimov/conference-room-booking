@@ -6,13 +6,17 @@ import { BookingsFilters } from '../features/my-bookings/BookingsFilters';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageSkeleton } from '../components/ui/PageSkeleton';
+import { Button } from '../components/ui/Button';
 import { useBookingsQuery } from '../hooks/useBookingsQuery';
 import { useOfficesQuery } from '../hooks/useOfficesQuery';
 import styles from '../features/my-bookings/MyBookings.module.scss';
 
 export const Route = createFileRoute('/bookings')({
   validateSearch: (search: Record<string, unknown>) => ({
-    scope: search.scope === 'past' ? ('past' as const) : ('upcoming' as const),
+    scope:
+      search.scope === 'past' || search.scope === 'all'
+        ? (search.scope as 'past' | 'all')
+        : ('upcoming' as const),
     officeId: typeof search.officeId === 'string' ? search.officeId : undefined,
   }),
   component: BookingsPage,
@@ -44,15 +48,24 @@ function BookingsPage() {
 
   return (
     <div className={styles.page}>
-      <h1>Мои бронирования</h1>
-      <BookingTabs scope={search.scope} officeId={search.officeId} />
-      <div className={styles.toolbar}>
-        <BookingsFilters
-          offices={offices.data ?? []}
-          value={search.officeId}
-          onChange={(officeId) => void navigate({ search: { scope: search.scope, officeId } })}
-        />
+      <div className={styles.pageHeader}>
+        <h1>Мои бронирования</h1>
+        <div className={styles.toolbar}>
+          <BookingsFilters
+            offices={offices.data ?? []}
+            value={search.officeId}
+            onChange={(officeId) => void navigate({ search: { scope: search.scope, officeId } })}
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => void navigate({ search: { scope: 'all', officeId: search.officeId } })}
+          >
+            За все время
+          </Button>
+        </div>
       </div>
+      <BookingTabs scope={search.scope} officeId={search.officeId} />
       {items.length ? (
         <BookingList bookings={items} canCancel={search.scope === 'upcoming'} />
       ) : (
@@ -60,9 +73,11 @@ function BookingsPage() {
           title={
             search.scope === 'upcoming'
               ? 'Нет предстоящих бронирований'
-              : 'Нет прошедших бронирований'
+              : search.scope === 'past'
+                ? 'Нет прошедших бронирований'
+                : 'Нет бронирований'
           }
-          description="Здесь появятся ваши бронирования."
+          description="Здесь появятся ваши бронирования. Перейдите в раздел переговорных, чтобы забронировать комнату."
         />
       )}
     </div>

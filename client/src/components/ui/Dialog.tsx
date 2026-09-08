@@ -10,6 +10,7 @@ interface DialogProps extends PropsWithChildren {
   description?: string;
   onOpenChange: (open: boolean) => void;
   returnFocusRef?: RefObject<HTMLElement | null>;
+  showClose?: boolean;
 }
 
 export function Dialog({
@@ -18,6 +19,7 @@ export function Dialog({
   description,
   onOpenChange,
   returnFocusRef,
+  showClose = true,
   children,
 }: DialogProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -39,11 +41,13 @@ export function Dialog({
               <DialogPrimitive.Title ref={headingRef} tabIndex={-1}>
                 {title}
               </DialogPrimitive.Title>
-              <DialogPrimitive.Close asChild>
-                <Button type="button" variant="ghost" aria-label="Закрыть">
-                  ×
-                </Button>
-              </DialogPrimitive.Close>
+              {showClose ? (
+                <DialogPrimitive.Close asChild>
+                  <Button type="button" variant="ghost" aria-label="Закрыть">
+                    ×
+                  </Button>
+                </DialogPrimitive.Close>
+              ) : null}
             </div>
             {description ? (
               <DialogPrimitive.Description id="dialog-description">

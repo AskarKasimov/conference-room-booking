@@ -53,6 +53,7 @@ it('loads room details and a local workday schedule', async () => {
   );
 
   expect(await screen.findByRole('heading', { name: 'Эверест' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Расписание на день' })).toBeInTheDocument();
   expect(screen.getByText(/Экран/)).toBeInTheDocument();
   expect(await screen.findByText('Занято')).toBeInTheDocument();
   expect(new URL(scheduleUrl).searchParams.get('from')).toMatch(/T09:00:00/);

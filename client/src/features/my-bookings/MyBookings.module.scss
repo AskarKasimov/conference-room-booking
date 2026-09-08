@@ -1,14 +1,26 @@
 .page {
   display: grid;
-  gap: var(--space-6);
+  gap: 1.5rem;
 }
 .page h1 {
   margin: 0;
 }
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
 .toolbar {
-  display: grid;
-  gap: var(--space-4);
-  max-width: 24rem;
+  display: flex;
+  align-items: end;
+  gap: var(--space-3);
+}
+.toolbar > label {
+  min-width: 10.25rem;
+}
+.toolbar > button {
+  white-space: nowrap;
 }
 .tabs {
   display: flex;
@@ -26,16 +38,16 @@
 }
 .list {
   display: grid;
-  gap: var(--space-3);
+  gap: 1.25rem;
 }
 .row {
   display: grid;
-  grid-template-columns: 8rem 1fr auto;
+  grid-template-columns: 6.5rem 1fr auto;
   align-items: center;
   gap: var(--space-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: var(--space-5);
+  padding: 1.85rem;
   background: white;
 }
 .row h2,
@@ -48,7 +60,24 @@
 }
 .date {
   display: grid;
-  gap: var(--space-2);
+  justify-items: center;
+  gap: 0.15rem;
+  border-radius: 0.9rem;
+  padding: 0.9rem 0.5rem;
+  background: #f8fafc;
+  text-align: center;
+}
+.date strong {
+  font-size: 1.75rem;
+}
+.date span {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.row :global(button) {
+  color: var(--color-danger);
+  background: white;
+  border-color: var(--color-danger);
 }
 .actions {
   display: flex;
@@ -56,7 +85,28 @@
   gap: var(--space-3);
   margin-top: var(--space-5);
 }
+.confirmation {
+  margin: var(--space-5) 0 var(--space-4);
+  color: var(--color-muted);
+}
+.bookingDetails {
+  display: grid;
+  gap: 0.35rem;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  background: #f5f8f9;
+}
+.bookingDetails span {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
 @media (max-width: 640px) {
+  .pageHeader {
+    display: grid;
+  }
+  .toolbar {
+    flex-wrap: wrap;
+  }
   .row {
     grid-template-columns: 1fr;
     gap: var(--space-3);

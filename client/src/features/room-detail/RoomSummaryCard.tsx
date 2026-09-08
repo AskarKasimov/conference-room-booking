@@ -8,20 +8,18 @@ export function RoomSummaryCard({ room }: { room: Room & { office: Office } }) {
       <p>
         {room.office.name} · {room.office.address}
       </p>
-      <dl>
-        <div>
-          <dt>Вместимость</dt>
-          <dd>{room.capacity} человек</dd>
-        </div>
-        <div>
-          <dt>Этаж</dt>
-          <dd>{room.floor}</dd>
-        </div>
-      </dl>
-      <div>
-        <strong>Оснащение</strong>
-        <p>{room.features.map((feature) => feature.name).join(' · ') || 'Не указано'}</p>
-      </div>
+      <hr />
+      <ul className={styles.featureList}>
+        <li>
+          <span aria-hidden="true">♧</span> Вместимость: до {room.capacity} человек
+        </li>
+        {room.features.map((feature) => (
+          <li key={feature.code}>
+            <span aria-hidden="true">◈</span>
+            {feature.name}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

@@ -64,30 +64,53 @@ function RoomDetailContent({
     date === today ? getNextSlot(room.office.timezone) : { date, startTime: '09:00' };
   return (
     <div className={styles.page}>
-      <RoomSummaryCard room={room} />
-      <div className={styles.scheduleWrap}>
-        <div>
-          <ScheduleDateControl
-            value={date}
-            min={today}
-            max={maxDate}
-            onChange={(nextDate) => void navigate({ search: { date: nextDate } })}
-          />
-          <Button type="button" onClick={() => setBookingOpen(true)}>
-            Забронировать комнату
-          </Button>
+      <nav className={styles.breadcrumbs} aria-label="Навигационная цепочка">
+        <span>Переговорные</span>
+        <span aria-hidden="true">›</span>
+        <span>{room.office.name}</span>
+        <span aria-hidden="true">›</span>
+        <strong>Комната '{room.name}'</strong>
+      </nav>
+      <div className={styles.layout}>
+        <RoomSummaryCard room={room} />
+        <div className={styles.scheduleWrap}>
+          <div className={styles.scheduleHeader}>
+            <div>
+              <h2>Расписание на день</h2>
+              <p>
+                {DateTime.fromISO(date, { zone: room.office.timezone })
+                  .setLocale('ru')
+                  .toFormat('cccc, d LLLL')}
+              </p>
+            </div>
+            <ScheduleDateControl
+              value={date}
+              min={today}
+              max={maxDate}
+              onChange={(nextDate) => void navigate({ search: { date: nextDate } })}
+            />
+          </div>
+          {schedule.isLoading ? (
+            <PageSkeleton label="Загрузка расписания…" />
+          ) : schedule.isError ? (
+            <ErrorState
+              title="Не удалось загрузить расписание"
+              description="Попробуйте обновить расписание."
+              onRetry={() => void schedule.refetch()}
+            />
+          ) : (
+            <DaySchedule
+              bookings={schedule.data ?? []}
+              timezone={room.office.timezone}
+              date={date}
+            />
+          )}
+          <div className={styles.scheduleActions}>
+            <Button type="button" onClick={() => setBookingOpen(true)}>
+              Забронировать комнату
+            </Button>
+          </div>
         </div>
-        {schedule.isLoading ? (
-          <PageSkeleton label="Загрузка расписания…" />
-        ) : schedule.isError ? (
-          <ErrorState
-            title="Не удалось загрузить расписание"
-            description="Попробуйте обновить расписание."
-            onRetry={() => void schedule.refetch()}
-          />
-        ) : (
-          <DaySchedule bookings={schedule.data ?? []} timezone={room.office.timezone} date={date} />
-        )}
       </div>
       <BookingDialog
         selection={{

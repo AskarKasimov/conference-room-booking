@@ -15,7 +15,9 @@ describe('application navigation', () => {
     );
 
     await waitFor(() => expect(router.state.location.pathname).toBe('/rooms'));
-    expect(await screen.findByRole('heading', { name: 'Переговорные комнаты' })).toBeVisible();
+    expect(
+      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
+    ).toBeVisible();
   });
 
   it('shows the not-found page for an unknown URL', async () => {
@@ -26,7 +28,7 @@ describe('application navigation', () => {
       </AppProviders>,
     );
 
-    expect(await screen.findByRole('heading', { name: 'Ничего не найдено' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Страница не найдена' })).toBeVisible();
   });
 
   it('uses the address-bar path when the application starts', async () => {
@@ -39,6 +41,6 @@ describe('application navigation', () => {
       </AppProviders>,
     );
 
-    expect(await screen.findByRole('heading', { name: 'Ничего не найдено' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Страница не найдена' })).toBeVisible();
   });
 });

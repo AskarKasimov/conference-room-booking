@@ -37,7 +37,11 @@ it('submits ISO timestamps and closes after a successful response', async () => 
     </AppProviders>,
   );
 
-  await user.type(screen.getByLabelText('Название встречи'), 'Планирование');
+  expect(screen.getByRole('heading', { name: 'Новое бронирование' })).toBeInTheDocument();
+  expect(screen.getByText('Эверест')).toBeInTheDocument();
+  expect(screen.getByText(/Бронирование на/)).toBeInTheDocument();
+
+  await user.type(screen.getByLabelText('Тема встречи *'), 'Планирование');
   await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
   expect(await screen.findByRole('status')).toHaveTextContent('Бронирование создано');
@@ -67,7 +71,7 @@ it('keeps the duration within the workday after moving the start to 19:45', asyn
   expect(screen.getByLabelText('Продолжительность')).toHaveValue('15');
   expect(screen.getByRole('option', { name: '15 мин' })).toBeInTheDocument();
 
-  await user.type(screen.getByLabelText('Название встречи'), 'Последний слот');
+  await user.type(screen.getByLabelText('Тема встречи *'), 'Последний слот');
   await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
   expect(await screen.findByRole('status')).toBeInTheDocument();

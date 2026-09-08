@@ -24,7 +24,7 @@ function renderBookingDialog() {
 }
 
 describe('booking dialog', () => {
-  it('retains fields and displays a conflict returned by the server', async () => {
+  it('switches to a conflict dialog returned by the server', async () => {
     const user = userEvent.setup();
     server.use(
       http.post('*/api/v1/bookings', () =>
@@ -36,11 +36,11 @@ describe('booking dialog', () => {
     );
     renderBookingDialog();
 
-    await user.type(screen.getByLabelText('Название встречи'), 'Планирование');
+    await user.type(screen.getByLabelText('Тема встречи *'), 'Планирование');
     await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('уже забронирована');
-    expect(screen.getByLabelText('Название встречи')).toHaveValue('Планирование');
+    expect(await screen.findByRole('heading', { name: 'Время уже занято' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Выбрать другое время' })).toBeInTheDocument();
   });
 
   it('shows client validation without sending the request', async () => {

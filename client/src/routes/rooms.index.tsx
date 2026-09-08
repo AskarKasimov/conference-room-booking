@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageSkeleton } from '../components/ui/PageSkeleton';
@@ -25,6 +25,16 @@ function RoomsPage() {
   const search = useSearch({ from: '/rooms' });
   const navigate = useNavigate({ from: '/rooms' });
   const offices = useOfficesQuery();
+  const officeList = offices.data ?? [];
+  const selectedOffice = officeList.find((item) => item.id === search.officeId);
+  const office = selectedOffice ?? officeList[0];
+  useEffect(() => {
+    if (!office || selectedOffice) return;
+    void navigate({
+      replace: true,
+      search: { officeId: office.id, ...getDefaultRoomFilters(office), minCapacity: undefined },
+    });
+  }, [navigate, office, selectedOffice]);
   if (offices.isLoading) return <PageSkeleton label="Загрузка офисов…" />;
   if (offices.isError)
     return (
@@ -34,34 +44,20 @@ function RoomsPage() {
         onRetry={() => void offices.refetch()}
       />
     );
-  if (!offices.data?.length)
+  if (!office)
     return (
       <EmptyState
         title="Нет доступных офисов"
         description="Когда офисы появятся, здесь можно будет выбрать переговорную."
       />
     );
-  const office = offices.data.find((item) => item.id === search.officeId);
   const selectOffice = (officeId: string) => {
-    const selected = offices.data.find((item) => item.id === officeId);
+    const selected = officeList.find((item) => item.id === officeId);
     if (!selected) return;
     void navigate({
       search: { officeId, ...getDefaultRoomFilters(selected), minCapacity: undefined },
     });
   };
-  if (!office)
-    return (
-      <div className={styles.page}>
-        <h1>Переговорные комнаты</h1>
-        <div className={styles.toolbar}>
-          <OfficeSelector offices={offices.data} value={search.officeId} onChange={selectOffice} />
-        </div>
-        <EmptyState
-          title="Выберите офис"
-          description="Чтобы увидеть доступные комнаты, сначала выберите офис."
-        />
-      </div>
-    );
   const filters = {
     date: search.date ?? getDefaultRoomFilters(office).date,
     startTime: search.startTime ?? getDefaultRoomFilters(office).startTime,
@@ -83,14 +79,18 @@ function RoomsPage() {
   return (
     <div className={styles.page}>
       {bookingSuccess ? <BookingSuccessNotice /> : null}
-      <div>
-        <h1>Переговорные комнаты</h1>
-        <OfficeMeta office={office} />
-      </div>
-      <div className={styles.toolbar}>
-        <OfficeSelector offices={offices.data} value={office.id} onChange={selectOffice} />
+      <section className={styles.officePanel}>
+        <OfficeSelector
+          className={styles.officeSelector}
+          offices={officeList}
+          value={office.id}
+          onChange={selectOffice}
+        />
+        <OfficeMeta className={styles.officeMeta} office={office} />
+      </section>
+      <section className={styles.filtersPanel}>
         <RoomFilters value={filters} onChange={updateFilters} />
-      </div>
+      </section>
       <RoomsResults
         officeId={office.id}
         interval={interval}
@@ -158,7 +158,10 @@ function RoomsResults({
       />
     );
   return rooms.data?.length ? (
-    <RoomGrid rooms={rooms.data} onBook={onBook} />
+    <section className={styles.results}>
+      <h1>Доступные переговорные в этом офисе</h1>
+      <RoomGrid rooms={rooms.data} onBook={onBook} />
+    </section>
   ) : (
     <EmptyState title="Комнаты не найдены" description="Измените фильтры и попробуйте снова." />
   );

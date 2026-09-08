@@ -17,20 +17,26 @@ export function RoomCard({
       <div className={styles.cardHeading}>
         <div>
           <h2>{room.name}</h2>
-          <p>
-            {room.office.name} · {room.floor} этаж
-          </p>
+          <p>{room.floor} этаж</p>
         </div>
-        <span className={availability ? styles.available : styles.unavailable}>
-          {availability ? 'Свободна' : 'Занята'}
-        </span>
       </div>
-      <p>До {room.capacity} человек</p>
-      <p>{room.features.map((feature) => feature.name).join(' · ') || 'Оснащение не указано'}</p>
+      <p className={styles.meta}>
+        <span aria-hidden="true">♧</span> Вместимость: до {room.capacity} человек
+      </p>
+      <p className={styles.meta}>
+        <span aria-hidden="true">◷</span>{' '}
+        {availability ? 'Свободна весь день' : 'Занята на выбранное время'}
+      </p>
+      <p
+        className={`${styles.availability} ${availability ? styles.available : styles.unavailable}`}
+      >
+        <span aria-hidden="true">●</span>
+        {availability ? 'Доступно на выбранное время' : 'Недоступно на выбранное время'}
+      </p>
       <div className={styles.cardActions}>
         <a href={`/rooms/${room.id}`}>Подробнее</a>
         <Button disabled={!availability} onClick={() => onBook(room)}>
-          {availability ? 'Забронировать' : 'Недоступно'}
+          Забронировать
         </Button>
       </div>
     </article>

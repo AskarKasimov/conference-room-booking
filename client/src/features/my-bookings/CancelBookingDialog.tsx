@@ -27,11 +27,15 @@ export function CancelBookingDialog({
   };
   return (
     <Dialog open={open} title="Отменить бронирование" onOpenChange={onOpenChange}>
-      <p>
-        {booking.room.name}, {formatLocalDate(booking.startsAt, booking.office.timezone)}{' '}
-        {formatLocalTime(booking.startsAt, booking.office.timezone)}–
-        {formatLocalTime(booking.endsAt, booking.office.timezone)}
-      </p>
+      <p className={styles.confirmation}>Вы уверены, что хотите отменить это бронирование?</p>
+      <div className={styles.bookingDetails}>
+        <strong>{booking.title}</strong>
+        <span>
+          {booking.room.name} · {formatLocalDate(booking.startsAt, booking.office.timezone)} ·{' '}
+          {formatLocalTime(booking.startsAt, booking.office.timezone)}–
+          {formatLocalTime(booking.endsAt, booking.office.timezone)}
+        </span>
+      </div>
       {mutation.error ? (
         <Alert variant="error">
           {mutation.error instanceof ApiError

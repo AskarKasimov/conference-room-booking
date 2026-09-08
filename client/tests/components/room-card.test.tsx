@@ -13,6 +13,11 @@ describe('RoomCard', () => {
     await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
     expect(onBook).toHaveBeenCalledOnce();
+    expect(screen.getByText('Доступно на выбранное время')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Подробнее' })).toHaveAttribute(
+      'href',
+      `/rooms/${roomFixture.id}`,
+    );
   });
 
   it('disables booking for an unavailable room', () => {
@@ -24,6 +29,7 @@ describe('RoomCard', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Недоступно' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Забронировать' })).toBeDisabled();
+    expect(screen.getByText('Недоступно на выбранное время')).toBeInTheDocument();
   });
 });

@@ -1,31 +1,71 @@
 .page {
   display: grid;
-  gap: var(--space-6);
+  gap: 1.25rem;
+}
+.breadcrumbs {
+  display: flex;
+  gap: 0.75rem;
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+.breadcrumbs strong {
+  color: var(--color-text);
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.7fr) minmax(0, 1.5fr);
+  align-items: start;
+  gap: 2rem;
 }
 .summary,
 .scheduleWrap {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: var(--space-6);
+  padding: 1.9rem;
   background: white;
 }
 .summary h1 {
   margin: 0;
+  font-size: 1.9rem;
 }
 .summary p {
   color: var(--color-muted);
 }
-.summary dl {
+.summary hr {
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+.featureList {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.featureList li {
   display: flex;
-  gap: var(--space-8);
+  gap: 0.75rem;
+  align-items: center;
 }
-.summary dt {
+.featureList span {
+  color: var(--color-primary);
+  font-size: 1.25rem;
+}
+.scheduleHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.scheduleHeader h2,
+.scheduleHeader p {
+  margin: 0;
+}
+.scheduleHeader p {
+  margin-top: 0.35rem;
   color: var(--color-muted);
-  font-size: 0.875rem;
-}
-.summary dd {
-  margin: 0.25rem 0 0;
-  font-weight: 700;
+  text-transform: capitalize;
 }
 .dateControl {
   display: grid;
@@ -73,11 +113,37 @@
   align-content: start;
   gap: 0.2rem;
   overflow: hidden;
-  border-left: 4px solid var(--color-primary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
+  background: #f1f5f9;
+}
+.ownScheduleBlock {
+  border-color: var(--color-primary);
   background: var(--color-accent);
 }
 .scheduleBlock span {
   color: var(--color-muted);
+}
+.scheduleActions {
+  display: flex;
+  justify-content: end;
+  margin-top: 1.5rem;
+}
+@media (max-width: 840px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .breadcrumbs {
+    flex-wrap: wrap;
+  }
+  .scheduleHeader {
+    display: grid;
+  }
+  .scheduleWrap,
+  .summary {
+    padding: 1.25rem;
+  }
 }

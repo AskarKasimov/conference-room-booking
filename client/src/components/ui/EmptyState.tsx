@@ -12,6 +12,9 @@ export function EmptyState({
 }) {
   return (
     <section className={styles.state}>
+      <span className={styles.stateIcon} aria-hidden="true">
+        ⌕
+      </span>
       <h2>{title}</h2>
       <p>{description}</p>
       {action}

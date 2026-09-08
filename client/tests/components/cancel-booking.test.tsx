@@ -53,6 +53,10 @@ it('requires confirmation before cancellation and does not delete on decline', a
 
   await user.click(screen.getByRole('button', { name: 'Отменить' }));
   expect(screen.getByRole('dialog')).toHaveTextContent('Эверест');
+  expect(screen.getByRole('dialog')).toHaveTextContent(
+    'Вы уверены, что хотите отменить это бронирование?',
+  );
+  expect(screen.getByRole('dialog')).toHaveTextContent('Планирование');
   await user.click(screen.getByRole('button', { name: 'Оставить' }));
   expect(deletes).toBe(0);
 });
@@ -77,5 +81,5 @@ it('keeps the row and shows an API error when cancellation fails', async () => {
   await user.click(screen.getByRole('button', { name: 'Отменить бронирование' }));
 
   expect(await screen.findByRole('alert')).toHaveTextContent('Нельзя отменить');
-  expect(screen.getByText('Планирование')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Планирование', hidden: true })).toBeInTheDocument();
 });

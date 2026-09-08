@@ -34,6 +34,7 @@ export function BookingDialog({
   onSuccess?: () => void;
 }) {
   const [success, setSuccess] = useState(false);
+  const [conflict, setConflict] = useState(false);
   const mutation = useCreateBookingMutation();
   const schema = createBookingSchema({ timezone: selection.room.office.timezone });
   const form = useForm<
@@ -60,7 +61,8 @@ export function BookingDialog({
         startsAt: interval.from,
         endsAt: interval.to,
       });
-    } catch {
+    } catch (error) {
+      if (error instanceof ApiError && error.code === 'BOOKING_CONFLICT') setConflict(true);
       return;
     }
     setSuccess(true);
@@ -69,11 +71,33 @@ export function BookingDialog({
   };
   const durationOptions = getDurationOptions(form.watch('startTime'));
   if (success) return <BookingSuccessNotice />;
+  if (conflict) {
+    return (
+      <Dialog open={open} title="Время уже занято" onOpenChange={onOpenChange} showClose={false}>
+        <div className={styles.conflict}>
+          <span className={styles.conflictIcon} aria-hidden="true">
+            !
+          </span>
+          <p>Выбранный интервал был забронирован другим сотрудником. Расписание обновлено.</p>
+          <Button
+            type="button"
+            onClick={() => {
+              setConflict(false);
+              mutation.reset();
+            }}
+          >
+            Выбрать другое время
+          </Button>
+        </div>
+      </Dialog>
+    );
+  }
   const mutationError = mutation.error;
   return (
-    <Dialog open={open} title="Забронировать комнату" onOpenChange={onOpenChange}>
-      <p>
-        {selection.room.name} · {selection.startTime} на {formatDuration(selection.durationMinutes)}
+    <Dialog open={open} title="Новое бронирование" onOpenChange={onOpenChange} showClose={false}>
+      <p className={styles.roomMeta}>
+        Переговорная: <strong>{selection.room.name}</strong> ({selection.room.office.name},{' '}
+        {selection.room.floor} этаж)
       </p>
       {mutationError ? (
         <Alert variant="error">
@@ -83,34 +107,43 @@ export function BookingDialog({
         </Alert>
       ) : null}
       <form className={styles.form} onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}>
-        <label>
-          Название встречи
-          <input {...form.register('title')} aria-invalid={Boolean(form.formState.errors.title)} />
+        <label className={form.formState.errors.title ? styles.invalid : undefined}>
+          Тема встречи <span aria-hidden="true">*</span>
+          <input
+            {...form.register('title')}
+            placeholder="Укажите тему встречи"
+            aria-invalid={Boolean(form.formState.errors.title)}
+            aria-describedby={form.formState.errors.title ? 'booking-title-error' : undefined}
+          />
         </label>
         {form.formState.errors.title ? (
-          <span className={styles.error}>{form.formState.errors.title.message}</span>
+          <span id="booking-title-error" className={styles.error}>
+            {form.formState.errors.title.message}
+          </span>
         ) : null}
-        <label>
-          Комментарий
-          <textarea {...form.register('comment')} />
-        </label>
-        <label>
-          Дата
-          <input type="date" {...form.register('date')} />
-        </label>
-        <Select
-          label="Время начала"
-          value={form.watch('startTime')}
-          onValueChange={(startTime) => {
-            const nextDurationOptions = getDurationOptions(startTime);
-            form.setValue('startTime', startTime, { shouldValidate: true });
-            if (!nextDurationOptions.includes(Number(form.getValues('durationMinutes'))))
-              form.setValue('durationMinutes', nextDurationOptions.at(-1) ?? 15, {
-                shouldValidate: true,
-              });
-          }}
-          options={getTimeOptions().map((time) => ({ value: time, label: time }))}
-        />
+        <div className={styles.intervalFields}>
+          <label className={form.formState.errors.date ? styles.invalid : undefined}>
+            Дата
+            <input
+              type="date"
+              {...form.register('date')}
+              aria-invalid={Boolean(form.formState.errors.date)}
+            />
+          </label>
+          <Select
+            label="Время начала"
+            value={form.watch('startTime')}
+            onValueChange={(startTime) => {
+              const nextDurationOptions = getDurationOptions(startTime);
+              form.setValue('startTime', startTime, { shouldValidate: true });
+              if (!nextDurationOptions.includes(Number(form.getValues('durationMinutes'))))
+                form.setValue('durationMinutes', nextDurationOptions.at(-1) ?? 15, {
+                  shouldValidate: true,
+                });
+            }}
+            options={getTimeOptions().map((time) => ({ value: time, label: time }))}
+          />
+        </div>
         <label>
           Продолжительность
           <select {...form.register('durationMinutes', { valueAsNumber: true })}>
@@ -124,6 +157,17 @@ export function BookingDialog({
         {form.formState.errors.startTime ? (
           <span className={styles.error}>{form.formState.errors.startTime.message}</span>
         ) : null}
+        <label>
+          Комментарий
+          <textarea
+            placeholder="Дополнительная информация для участников встречи…"
+            {...form.register('comment')}
+          />
+        </label>
+        <p className={styles.summary}>
+          ⓘ Бронирование на {form.watch('date')}, {form.watch('startTime')} —{' '}
+          {formatDuration(Number(form.watch('durationMinutes')))}
+        </p>
         <div className={styles.actions}>
           <Button
             type="button"

@@ -91,6 +91,23 @@ it('updates the past tab and sends the office filter', async () => {
   expect(router.state.location.search.scope).toBe('past');
 });
 
+it('requests all bookings from the visual all-time control', async () => {
+  const user = userEvent.setup();
+  let requestedUrl = '';
+  server.use(
+    http.get('*/api/v1/bookings', ({ request }) => {
+      requestedUrl = request.url;
+      return HttpResponse.json({ items: [] });
+    }),
+  );
+  const router = renderBookings();
+
+  await user.click(await screen.findByRole('button', { name: 'За все время' }));
+
+  expect(new URL(requestedUrl).searchParams.get('scope')).toBe('all');
+  expect(router.state.location.search.scope).toBe('all');
+});
+
 it('shows a loading status while bookings are pending', async () => {
   server.use(
     http.get('*/api/v1/offices', async () => {

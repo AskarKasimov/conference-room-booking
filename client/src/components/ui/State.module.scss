@@ -1,25 +1,89 @@
 .state {
   display: grid;
-  justify-items: start;
+  min-height: 18rem;
+  align-content: center;
+  justify-items: center;
   gap: var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px dashed #cbd8dd;
   border-radius: var(--radius-md);
-  padding: var(--space-8);
+  padding: var(--space-8) var(--space-6);
   background: var(--color-surface);
+  text-align: center;
+}
+.stateIcon {
+  display: grid;
+  width: 4.5rem;
+  height: 4.5rem;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-primary);
+  background: var(--color-accent);
+  font-size: 2.75rem;
+  font-weight: 700;
+}
+.errorIcon {
+  color: var(--color-danger);
+  background: var(--color-danger-surface);
+}
+.notFound {
+  display: grid;
+  min-height: calc(100vh - 12rem);
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+.notFound h1,
+.notFound p {
+  margin: 0;
+}
+.notFound h1 {
+  font-size: clamp(2rem, 3vw, 2.75rem);
+}
+.notFound > p:not(.code) {
+  max-width: 38rem;
+  color: var(--color-muted);
+  font-size: 1.125rem;
+}
+.code {
+  color: var(--color-primary);
+  font-size: clamp(5rem, 10vw, 7rem);
+  font-weight: 800;
+  letter-spacing: -0.08em;
+}
+.primaryLink {
+  margin-top: var(--space-3);
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1.25rem;
+  color: white;
+  background: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
 }
 .state h2,
 .state p {
   margin: 0;
 }
 .state p {
+  max-width: 32rem;
   color: var(--color-muted);
 }
 .skeleton {
-  min-height: 12rem;
+  display: grid;
+  gap: 1.25rem;
+}
+.skeleton::before,
+.skeleton::after {
+  display: block;
+  min-height: 8rem;
   border-radius: var(--radius-md);
   background: linear-gradient(90deg, #edf3f5, #f8fbfc, #edf3f5);
   background-size: 200% 100%;
+  content: '';
   animation: shimmer 1.5s infinite;
+}
+.skeleton::before {
+  min-height: 3.5rem;
 }
 @keyframes shimmer {
   to {

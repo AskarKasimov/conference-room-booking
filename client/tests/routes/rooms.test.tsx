@@ -24,6 +24,15 @@ beforeEach(() => {
 });
 
 describe('room search route', () => {
+  it('separates the office controls from the available-rooms section', async () => {
+    renderRooms(`/rooms?officeId=${officeFixture.id}`);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Переговорные комнаты' })).not.toBeInTheDocument();
+  });
+
   it('shows a dedicated no-office state and does not request rooms', async () => {
     let roomsRequested = false;
     server.use(
@@ -40,6 +49,23 @@ describe('room search route', () => {
       await screen.findByRole('heading', { name: 'Нет доступных офисов' }),
     ).toBeInTheDocument();
     expect(roomsRequested).toBe(false);
+  });
+
+  it('uses the first API office when the URL does not name one', async () => {
+    let requestedUrl = '';
+    server.use(
+      http.get('*/api/v1/rooms', ({ request }) => {
+        requestedUrl = request.url;
+        return HttpResponse.json({ items: [roomFixture] });
+      }),
+    );
+
+    const router = renderRooms();
+
+    expect(await screen.findByRole('heading', { name: 'Эверест' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Выберите офис' })).not.toBeInTheDocument();
+    expect(new URL(requestedUrl).searchParams.get('officeId')).toBe(officeFixture.id);
+    await waitFor(() => expect(router.state.location.search.officeId).toBe(officeFixture.id));
   });
 
   it('sends office, interval, and capacity after selecting an office', async () => {

@@ -5,7 +5,7 @@ export function BookingTabs({
   scope,
   officeId,
 }: {
-  scope: 'upcoming' | 'past';
+  scope: 'upcoming' | 'past' | 'all';
   officeId?: string;
 }) {
   return (
@@ -15,7 +15,7 @@ export function BookingTabs({
         search={{ scope: 'upcoming', officeId }}
         data-active={scope === 'upcoming'}
       >
-        Предстоящие
+        Предстоящие{scope === 'upcoming' ? '' : null}
       </Link>
       <Link to="/bookings" search={{ scope: 'past', officeId }} data-active={scope === 'past'}>
         Прошедшие

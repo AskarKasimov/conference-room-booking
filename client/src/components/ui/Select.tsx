@@ -9,16 +9,18 @@ export function Select({
   options,
   onValueChange,
   placeholder,
+  className,
 }: {
   label: string;
   value: string;
   options: Array<{ value: string; label: string }>;
   onValueChange: (value: string) => void;
   placeholder?: string;
+  className?: string;
 }) {
   const radixValue = value || (options.some((option) => option.value === '') ? emptyValue : '');
   return (
-    <label className={styles.field}>
+    <label className={`${styles.field} ${className ?? ''}`}>
       <span>{label}</span>
       <Primitive.Root
         value={radixValue}
