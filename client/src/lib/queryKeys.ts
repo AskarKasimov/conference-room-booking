@@ -4,8 +4,7 @@ export const queryKeys = {
   },
   rooms: {
     all: ['rooms'] as const,
-    list: (filters: Record<string, string | number | undefined>) =>
-      ['rooms', 'list', filters] as const,
+    list: (filters: object) => ['rooms', 'list', filters] as const,
     detail: (id: string) => ['rooms', 'detail', id] as const,
   },
   schedules: {
@@ -14,6 +13,6 @@ export const queryKeys = {
   },
   bookings: {
     all: ['bookings'] as const,
-    list: (filters: Record<string, string | undefined>) => ['bookings', 'list', filters] as const,
+    list: (filters: object) => ['bookings', 'list', filters] as const,
   },
 };
