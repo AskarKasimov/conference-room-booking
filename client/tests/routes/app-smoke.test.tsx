@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { App } from '../../src/App';
 
 describe('application shell', () => {
-  it('mounts the application shell', () => {
+  it('mounts the application shell', async () => {
     render(<App />);
 
-    expect(screen.getByRole('main')).toBeInTheDocument();
+    expect(await screen.findByRole('main')).toBeInTheDocument();
   });
 });

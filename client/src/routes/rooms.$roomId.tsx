@@ -12,6 +12,7 @@ import { useRoomScheduleQuery } from '../hooks/useRoomScheduleQuery';
 import styles from '../features/room-detail/RoomDetail.module.scss';
 import { BookingDialog } from '../features/booking/BookingDialog';
 import { getNextSlot } from '../features/room-search/searchParams';
+import { useRealtimeActiveContext } from '../realtime/RealtimeProvider';
 
 export const Route = createFileRoute('/rooms/$roomId')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -58,6 +59,7 @@ function RoomDetailContent({
   const navigate = useNavigate({ from: '/rooms/$roomId' });
   const [bookingOpen, setBookingOpen] = useState(false);
   const schedule = useRoomScheduleQuery(roomId, date, room.office.timezone);
+  useRealtimeActiveContext({ selectedRoom: { roomId, date } });
   const preferredSlot =
     date === today ? getNextSlot(room.office.timezone) : { date, startTime: '09:00' };
   return (

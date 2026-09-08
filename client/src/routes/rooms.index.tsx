@@ -14,6 +14,7 @@ import { useRoomsQuery } from '../hooks/useRoomsQuery';
 import { buildOfficeInterval } from '../lib/time';
 import styles from '../features/room-search/RoomSearch.module.scss';
 import { BookingDialog } from '../features/booking/BookingDialog';
+import { useRealtimeActiveContext } from '../realtime/RealtimeProvider';
 
 export const Route = createFileRoute('/rooms/')({ component: RoomsPage });
 
@@ -124,6 +125,17 @@ function RoomsResults({
 }) {
   const rooms = useRoomsQuery(
     interval ? { officeId, from: interval.from, to: interval.to, minCapacity } : undefined,
+  );
+  useRealtimeActiveContext(
+    interval
+      ? {
+          roomsList: {
+            officeId,
+            interval,
+            filters: { officeId, from: interval.from, to: interval.to, minCapacity },
+          },
+        }
+      : undefined,
   );
   if (!interval)
     return (
