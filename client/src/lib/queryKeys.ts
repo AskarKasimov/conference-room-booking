@@ -1,4 +1,7 @@
 export const queryKeys = {
+  user: {
+    current: ['user', 'current'] as const,
+  },
   offices: {
     all: ['offices'] as const,
   },

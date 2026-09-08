@@ -18,7 +18,17 @@ export const roomFixture: RoomSummary = {
   available: true,
 };
 
+export const currentUserFixture = {
+  id: 'user-konstantin',
+  login: 'kkuznetsov',
+  displayName: 'Константин Кузнецов',
+  email: 'kkuznetsov@example.test',
+  avatarUrl: null,
+  initials: 'КК',
+};
+
 export const handlers = [
+  http.get('*/api/v1/me', () => HttpResponse.json(currentUserFixture)),
   http.get('*/api/v1/offices', () => HttpResponse.json({ items: [officeFixture] })),
   http.get('*/api/v1/rooms', () => HttpResponse.json({ items: [roomFixture] })),
 ];

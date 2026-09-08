@@ -5,7 +5,7 @@ import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { createTestQueryClient } from '../../src/test/renderWithProviders';
-import { officeFixture, roomFixture } from '../../src/test/handlers';
+import { currentUserFixture, officeFixture, roomFixture } from '../../src/test/handlers';
 import { server } from '../../src/test/server';
 import { AppRoutes } from '../../src/router';
 import * as roomSearch from '../../src/features/room-search/searchParams';
@@ -44,6 +44,13 @@ const booking = {
     initials: 'Д',
   },
 };
+const ownBooking = {
+  ...booking,
+  id: 'booking-own',
+  userId: currentUserFixture.id,
+  title: 'Моя встреча',
+  owner: currentUserFixture,
+};
 
 it('loads room details and a local workday schedule', async () => {
   let scheduleUrl = '';
@@ -51,7 +58,7 @@ it('loads room details and a local workday schedule', async () => {
     http.get('*/api/v1/rooms/room-everest', () => HttpResponse.json(room)),
     http.get('*/api/v1/rooms/room-everest/bookings', ({ request }) => {
       scheduleUrl = request.url;
-      return HttpResponse.json({ items: [booking] });
+      return HttpResponse.json({ items: [booking, ownBooking] });
     }),
   );
   render(
@@ -84,6 +91,7 @@ it('loads room details and a local workday schedule', async () => {
   expect(screen.getByRole('heading', { name: 'Расписание на день' })).toBeInTheDocument();
   expect(screen.getByText(/Экран/)).toBeInTheDocument();
   expect(await screen.findByText('Занято')).toBeInTheDocument();
+  expect(await screen.findByText('Моя встреча')).toBeInTheDocument();
   expect(new URL(scheduleUrl).searchParams.get('from')).toMatch(/T09:00:00/);
   expect(new URL(scheduleUrl).searchParams.get('to')).toMatch(/T20:00:00/);
 

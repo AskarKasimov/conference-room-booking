@@ -5,6 +5,7 @@ import type {
   Office,
   Room,
   RoomSummary,
+  User,
 } from './contracts';
 import { request } from './client';
 
@@ -21,6 +22,7 @@ export interface BookingListQuery {
 }
 
 export const api = {
+  getCurrentUser: () => request<User>('/api/v1/me'),
   listOffices: () => request<ItemsResponse<Office>>('/api/v1/offices'),
   listRooms: (query: RoomListQuery) =>
     request<ItemsResponse<RoomSummary>>('/api/v1/rooms', { query }),

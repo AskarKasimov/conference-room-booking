@@ -14,6 +14,7 @@ import styles from '../features/room-detail/RoomDetail.module.scss';
 import { BookingDialog } from '../features/booking/BookingDialog';
 import { getDefaultDuration, getNextSlot } from '../features/room-search/searchParams';
 import { useRealtimeActiveContext } from '../realtime/RealtimeProvider';
+import { useCurrentUserQuery } from '../hooks/useCurrentUserQuery';
 
 export function RoomDetailPage() {
   const { roomId = '' } = useParams();
@@ -83,6 +84,7 @@ function RoomDetailContent({
   const [scheduleSearchParams, setSearchParams] = useSearchParams();
   const requestedDateValue = scheduleSearchParams.get('date');
   const [bookingOpen, setBookingOpen] = useState(false);
+  const currentUser = useCurrentUserQuery();
   const schedule = useRoomScheduleQuery(roomId, date, room.office.timezone);
   useRealtimeActiveContext({ selectedRoom: { roomId, date } });
   const preferredSlot =
@@ -127,6 +129,7 @@ function RoomDetailContent({
               bookings={schedule.data ?? []}
               timezone={room.office.timezone}
               date={date}
+              currentUserId={currentUser.data?.id}
             />
           )}
           <div className={styles.scheduleActions}>

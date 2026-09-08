@@ -1,7 +1,11 @@
 import { NavLink, Link } from 'react-router-dom';
+import { useCurrentUserQuery } from '../../hooks/useCurrentUserQuery';
 import styles from './Header.module.scss';
 
 export function Header() {
+  const user = useCurrentUserQuery().data;
+  const displayName = user?.displayName ?? 'Загрузка профиля…';
+  const initials = user?.initials ?? '…';
   return (
     <header className={styles.header}>
       <Link to="/rooms" className={styles.logo} aria-label="BookRoom">
@@ -29,9 +33,9 @@ export function Header() {
         </NavLink>
       </nav>
       <div className={styles.profile}>
-        <span className={styles.userName}>Константин К.</span>
-        <span className={styles.user} aria-label="Константин К., КК">
-          КК
+        <span className={styles.userName}>{displayName}</span>
+        <span className={styles.user} aria-label={`${displayName}, ${initials}`}>
+          {initials}
         </span>
       </div>
     </header>
