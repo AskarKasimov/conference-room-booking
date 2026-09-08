@@ -3,9 +3,9 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { AppProviders } from '../../src/app/AppProviders';
-import { BookingDialog } from '../../src/features/booking/BookingDialog';
-import { BookingSuccessNotice } from '../../src/features/booking/BookingSuccessNotice';
+import { AppProviders } from '../../src/app/providers/AppProviders';
+import { BookingDialog } from '../../src/features/create-booking';
+import { BookingSuccessNotice } from '../../src/features/create-booking';
 import { createTestQueryClient } from '../support/renderWithProviders';
 import { roomFixture } from '../support/handlers';
 import { server } from '../support/server';

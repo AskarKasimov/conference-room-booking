@@ -2,13 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { ws } from 'msw';
-import { RealtimeProvider, type RealtimeSocket } from '../../src/realtime/RealtimeProvider';
-import { queryKeys } from '../../src/lib/queryKeys';
+import { RealtimeProvider, type RealtimeSocket } from '../../src/app/realtime/RealtimeProvider';
+import { bookingQueryKeys } from '../../src/entities/booking';
 import { server } from '../support/server';
 
 it('receives events through the default socket and invalidates cached bookings', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  client.setQueryData(queryKeys.bookings.all, []);
+  client.setQueryData(bookingQueryKeys.all, []);
   const socketServer = ws.link('ws://localhost:3000/api/v1/ws');
   server.use(
     socketServer.addEventListener('connection', ({ client: socket }) => {
@@ -37,7 +37,7 @@ it('receives events through the default socket and invalidates cached bookings',
   );
 
   await vi.waitFor(() =>
-    expect(client.getQueryState(queryKeys.bookings.all)?.isInvalidated).toBe(true),
+    expect(client.getQueryState(bookingQueryKeys.all)?.isInvalidated).toBe(true),
   );
 });
 
@@ -88,7 +88,7 @@ it('creates one socket, applies events, ignores malformed messages, and closes o
   );
 
   await vi.waitFor(() =>
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all }),
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: bookingQueryKeys.all }),
   );
   unmount();
   expect(socket.close).toHaveBeenCalledTimes(1);

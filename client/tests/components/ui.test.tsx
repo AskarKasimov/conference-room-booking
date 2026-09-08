@@ -1,13 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { Alert } from '../../src/components/ui/Alert';
-import { Button } from '../../src/components/ui/Button';
-import { Dialog } from '../../src/components/ui/Dialog';
-import { EmptyState } from '../../src/components/ui/EmptyState';
-import { ErrorState } from '../../src/components/ui/ErrorState';
-import { Select } from '../../src/components/ui/Select';
-import { OfficeSelector } from '../../src/features/offices/OfficeSelector';
+import { Alert } from '../../src/shared/ui/Alert';
+import { Button } from '../../src/shared/ui/Button';
+import { Dialog } from '../../src/shared/ui/Dialog';
+import { EmptyState } from '../../src/shared/ui/EmptyState';
+import { ErrorState } from '../../src/shared/ui/ErrorState';
+import { Select } from '../../src/shared/ui/Select';
+import { OfficeSelector } from '../../src/features/select-office';
 
 describe('shared UI primitives', () => {
   it('renders a loading button as disabled with status text', () => {

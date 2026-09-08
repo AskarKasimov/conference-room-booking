@@ -1,21 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { queryKeys } from '../../src/lib/queryKeys';
+import { officeQueryKeys } from '../../src/entities/office';
+import { roomQueryKeys } from '../../src/entities/room';
+import { bookingQueryKeys, scheduleQueryKeys } from '../../src/entities/booking';
 
 describe('query key factories', () => {
-  it('uses one serializable hierarchy for server data', () => {
-    expect(queryKeys.offices.all).toEqual(['offices']);
-    expect(queryKeys.rooms.list({ officeId: 'office-1', from: 'a', to: 'b' })).toEqual([
+  it('preserves the existing hierarchy for offices, rooms, schedules, and bookings', () => {
+    expect(officeQueryKeys.all).toEqual(['offices']);
+    expect(roomQueryKeys.list({ officeId: 'office-1', from: 'a', to: 'b' })).toEqual([
       'rooms',
       'list',
       { officeId: 'office-1', from: 'a', to: 'b' },
     ]);
-    expect(queryKeys.rooms.detail('room-1')).toEqual(['rooms', 'detail', 'room-1']);
-    expect(queryKeys.schedules.byRoom('room-1', '2026-09-10')).toEqual([
+    expect(roomQueryKeys.detail('room-1')).toEqual(['rooms', 'detail', 'room-1']);
+    expect(scheduleQueryKeys.byRoom('room-1', '2026-09-10')).toEqual([
       'schedules',
       'room-1',
       '2026-09-10',
     ]);
-    expect(queryKeys.bookings.list({ scope: 'upcoming' })).toEqual([
+    expect(bookingQueryKeys.list({ scope: 'upcoming' })).toEqual([
       'bookings',
       'list',
       { scope: 'upcoming' },

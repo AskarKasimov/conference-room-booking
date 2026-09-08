@@ -3,12 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { AppProviders } from '../../src/app/AppProviders';
+import { AppProviders } from '../../src/app/providers/AppProviders';
 import { createTestQueryClient } from '../support/renderWithProviders';
 import { currentUserFixture, officeFixture, roomFixture } from '../support/handlers';
 import { server } from '../support/server';
-import { AppRoutes } from '../../src/router';
-import * as roomSearch from '../../src/features/room-search/searchParams';
+import { AppRoutes } from '../../src/app/router';
+import * as bookingSlots from '../../src/entities/booking';
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
@@ -106,7 +106,7 @@ it('loads room details and a local workday schedule', async () => {
 it('uses the selected schedule date to initialize a booking after the workday', async () => {
   vi.setSystemTime(new Date('2026-10-20T18:00:00.000Z'));
   const getNextSlot = vi
-    .spyOn(roomSearch, 'getNextSlot')
+    .spyOn(bookingSlots, 'getNextSlot')
     .mockReturnValue({ date: '2026-10-21', startTime: '09:00' });
   try {
     server.use(

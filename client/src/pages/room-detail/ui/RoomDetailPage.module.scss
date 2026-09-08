@@ -1,0 +1,15 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.7fr) minmax(0, 1.5fr);
+  align-items: start;
+  gap: 2rem;
+}
+@media (max-width: 840px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseClientEnv } from '../../src/lib/env';
+import { parseClientEnv } from '../../src/shared/config/env';
 
 describe('client environment', () => {
   it('parses URLs, booleans, and numeric settings', () => {

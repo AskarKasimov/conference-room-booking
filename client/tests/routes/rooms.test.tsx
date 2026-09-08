@@ -3,13 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppProviders } from '../../src/app/AppProviders';
+import { AppProviders } from '../../src/app/providers/AppProviders';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { RealtimeProvider, type RealtimeSocket } from '../../src/realtime/RealtimeProvider';
+import { RealtimeProvider, type RealtimeSocket } from '../../src/app/realtime/RealtimeProvider';
 import { createTestQueryClient } from '../support/renderWithProviders';
 import { roomFixture, officeFixture } from '../support/handlers';
 import { server } from '../support/server';
-import { AppRoutes } from '../../src/router';
+import { AppRoutes } from '../../src/app/router';
 
 function renderRooms(entry = '/rooms') {
   render(

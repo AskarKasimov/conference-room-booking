@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
-import { ScheduleDateControl } from '../../src/features/room-detail/ScheduleDateControl';
+import { ScheduleDateControl } from '../../src/widgets/room-schedule/ScheduleDateControl';
 
 it('uses the shared calendar and prevents dates outside the schedule range', async () => {
   const user = userEvent.setup();

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { expect, it } from 'vitest';
-import { RoomSummaryCard } from '../../src/features/room-detail/RoomSummaryCard';
+import { RoomSummaryCard } from '../../src/widgets/room-summary-card';
 import { officeFixture, roomFixture } from '../support/handlers';
 
 it('renders an SVG icon for the capacity and every room feature', () => {

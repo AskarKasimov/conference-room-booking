@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { roomFixture } from '../support/handlers';
-import { RoomCard } from '../../src/features/room-search/RoomCard';
-import styles from '../../src/features/room-search/RoomSearch.module.scss';
+import { RoomCard } from '../../src/entities/room';
+import styles from '../../src/entities/room/ui/RoomCard.module.scss';
 
 describe('RoomCard', () => {
   it('allows booking only when the API marks the room available', async () => {

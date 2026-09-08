@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { RoomFilters } from '../../src/features/room-search/RoomFilters';
-import { formatDuration } from '../../src/features/room-search/searchParams';
+import { RoomFilters } from '../../src/features/search-rooms';
+import { formatDuration } from '../../src/entities/booking';
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });

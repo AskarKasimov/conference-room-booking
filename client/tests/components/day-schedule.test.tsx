@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { BookingView } from '../../src/api/contracts';
-import { DaySchedule } from '../../src/features/room-detail/DaySchedule';
+import type { BookingView } from '../../src/entities/booking';
+import { DaySchedule } from '../../src/entities/booking';
 import { officeFixture, roomFixture } from '../support/handlers';
 
 function bookingAt(startTime: string, durationMinutes: number, userId = 'user-1'): BookingView {

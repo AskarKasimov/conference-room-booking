@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, it } from 'vitest';
-import { AppProviders } from '../../src/app/AppProviders';
-import { AppRoutes } from '../../src/router';
+import { AppProviders } from '../../src/app/providers/AppProviders';
+import { AppRoutes } from '../../src/app/router';
 import { createTestQueryClient } from '../support/renderWithProviders';
 
 it('renders the BookRoom brand and the current user presentation', async () => {

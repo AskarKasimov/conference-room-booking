@@ -1,11 +1,10 @@
 import { QueryClient } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
-import {
-  applyRealtimeEvent,
-  parseRealtimeEvent,
-  type RealtimeActiveContext,
-} from '../../src/realtime/events';
-import { queryKeys } from '../../src/lib/queryKeys';
+import { applyRealtimeEvent, type RealtimeActiveContext } from '../../src/app/realtime/events';
+import { parseRealtimeEvent } from '../../src/shared/api/realtimeEvents';
+import { officeQueryKeys } from '../../src/entities/office';
+import { roomQueryKeys } from '../../src/entities/room';
+import { bookingQueryKeys, scheduleQueryKeys } from '../../src/entities/booking';
 
 const activeContext: RealtimeActiveContext = {
   selectedRoom: { roomId: 'room-everest', date: '2026-09-10' },
@@ -46,9 +45,9 @@ describe('realtime event invalidation', () => {
     const event = parseRealtimeEvent(bookingEvent('booking.created'));
     await applyRealtimeEvent(client, event, activeContext);
 
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: bookingQueryKeys.all });
     expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: queryKeys.schedules.byRoom('room-everest', '2026-09-10'),
+      queryKey: scheduleQueryKeys.byRoom('room-everest', '2026-09-10'),
     });
   });
 
@@ -57,7 +56,7 @@ describe('realtime event invalidation', () => {
     await applyRealtimeEvent(client, event, activeContext);
 
     expect(invalidateQueries).toHaveBeenCalledTimes(1);
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: bookingQueryKeys.all });
   });
 
   it('invalidates the matching rooms list only for overlapping availability', async () => {
@@ -74,7 +73,7 @@ describe('realtime event invalidation', () => {
     });
     await applyRealtimeEvent(client, event, activeContext);
     expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: queryKeys.rooms.list(activeContext.roomsList?.filters ?? {}),
+      queryKey: roomQueryKeys.list(activeContext.roomsList?.filters ?? {}),
     });
 
     invalidateQueries.mockClear();
@@ -102,9 +101,9 @@ describe('realtime event invalidation', () => {
       parseRealtimeEvent({ type: 'data.reset', occurredAt: '2026-09-05T10:00:00.000Z', data: {} }),
       activeContext,
     );
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.offices.all });
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.rooms.all });
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.schedules.all });
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: officeQueryKeys.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: roomQueryKeys.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: scheduleQueryKeys.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: bookingQueryKeys.all });
   });
 });

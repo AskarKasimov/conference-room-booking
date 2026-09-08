@@ -1,0 +1,1 @@
+export { RoomSummaryCard } from './RoomSummaryCard';

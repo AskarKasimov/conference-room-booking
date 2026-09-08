@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
-import { BookingsFilters } from '../../src/features/my-bookings/BookingsFilters';
+import { BookingsFilters } from '../../src/widgets/booking-list/BookingsFilters';
 
 it('hides the office label while retaining an accessible name for the bookings filter', () => {
   render(

@@ -1,0 +1,1 @@
+export { OfficeMeta } from './OfficeMeta';

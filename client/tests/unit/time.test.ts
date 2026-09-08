@@ -4,13 +4,13 @@ import {
   getWorkdayInterval,
   intervalsOverlap,
   toApiIso,
-} from '../../src/lib/time';
+} from '../../src/shared/lib/time';
 import {
   getBookableDateBounds,
   getBookableTimeOptions,
   getDefaultRoomFilters,
   getNextSlot,
-} from '../../src/features/room-search/searchParams';
+} from '../../src/entities/booking';
 import { officeFixture } from '../support/handlers';
 
 const now = new Date('2026-09-05T07:00:00.000Z');

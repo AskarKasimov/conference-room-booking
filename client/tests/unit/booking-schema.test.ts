@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createBookingSchema } from '../../src/features/booking/bookingSchema';
+import { createBookingSchema } from '../../src/features/create-booking';
 
 const base = {
   title: 'Планирование',

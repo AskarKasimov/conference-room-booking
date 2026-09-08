@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
-import { AppProviders } from '../../src/app/AppProviders';
-import { AppRoutes } from '../../src/router';
+import { AppProviders } from '../../src/app/providers/AppProviders';
+import { AppRoutes } from '../../src/app/router';
 import { createTestQueryClient } from '../support/renderWithProviders';
 import { server } from '../support/server';
 

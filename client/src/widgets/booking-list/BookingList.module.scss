@@ -1,0 +1,18 @@
+.tabs {
+  display: flex;
+  gap: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+.tabs a {
+  padding: var(--space-3) 0;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.tabs a[data-active='true'] {
+  color: var(--color-primary-dark);
+  border-bottom: 2px solid var(--color-primary);
+}
+.list {
+  display: grid;
+  gap: 1.25rem;
+}
