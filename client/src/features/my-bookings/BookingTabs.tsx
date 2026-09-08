@@ -7,7 +7,7 @@ export function BookingTabs({
   count,
 }: {
   scope: 'upcoming' | 'past' | 'all';
-  officeId?: string;
+  officeId?: string | undefined;
   count: number;
 }) {
   return (

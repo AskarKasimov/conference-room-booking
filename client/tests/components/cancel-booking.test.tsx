@@ -44,9 +44,9 @@ it('renders room, floor, and time as the booking card metadata', () => {
     </AppProviders>,
   );
 
-  expect(screen.getByText('Эверест')).toHaveClass(styles.roomName);
-  expect(screen.getByText('12 этаж')).toHaveClass(styles.metadataItem);
-  expect(screen.getByText('10:00–11:00 МСК')).toHaveClass(styles.metadataItem);
+  expect(screen.getByText('Эверест')).toHaveClass(styles.roomName!);
+  expect(screen.getByText('12 этаж')).toHaveClass(styles.metadataItem!);
+  expect(screen.getByText('10:00–11:00 МСК')).toHaveClass(styles.metadataItem!);
 });
 
 it('shows the warning, booking details, icons, and equal-priority choices before cancellation', async () => {

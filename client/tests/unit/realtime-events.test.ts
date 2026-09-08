@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import {
   applyRealtimeEvent,
   parseRealtimeEvent,
@@ -35,18 +35,19 @@ const bookingEvent = (type: 'booking.created' | 'booking.cancelled', roomId = 'r
 
 describe('realtime event invalidation', () => {
   let client: QueryClient;
+  let invalidateQueries: MockInstance<QueryClient['invalidateQueries']>;
 
   beforeEach(() => {
     client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+    invalidateQueries = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
   });
 
   it('invalidates booking lists and the open room schedule', async () => {
     const event = parseRealtimeEvent(bookingEvent('booking.created'));
     await applyRealtimeEvent(client, event, activeContext);
 
-    expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
-    expect(client.invalidateQueries).toHaveBeenCalledWith({
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: queryKeys.schedules.byRoom('room-everest', '2026-09-10'),
     });
   });
@@ -55,8 +56,8 @@ describe('realtime event invalidation', () => {
     const event = parseRealtimeEvent(bookingEvent('booking.cancelled', 'room-atlas'));
     await applyRealtimeEvent(client, event, activeContext);
 
-    expect(client.invalidateQueries).toHaveBeenCalledTimes(1);
-    expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
+    expect(invalidateQueries).toHaveBeenCalledTimes(1);
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
   });
 
   it('invalidates the matching rooms list only for overlapping availability', async () => {
@@ -72,11 +73,11 @@ describe('realtime event invalidation', () => {
       },
     });
     await applyRealtimeEvent(client, event, activeContext);
-    expect(client.invalidateQueries).toHaveBeenCalledWith({
+    expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: queryKeys.rooms.list(activeContext.roomsList?.filters ?? {}),
     });
 
-    vi.mocked(client.invalidateQueries).mockClear();
+    invalidateQueries.mockClear();
     await applyRealtimeEvent(
       client,
       parseRealtimeEvent({
@@ -89,21 +90,21 @@ describe('realtime event invalidation', () => {
       }),
       activeContext,
     );
-    expect(client.invalidateQueries).not.toHaveBeenCalled();
+    expect(invalidateQueries).not.toHaveBeenCalled();
   });
 
   it('invalidates all server-state domains on reset and ignores invalid input', async () => {
     await applyRealtimeEvent(client, parseRealtimeEvent({ type: 'unknown' }), activeContext);
-    expect(client.invalidateQueries).not.toHaveBeenCalled();
+    expect(invalidateQueries).not.toHaveBeenCalled();
 
     await applyRealtimeEvent(
       client,
       parseRealtimeEvent({ type: 'data.reset', occurredAt: '2026-09-05T10:00:00.000Z', data: {} }),
       activeContext,
     );
-    expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.offices.all });
-    expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.rooms.all });
-    expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.schedules.all });
-    expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.offices.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.rooms.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.schedules.all });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.bookings.all });
   });
 });

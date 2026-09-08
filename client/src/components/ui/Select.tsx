@@ -18,7 +18,7 @@ export function Select({
   options: Array<{ value: string; label: string }>;
   onValueChange: (value: string) => void;
   placeholder?: string;
-  className?: string;
+  className?: string | undefined;
   hideLabel?: boolean;
 }) {
   const radixValue = value || (options.some((option) => option.value === '') ? emptyValue : '');

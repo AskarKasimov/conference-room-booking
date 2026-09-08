@@ -19,7 +19,10 @@ export function BookingsPage() {
     officeId: searchParams.get('officeId') ?? undefined,
   };
   const offices = useOfficesQuery();
-  const bookings = useBookingsQuery({ scope: search.scope, officeId: search.officeId });
+  const bookings = useBookingsQuery({
+    scope: search.scope,
+    ...(search.officeId !== undefined ? { officeId: search.officeId } : {}),
+  });
 
   let content: React.ReactNode;
   if (offices.isLoading || bookings.isLoading) {

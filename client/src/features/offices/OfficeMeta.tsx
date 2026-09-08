@@ -4,7 +4,13 @@ import { useEffect, useState } from 'react';
 
 const MSK_OFFSET_HOURS = 3;
 
-export function OfficeMeta({ office, className }: { office: Office; className?: string }) {
+export function OfficeMeta({
+  office,
+  className,
+}: {
+  office: Office;
+  className?: string | undefined;
+}) {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {

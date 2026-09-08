@@ -77,6 +77,7 @@ export function getTimeOptions() {
 
 export function getDurationOptions(startTime: string) {
   const [hour, minute] = startTime.split(':').map(Number);
+  if (hour === undefined || minute === undefined) return [];
   const remaining = 20 * 60 - (hour * 60 + minute);
   return Array.from(
     { length: Math.max(0, Math.floor(remaining / 15)) },

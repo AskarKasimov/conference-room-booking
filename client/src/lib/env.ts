@@ -28,6 +28,6 @@ export function parseClientEnv(raw: Record<string, unknown>): ClientEnv {
   return result.data;
 }
 
-export const ENV = parseClientEnv(import.meta.env as unknown as Record<string, unknown>);
+export const ENV = parseClientEnv(import.meta.env);
 export const API_BASE_URL = ENV.API_BASE_URL;
 export const WS_URL = ENV.WS_URL;

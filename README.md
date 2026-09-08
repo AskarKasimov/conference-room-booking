@@ -47,7 +47,9 @@ npm test
 npm run check
 ```
 
-`client npm run check` выполняет Prettier, ESLint, строгую проверку TypeScript, все тесты и production build. В клиентских тестах HTTP заменён MSW, WebSocket — mock factory; реальный сервер не требуется.
+`client npm run check` выполняет Prettier, ESLint, строгую проверку TypeScript, все тесты и production build. В клиентских тестах HTTP заменён MSW, WebSocket — MSW-обработчиком или внедряемой фабрикой; реальный сервер не требуется. `npm test` запускает тесты один раз, `npm run test:watch` — в watch-режиме, как в `server`.
+
+Клиент следует настройкам качества предоставленного backend: одинаковый Prettier, ESLint с проверкой типов (`recommendedTypeChecked`, `projectService`), TypeScript с `strict`, `noUncheckedIndexedAccess` и `exactOptionalPropertyTypes`. Исключения ESLint для тестов повторяют серверные. HTTP-клиент принимает внедряемую функцию `fetch`, WebSocket-provider — фабрику соединения; отмена и таймаут HTTP-запросов работают одинаково в тестах и приложении. Тип обработанного WebSocket-события выводится из Zod-схемы и описывает проверенные поля.
 
 ## Docker
 

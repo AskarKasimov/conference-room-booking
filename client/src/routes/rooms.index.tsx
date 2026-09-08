@@ -153,12 +153,19 @@ function RoomsResults({
   onBook,
 }: {
   officeId: string;
-  interval?: ReturnType<typeof buildOfficeInterval>;
-  minCapacity?: number;
+  interval?: ReturnType<typeof buildOfficeInterval> | undefined;
+  minCapacity?: number | undefined;
   onBook: (room: import('../api/contracts').RoomSummary) => void;
 }) {
   const rooms = useRoomsQuery(
-    interval ? { officeId, from: interval.from, to: interval.to, minCapacity } : undefined,
+    interval
+      ? {
+          officeId,
+          from: interval.from,
+          to: interval.to,
+          ...(minCapacity !== undefined ? { minCapacity } : {}),
+        }
+      : undefined,
   );
   useRealtimeActiveContext(
     interval
@@ -166,7 +173,12 @@ function RoomsResults({
           roomsList: {
             officeId,
             interval,
-            filters: { officeId, from: interval.from, to: interval.to, minCapacity },
+            filters: {
+              officeId,
+              from: interval.from,
+              to: interval.to,
+              ...(minCapacity !== undefined ? { minCapacity } : {}),
+            },
           },
         }
       : undefined,

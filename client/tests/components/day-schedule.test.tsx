@@ -6,6 +6,7 @@ import { officeFixture, roomFixture } from '../support/handlers';
 
 function bookingAt(startTime: string, durationMinutes: number, userId = 'user-1'): BookingView {
   const [hours, minutes] = startTime.split(':').map(Number);
+  if (hours === undefined || minutes === undefined) throw new Error('Invalid fixture time');
   const start = new Date(Date.UTC(2026, 8, 10, hours - 3, minutes));
   const end = new Date(start.getTime() + durationMinutes * 60_000);
   return {

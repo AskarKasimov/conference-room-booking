@@ -32,7 +32,7 @@ export function RealtimeProvider({
   }, []);
 
   useEffect(() => {
-    if (!socketFactory && (typeof WebSocket === 'undefined' || import.meta.env.MODE === 'test')) {
+    if (!socketFactory && typeof WebSocket === 'undefined') {
       return;
     }
 

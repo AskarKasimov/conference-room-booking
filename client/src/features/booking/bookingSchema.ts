@@ -26,7 +26,7 @@ export const createBookingSchema = ({ now, timezone }: BookingSchemaOptions) =>
     })
     .superRefine((value, context) => {
       try {
-        buildOfficeInterval({ ...value, timezone, now });
+        buildOfficeInterval({ ...value, timezone, ...(now !== undefined ? { now } : {}) });
       } catch (error) {
         context.addIssue({
           code: 'custom',

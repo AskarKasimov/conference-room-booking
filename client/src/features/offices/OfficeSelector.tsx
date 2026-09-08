@@ -8,9 +8,9 @@ export function OfficeSelector({
   className,
 }: {
   offices: Office[];
-  value?: string;
+  value?: string | undefined;
   onChange: (officeId: string) => void;
-  className?: string;
+  className?: string | undefined;
 }) {
   return (
     <Select

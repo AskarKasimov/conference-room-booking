@@ -7,7 +7,7 @@ export function BookingsFilters({
   onChange,
 }: {
   offices: Office[];
-  value?: string;
+  value?: string | undefined;
   onChange: (officeId: string | undefined) => void;
 }) {
   return (

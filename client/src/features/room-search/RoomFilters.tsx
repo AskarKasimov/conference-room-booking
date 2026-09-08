@@ -11,7 +11,7 @@ export interface RoomFilterValue {
   date: string;
   startTime: string;
   duration: number;
-  minCapacity?: number;
+  minCapacity?: number | undefined;
 }
 
 function FilterSelect({
@@ -31,8 +31,8 @@ function FilterSelect({
   onChange: (value: string) => void;
   icon?: ComponentType<SVGProps<SVGSVGElement>>;
   chevron?: boolean;
-  className?: string;
-  valuePrefix?: string;
+  className?: string | undefined;
+  valuePrefix?: string | undefined;
   minValueLabel?: string;
 }) {
   const emptyValue = '__empty_filter_option__';

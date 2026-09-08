@@ -1,6 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import type { BookingEvent } from '../api/contracts';
 import { queryKeys } from '../lib/queryKeys';
 import { intervalsOverlap, type TimeInterval } from '../lib/time';
 
@@ -42,6 +41,8 @@ const realtimeEventSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
+export type RealtimeEvent = z.infer<typeof realtimeEventSchema>;
+
 export interface RealtimeActiveContext {
   selectedRoom?: { roomId: string; date: string };
   roomsList?: {
@@ -51,14 +52,14 @@ export interface RealtimeActiveContext {
   };
 }
 
-export function parseRealtimeEvent(raw: unknown): BookingEvent | undefined {
+export function parseRealtimeEvent(raw: unknown): RealtimeEvent | undefined {
   const parsed = realtimeEventSchema.safeParse(raw);
-  return parsed.success ? (parsed.data as BookingEvent) : undefined;
+  return parsed.success ? parsed.data : undefined;
 }
 
 export async function applyRealtimeEvent(
   client: QueryClient,
-  event: BookingEvent | undefined,
+  event: RealtimeEvent | undefined,
   activeContext: RealtimeActiveContext = {},
 ): Promise<void> {
   if (!event) return;

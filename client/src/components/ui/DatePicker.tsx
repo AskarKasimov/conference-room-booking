@@ -37,6 +37,7 @@ const calendarWeekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'
 
 function dateFromValue(value: string) {
   const [year, month, day] = value.split('-').map(Number);
+  if (year === undefined || month === undefined || day === undefined) return new Date(NaN);
   return new Date(Date.UTC(year, month - 1, day));
 }
 
@@ -69,7 +70,7 @@ export function DatePicker({
   onValueChange: (value: string) => void;
   min?: string;
   max?: string;
-  className?: string;
+  className?: string | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState(() => monthStart(dateFromValue(value)));

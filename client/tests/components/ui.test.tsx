@@ -95,7 +95,7 @@ describe('shared UI primitives', () => {
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-labelledby');
   });
 
-  it('closes a dialog when the dimmed background is clicked', async () => {
+  it('closes a dialog when the dimmed background is clicked', () => {
     const onOpenChange = vi.fn();
     render(
       <Dialog open onOpenChange={onOpenChange} title="Подтверждение">

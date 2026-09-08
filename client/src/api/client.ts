@@ -46,7 +46,11 @@ async function parseError(response: Response): Promise<ApiError> {
   );
 }
 
-export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+export async function request<T>(
+  path: string,
+  options: RequestOptions = {},
+  fetchRequest: typeof fetch = globalThis.fetch,
+): Promise<T> {
   const { query, body, method = 'GET', headers, signal, ...rest } = options;
   const requestHeaders = new Headers(headers);
   const init: RequestInit = { ...rest, method, headers: requestHeaders };
@@ -54,9 +58,8 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   const timeoutId = setTimeout(() => timeoutController.abort(), ENV.REQUEST_TIMEOUT_MS);
   const abortRequest = () => timeoutController.abort(signal?.reason);
   signal?.addEventListener('abort', abortRequest, { once: true });
-  if (import.meta.env.MODE !== 'test') {
-    init.signal = timeoutController.signal;
-  }
+  if (signal?.aborted) abortRequest();
+  init.signal = timeoutController.signal;
 
   if (body !== undefined) {
     requestHeaders.set('content-type', 'application/json');
@@ -64,7 +67,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   try {
-    const response = await fetch(buildUrl(path, query), init);
+    const response = await fetchRequest(buildUrl(path, query), init);
     if (!response.ok) throw await parseError(response);
     if (response.status === 204) return undefined as T;
 

@@ -14,7 +14,7 @@ export function DaySchedule({
   bookings: BookingView[];
   timezone: string;
   date: string;
-  currentUserId?: string;
+  currentUserId?: string | undefined;
 }) {
   const startOfDay = DateTime.fromISO(`${date}T09:00`, { zone: timezone });
   const blocks = bookings.flatMap((booking) => {

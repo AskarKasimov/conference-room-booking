@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, ws } from 'msw';
 import type { Office, RoomSummary } from '../../src/api/contracts';
 
 export const officeFixture: Office = {
@@ -28,6 +28,7 @@ export const currentUserFixture = {
 };
 
 export const handlers = [
+  ws.link('ws://localhost:3000/api/v1/ws').addEventListener('connection', () => undefined),
   http.get('*/api/v1/me', () => HttpResponse.json(currentUserFixture)),
   http.get('*/api/v1/offices', () => HttpResponse.json({ items: [officeFixture] })),
   http.get('*/api/v1/rooms', () => HttpResponse.json({ items: [roomFixture] })),
