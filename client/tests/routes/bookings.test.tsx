@@ -129,6 +129,52 @@ it('updates the past tab, selects an office, and clears it with All offices', as
   });
 });
 
+it('filters bookings by a calendar date range', async () => {
+  const user = userEvent.setup();
+  server.use(
+    http.get('*/api/v1/bookings', () =>
+      HttpResponse.json({
+        items: [
+          booking('before', '2026-09-09T07:00:00.000Z'),
+          booking('inside-start', '2026-09-10T07:00:00.000Z'),
+          booking('inside-end', '2026-09-15T07:00:00.000Z'),
+          booking('after', '2026-09-16T07:00:00.000Z'),
+        ],
+      }),
+    ),
+  );
+  renderBookings('/bookings?scope=past');
+
+  await user.click(await screen.findByRole('button', { name: 'Выбрать период' }));
+  await user.click(screen.getByRole('button', { name: 'Предыдущий месяц' }));
+  expect(screen.queryByText('Выберите начало периода')).not.toBeInTheDocument();
+  await user.click(await screen.findByRole('button', { name: '10 сентября, Чт' }));
+  await user.click(screen.getByRole('button', { name: '15 сентября, Вт' }));
+
+  expect(screen.getByRole('button', { name: '16 сентября, Ср' })).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'before' })).not.toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'inside-start' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'inside-end' })).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'after' })).not.toBeInTheDocument();
+  const upcomingTab = screen.getByRole('link', { name: /Предстоящие/ });
+  expect(upcomingTab).toHaveAttribute('href', expect.stringContaining('from=2026-09-10'));
+  expect(upcomingTab).toHaveAttribute('href', expect.stringContaining('to=2026-09-15'));
+});
+
+it('keeps the calendar on the month where the range end was picked', async () => {
+  const user = userEvent.setup();
+  server.use(http.get('*/api/v1/bookings', () => HttpResponse.json({ items: [] })));
+  renderBookings('/bookings?scope=past');
+
+  await user.click(await screen.findByRole('button', { name: 'Выбрать период' }));
+  await user.click(screen.getByRole('button', { name: 'Предыдущий месяц' }));
+  await user.click(await screen.findByRole('button', { name: '30 сентября, Ср' }));
+  await user.click(screen.getByRole('button', { name: 'Следующий месяц' }));
+  await user.click(await screen.findByRole('button', { name: '2 октября, Пт' }));
+
+  expect(screen.getByText('Октябрь 2026')).toBeInTheDocument();
+});
+
 it('moves the active underline with the booking tab', async () => {
   const user = userEvent.setup();
   server.use(http.get('*/api/v1/bookings', () => HttpResponse.json({ items: [] })));

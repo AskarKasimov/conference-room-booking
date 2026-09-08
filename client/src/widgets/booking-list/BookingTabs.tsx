@@ -5,12 +5,14 @@ import styles from './BookingList.module.scss';
 export function BookingTabs({
   scope,
   officeId,
-  period,
+  from,
+  to,
   count,
 }: {
   scope: 'upcoming' | 'past' | 'all';
   officeId?: string | undefined;
-  period?: string | undefined;
+  from?: string | undefined;
+  to?: string | undefined;
   count: number | undefined;
 }) {
   const { containerRef, indicatorStyle, ready } = useSlidingIndicator(
@@ -20,7 +22,8 @@ export function BookingTabs({
   const query = (nextScope: string) => {
     const params = new URLSearchParams({ scope: nextScope });
     if (officeId) params.set('officeId', officeId);
-    if (period && period !== 'all') params.set('period', period);
+    if (from) params.set('from', from);
+    if (to) params.set('to', to);
     return `/bookings?${params.toString()}`;
   };
 

@@ -12,8 +12,16 @@ import styles from './BookingsPage.module.scss';
 export function BookingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const scopeValue = searchParams.get('scope');
-  const periodValue = searchParams.get('period');
-  const period = periodValue === '30d' || periodValue === '90d' ? periodValue : 'all';
+  const fromValue = searchParams.get('from');
+  const toValue = searchParams.get('to');
+  const from =
+    fromValue && DateTime.fromISO(fromValue, { zone: 'utc' }).toISODate() === fromValue
+      ? fromValue
+      : undefined;
+  const to =
+    toValue && DateTime.fromISO(toValue, { zone: 'utc' }).toISODate() === toValue
+      ? toValue
+      : undefined;
   const scope: 'upcoming' | 'past' | 'all' =
     scopeValue === 'past' || scopeValue === 'all' ? scopeValue : 'upcoming';
   const search = {
@@ -28,24 +36,28 @@ export function BookingsPage() {
   });
 
   const rawItems = bookings.data ?? [];
-  const items =
-    period === 'all'
-      ? rawItems
-      : rawItems.filter((booking) => {
-          const days = period === '30d' ? 30 : 90;
-          const cutoff = DateTime.now().minus({ days }).toMillis();
-          return DateTime.fromISO(booking.startsAt, { setZone: true }).toMillis() >= cutoff;
-        });
+  const items = rawItems.filter((booking) => {
+    const bookingDate = DateTime.fromISO(booking.startsAt, { setZone: true })
+      .setZone(booking.office.timezone)
+      .toISODate();
+    return bookingDate !== null && (!from || bookingDate >= from) && (!to || bookingDate <= to);
+  });
   const loading = offices.isLoading || bookings.isLoading || bookings.isPlaceholderData;
   const error = offices.isError || bookings.isError;
 
-  function updateFilters(next: { officeId?: string | undefined; period?: string | undefined }) {
+  function updateFilters(next: {
+    officeId?: string | undefined;
+    from?: string | undefined;
+    to?: string | undefined;
+  }) {
     const params = new URLSearchParams();
     params.set('scope', search.scope);
     const officeId = 'officeId' in next ? next.officeId : search.officeId;
-    const nextPeriod = next.period ?? period;
     if (officeId) params.set('officeId', officeId);
-    if (nextPeriod !== 'all') params.set('period', nextPeriod);
+    const nextFrom = 'from' in next ? next.from : from;
+    const nextTo = 'to' in next ? next.to : to;
+    if (nextFrom) params.set('from', nextFrom);
+    if (nextTo) params.set('to', nextTo);
     setSearchParams(params);
   }
 
@@ -145,9 +157,10 @@ export function BookingsPage() {
             <BookingsFilters
               offices={offices.data ?? []}
               value={search.officeId}
-              period={period}
+              from={from}
+              to={to}
               onChange={(officeId) => updateFilters({ officeId })}
-              onPeriodChange={(nextPeriod) => updateFilters({ period: nextPeriod })}
+              onDateRangeChange={(range) => updateFilters({ from: range.from, to: range.to })}
             />
           </div>
         </div>
@@ -166,7 +179,8 @@ export function BookingsPage() {
         <BookingTabs
           scope={search.scope}
           officeId={search.officeId}
-          period={period}
+          from={from}
+          to={to}
           count={
             bookings.data === undefined || bookings.isPlaceholderData ? undefined : items.length
           }

@@ -6,13 +6,13 @@ it('hides the office label while retaining an accessible name for the bookings f
   render(
     <BookingsFilters
       value={undefined}
-      period="all"
       onChange={vi.fn()}
-      onPeriodChange={vi.fn()}
+      onDateRangeChange={vi.fn()}
       offices={[{ id: 'moscow', name: 'Москва', address: 'Тверская', timezone: 'Europe/Moscow' }]}
     />,
   );
 
   expect(screen.queryByText('Офис')).not.toBeInTheDocument();
   expect(screen.getByRole('combobox', { name: 'Офис' })).toHaveTextContent('Все офисы');
+  expect(screen.getByRole('button', { name: 'Выбрать период' })).toHaveTextContent('За все время');
 });

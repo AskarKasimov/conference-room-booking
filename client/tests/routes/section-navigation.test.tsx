@@ -63,8 +63,9 @@ it('restores each section URL and its filters after switching main tabs', async 
   await user.click(await screen.findByRole('link', { name: 'Прошедшие' }));
   await user.click(screen.getByRole('combobox', { name: 'Офис' }));
   await user.click(await screen.findByRole('option', { name: officeFixture.name }));
-  await user.click(screen.getByRole('combobox', { name: 'Период' }));
-  await user.click(await screen.findByRole('option', { name: 'За месяц' }));
+  await user.click(screen.getByRole('button', { name: 'Выбрать период' }));
+  await user.click(await screen.findByRole('button', { name: '1 октября, Чт' }));
+  await user.click(screen.getByRole('button', { name: '5 октября, Пн' }));
 
   await user.click(mainLink('Переговорные'));
   await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' });
@@ -75,14 +76,16 @@ it('restores each section URL and its filters after switching main tabs', async 
   await user.click(mainLink('Мои бронирования'));
   await screen.findByRole('heading', { name: 'Мои бронирования' });
   expect(screen.getByTestId('location')).toHaveTextContent(
-    '/bookings?scope=past&officeId=office-moscow&period=30d',
+    '/bookings?scope=past&officeId=office-moscow&from=2026-10-01&to=2026-10-05',
   );
   expect(screen.getByRole('link', { name: 'Прошедшие (0)' })).toHaveAttribute(
     'data-active',
     'true',
   );
   expect(screen.getByRole('combobox', { name: 'Офис' })).toHaveTextContent(officeFixture.name);
-  expect(screen.getByRole('combobox', { name: 'Период' })).toHaveTextContent('За месяц');
+  expect(screen.getByRole('button', { name: 'Выбрать период' })).toHaveTextContent(
+    '1 октября — 5 октября',
+  );
 });
 
 it('keeps the current filters when the active main tab is clicked', async () => {
@@ -121,19 +124,25 @@ it('restores the room detail and its changed schedule date, then returns to the 
 
 it('remembers the URL reached through Back and Forward without overriding browser history', async () => {
   const user = userEvent.setup();
-  renderNavigation('/bookings?scope=past&period=90d');
+  renderNavigation('/bookings?scope=past&from=2026-09-01&to=2026-09-30');
   await screen.findByRole('heading', { name: 'Мои бронирования' });
   await user.click(screen.getByRole('link', { name: 'Предстоящие' }));
   await user.click(mainLink('Переговорные'));
   await user.click(screen.getByRole('button', { name: 'Назад в истории' }));
   await user.click(screen.getByRole('button', { name: 'Назад в истории' }));
-  expect(screen.getByTestId('location')).toHaveTextContent('/bookings?scope=past&period=90d');
+  expect(screen.getByTestId('location')).toHaveTextContent(
+    '/bookings?scope=past&from=2026-09-01&to=2026-09-30',
+  );
   await user.click(screen.getByRole('button', { name: 'Вперёд в истории' }));
-  expect(screen.getByTestId('location')).toHaveTextContent('/bookings?scope=upcoming&period=90d');
+  expect(screen.getByTestId('location')).toHaveTextContent(
+    '/bookings?scope=upcoming&from=2026-09-01&to=2026-09-30',
+  );
   await user.click(mainLink('Переговорные'));
   await user.click(mainLink('Мои бронирования'));
   await screen.findByRole('heading', { name: 'Мои бронирования' });
-  expect(screen.getByTestId('location')).toHaveTextContent('/bookings?scope=upcoming&period=90d');
+  expect(screen.getByTestId('location')).toHaveTextContent(
+    '/bookings?scope=upcoming&from=2026-09-01&to=2026-09-30',
+  );
 });
 
 it('remembers the normalized date when entering a room directly', async () => {

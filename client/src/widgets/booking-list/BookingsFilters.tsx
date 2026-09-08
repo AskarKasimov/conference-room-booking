@@ -1,19 +1,21 @@
 import type { Office } from '../../entities/office';
 import { Select } from '../../shared/ui';
-import CalendarIcon from '../../shared/assets/icons/calendar.svg?react';
+import { BookingDateRangePicker } from './BookingDateRangePicker';
 
 export function BookingsFilters({
   offices,
   value,
-  period,
+  from,
+  to,
   onChange,
-  onPeriodChange,
+  onDateRangeChange,
 }: {
   offices: Office[];
   value?: string | undefined;
-  period: string;
+  from?: string | undefined;
+  to?: string | undefined;
   onChange: (officeId: string | undefined) => void;
-  onPeriodChange: (period: string) => void;
+  onDateRangeChange: (range: { from?: string | undefined; to?: string | undefined }) => void;
 }) {
   return (
     <>
@@ -27,18 +29,7 @@ export function BookingsFilters({
           ...offices.map((office) => ({ value: office.id, label: office.name })),
         ]}
       />
-      <Select
-        label="Период"
-        hideLabel
-        value={period}
-        leadingIcon={CalendarIcon}
-        onValueChange={onPeriodChange}
-        options={[
-          { value: 'all', label: 'За все время' },
-          { value: '30d', label: 'За месяц' },
-          { value: '90d', label: 'За 3 месяца' },
-        ]}
-      />
+      <BookingDateRangePicker from={from} to={to} onChange={onDateRangeChange} />
     </>
   );
 }
