@@ -69,7 +69,20 @@ export function getDurationOptions(startTime: string) {
 export function formatDuration(minutes: number) {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
-  return [hours ? `${hours} ч` : '', remainingMinutes ? `${remainingMinutes} мин` : '']
+  const lastTwoDigits = hours % 100;
+  const lastDigit = hours % 10;
+  const hourWord =
+    lastTwoDigits >= 11 && lastTwoDigits <= 14
+      ? 'часов'
+      : lastDigit === 1
+        ? 'час'
+        : lastDigit >= 2 && lastDigit <= 4
+          ? 'часа'
+          : 'часов';
+  return [
+    hours ? (remainingMinutes ? `${hours} ч` : `${hours} ${hourWord}`) : '',
+    remainingMinutes ? `${remainingMinutes} мин` : '',
+  ]
     .filter(Boolean)
     .join(' ');
 }

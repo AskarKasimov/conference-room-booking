@@ -61,6 +61,18 @@ describe('shared UI primitives', () => {
     expect(screen.queryByRole('option', { name: 'Выберите офис' })).not.toBeInTheDocument();
   });
 
+  it('uses the chevron icon for the office selector trigger', () => {
+    render(
+      <OfficeSelector
+        value="moscow"
+        onChange={vi.fn()}
+        offices={[{ id: 'moscow', name: 'Москва', address: 'Тверская', timezone: 'Europe/Moscow' }]}
+      />,
+    );
+
+    expect(screen.getByRole('combobox', { name: 'Офис' }).querySelector('svg')).toBeTruthy();
+  });
+
   it('closes a dialog on Escape and returns focus to its trigger', async () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();

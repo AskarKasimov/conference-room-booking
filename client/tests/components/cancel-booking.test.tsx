@@ -4,6 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { BookingRow } from '../../src/features/my-bookings/BookingRow';
+import styles from '../../src/features/my-bookings/MyBookings.module.scss';
 import { createTestQueryClient } from '../../src/test/renderWithProviders';
 import { officeFixture } from '../../src/test/handlers';
 import { server } from '../../src/test/server';
@@ -36,7 +37,19 @@ const booking = {
   },
 };
 
-it('requires confirmation before cancellation and does not delete on decline', async () => {
+it('renders room, floor, and time as the booking card metadata', () => {
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <BookingRow booking={booking} canCancel />
+    </AppProviders>,
+  );
+
+  expect(screen.getByText('Эверест')).toHaveClass(styles.roomName);
+  expect(screen.getByText('12 этаж')).toHaveClass(styles.metadataItem);
+  expect(screen.getByText('10:00–11:00 МСК')).toHaveClass(styles.metadataItem);
+});
+
+it('shows the warning, booking details, icons, and equal-priority choices before cancellation', async () => {
   const user = userEvent.setup();
   let deletes = 0;
   server.use(
@@ -52,12 +65,17 @@ it('requires confirmation before cancellation and does not delete on decline', a
   );
 
   await user.click(screen.getByRole('button', { name: 'Отменить' }));
-  expect(screen.getByRole('dialog')).toHaveTextContent('Эверест');
-  expect(screen.getByRole('dialog')).toHaveTextContent(
-    'Вы уверены, что хотите отменить это бронирование?',
+  const dialog = screen.getByRole('dialog');
+  expect(dialog).toHaveTextContent(
+    'Это действие нельзя будет отменить. Освободившееся время станет доступно другим сотрудникам.',
   );
-  expect(screen.getByRole('dialog')).toHaveTextContent('Планирование');
-  await user.click(screen.getByRole('button', { name: 'Оставить' }));
+  expect(dialog).toHaveTextContent('Комната «Эверест», 12 этаж');
+  expect(dialog).toHaveTextContent('Четверг, 10 сентября, 10:00 – 11:00');
+  expect(dialog.querySelectorAll('svg')).toHaveLength(2);
+  expect(screen.queryByRole('button', { name: 'Закрыть' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Нет, оставить' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Да, отменить' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Нет, оставить' }));
   expect(deletes).toBe(0);
 });
 
@@ -78,7 +96,7 @@ it('keeps the row and shows an API error when cancellation fails', async () => {
   );
 
   await user.click(screen.getByRole('button', { name: 'Отменить' }));
-  await user.click(screen.getByRole('button', { name: 'Отменить бронирование' }));
+  await user.click(screen.getByRole('button', { name: 'Да, отменить' }));
 
   expect(await screen.findByRole('alert')).toHaveTextContent('Нельзя отменить');
   expect(screen.getByRole('heading', { name: 'Планирование', hidden: true })).toBeInTheDocument();

@@ -1,4 +1,5 @@
 import * as Primitive from '@radix-ui/react-select';
+import ChevronDownIcon from '../../assets/icons/chevron-down.svg?react';
 import styles from './Select.module.scss';
 
 const emptyValue = '__empty_option__';
@@ -10,6 +11,7 @@ export function Select({
   onValueChange,
   placeholder,
   className,
+  hideLabel = false,
 }: {
   label: string;
   value: string;
@@ -17,18 +19,19 @@ export function Select({
   onValueChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  hideLabel?: boolean;
 }) {
   const radixValue = value || (options.some((option) => option.value === '') ? emptyValue : '');
   return (
     <label className={`${styles.field} ${className ?? ''}`}>
-      <span>{label}</span>
+      {hideLabel ? null : <span>{label}</span>}
       <Primitive.Root
         value={radixValue}
         onValueChange={(next) => onValueChange(next === emptyValue ? '' : next)}
       >
         <Primitive.Trigger className={styles.select} aria-label={label}>
           <Primitive.Value placeholder={placeholder} />
-          <span aria-hidden>⌄</span>
+          <ChevronDownIcon className={styles.chevron} aria-hidden="true" />
         </Primitive.Trigger>
         <Primitive.Portal>
           <Primitive.Content className={styles.content} position="popper">

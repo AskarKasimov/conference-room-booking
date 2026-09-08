@@ -1,4 +1,9 @@
 import * as Select from '@radix-ui/react-select';
+import { type ComponentType, type SVGProps } from 'react';
+import ChevronDownIcon from '../../assets/icons/chevron-down.svg?react';
+import ClockIcon from '../../assets/icons/clock.svg?react';
+import PeopleIcon from '../../assets/icons/people.svg?react';
+import { DatePicker } from '../../components/ui/DatePicker';
 import { formatDuration, getDurationOptions, getTimeOptions } from './searchParams';
 import styles from './RoomSearch.module.scss';
 
@@ -14,22 +19,42 @@ function FilterSelect({
   value,
   options,
   onChange,
+  icon: Icon,
+  chevron = false,
+  className,
+  valuePrefix,
+  minValueLabel,
 }: {
   label: string;
   value: string;
   options: Array<[string, string]>;
   onChange: (value: string) => void;
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
+  chevron?: boolean;
+  className?: string;
+  valuePrefix?: string;
+  minValueLabel?: string;
 }) {
   const emptyValue = '__empty_filter_option__';
   return (
-    <label className={styles.field}>
-      <span>{label}</span>
+    <label className={`${styles.field} ${className ?? ''}`}>
+      <span className={styles.fieldLabel}>{label}</span>
       <Select.Root
         value={value || (options.some(([optionValue]) => optionValue === '') ? emptyValue : '')}
         onValueChange={(next) => onChange(next === emptyValue ? '' : next)}
       >
         <Select.Trigger className={styles.select} aria-label={label}>
-          <Select.Value />
+          {Icon && <Icon className={styles.fieldIcon} aria-hidden="true" />}
+          <span className={styles.selectValue}>
+            {valuePrefix}
+            <Select.Value />
+            {minValueLabel && (
+              <span className={styles.minValueMeasure} aria-hidden="true">
+                {minValueLabel}
+              </span>
+            )}
+          </span>
+          {chevron && <ChevronDownIcon className={styles.chevron} aria-hidden="true" />}
         </Select.Trigger>
         <Select.Portal>
           <Select.Content className={styles.selectContent} position="popper">
@@ -68,30 +93,33 @@ export function RoomFilters({
         : (durationOptions.at(-1) ?? 15),
     });
   };
+
   return (
     <div className={styles.filters}>
-      <label className={styles.field}>
-        <span>Дата</span>
-        <input
-          type="date"
-          value={value.date}
-          onChange={(event) => update({ date: event.target.value })}
-        />
-      </label>
+      <DatePicker
+        className={styles.dateField}
+        value={value.date}
+        onValueChange={(date) => update({ date })}
+      />
       <FilterSelect
         label="Время начала"
         value={value.startTime}
         onChange={updateStartTime}
         options={getTimeOptions().map((time): [string, string] => [time, time])}
+        icon={ClockIcon}
+        className={styles.timeField}
       />
       <FilterSelect
-        label="Продолжительность"
+        label="Длительность"
         value={String(value.duration)}
         onChange={(duration) => update({ duration: Number(duration) })}
         options={getDurationOptions(value.startTime).map((minutes): [string, string] => [
           String(minutes),
           formatDuration(minutes),
         ])}
+        chevron
+        className={styles.durationField}
+        minValueLabel="10 ч 45 мин"
       />
       <FilterSelect
         label="Вместимость"
@@ -106,6 +134,10 @@ export function RoomFilters({
             `${capacity} чел.`,
           ]),
         ]}
+        icon={PeopleIcon}
+        chevron
+        className={styles.capacityField}
+        valuePrefix={value.minCapacity ? 'Мин. ' : undefined}
       />
     </div>
   );

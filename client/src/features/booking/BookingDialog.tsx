@@ -7,10 +7,11 @@ import { ApiError } from '../../api/client';
 import { Button } from '../../components/ui/Button';
 import { Dialog } from '../../components/ui/Dialog';
 import { Alert } from '../../components/ui/Alert';
+import { DatePicker } from '../../components/ui/DatePicker';
 import { Select } from '../../components/ui/Select';
 import { formatDuration, getDurationOptions, getTimeOptions } from '../room-search/searchParams';
 import { buildOfficeInterval } from '../../lib/time';
-import { BookingSuccessNotice } from './BookingSuccessNotice';
+import { BookingSuccessNotice, type BookingSuccess } from './BookingSuccessNotice';
 import { createBookingSchema, type BookingFormValues } from './bookingSchema';
 import { useCreateBookingMutation } from './useCreateBookingMutation';
 import styles from './Booking.module.scss';
@@ -31,9 +32,9 @@ export function BookingDialog({
   selection: BookingSelection;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: (booking: BookingSuccess) => void;
 }) {
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<BookingSuccess>();
   const [conflict, setConflict] = useState(false);
   const mutation = useCreateBookingMutation();
   const schema = createBookingSchema({ timezone: selection.room.office.timezone });
@@ -65,12 +66,20 @@ export function BookingDialog({
       if (error instanceof ApiError && error.code === 'BOOKING_CONFLICT') setConflict(true);
       return;
     }
-    setSuccess(true);
-    onSuccess?.();
+    const completedBooking = {
+      roomName: selection.room.name,
+      date: values.date,
+      startTime: values.startTime,
+      durationMinutes: values.durationMinutes,
+      timezone: selection.room.office.timezone,
+    };
+    setSuccess(completedBooking);
+    onSuccess?.(completedBooking);
     onOpenChange(false);
   };
   const durationOptions = getDurationOptions(form.watch('startTime'));
-  if (success) return <BookingSuccessNotice />;
+  if (success)
+    return <BookingSuccessNotice booking={success} onDismiss={() => setSuccess(undefined)} />;
   if (conflict) {
     return (
       <Dialog open={open} title="Время уже занято" onOpenChange={onOpenChange} showClose={false}>
@@ -122,14 +131,11 @@ export function BookingDialog({
           </span>
         ) : null}
         <div className={styles.intervalFields}>
-          <label className={form.formState.errors.date ? styles.invalid : undefined}>
-            Дата
-            <input
-              type="date"
-              {...form.register('date')}
-              aria-invalid={Boolean(form.formState.errors.date)}
-            />
-          </label>
+          <DatePicker
+            label="Дата"
+            value={form.watch('date')}
+            onValueChange={(date) => form.setValue('date', date, { shouldValidate: true })}
+          />
           <Select
             label="Время начала"
             value={form.watch('startTime')}
@@ -144,16 +150,17 @@ export function BookingDialog({
             options={getTimeOptions().map((time) => ({ value: time, label: time }))}
           />
         </div>
-        <label>
-          Продолжительность
-          <select {...form.register('durationMinutes', { valueAsNumber: true })}>
-            {durationOptions.map((minutes) => (
-              <option key={minutes} value={minutes}>
-                {formatDuration(minutes)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select
+          label="Продолжительность"
+          value={String(form.watch('durationMinutes'))}
+          onValueChange={(durationMinutes) =>
+            form.setValue('durationMinutes', Number(durationMinutes), { shouldValidate: true })
+          }
+          options={durationOptions.map((minutes) => ({
+            value: String(minutes),
+            label: formatDuration(minutes),
+          }))}
+        />
         {form.formState.errors.startTime ? (
           <span className={styles.error}>{form.formState.errors.startTime.message}</span>
         ) : null}

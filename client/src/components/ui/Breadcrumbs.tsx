@@ -1,0 +1,68 @@
+import { useLinkProps } from '@tanstack/react-router';
+import styles from './Breadcrumbs.module.scss';
+
+type RoomsBreadcrumb = {
+  label: string;
+  to: '/rooms';
+  search?: { officeId?: string };
+};
+
+type BookingsBreadcrumb = {
+  label: string;
+  to: '/bookings';
+};
+
+type CurrentBreadcrumb = {
+  label: string;
+};
+
+export type BreadcrumbItem = RoomsBreadcrumb | BookingsBreadcrumb | CurrentBreadcrumb;
+
+export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; className?: string }) {
+  return (
+    <nav
+      aria-label="Навигационная цепочка"
+      className={[styles.breadcrumbs, className].filter(Boolean).join(' ')}
+    >
+      <ol>
+        {items.map((item, index) => {
+          const isCurrent = index === items.length - 1;
+          return (
+            <li key={`${item.label}-${index}`}>
+              {isCurrent ? (
+                <span aria-current="page">{item.label}</span>
+              ) : 'to' in item && item.to === '/rooms' ? (
+                <RoomsBreadcrumbLink item={item} />
+              ) : 'to' in item && item.to === '/bookings' ? (
+                <BookingsBreadcrumbLink item={item} />
+              ) : (
+                <span>{item.label}</span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+function RoomsBreadcrumbLink({ item }: { item: RoomsBreadcrumb }) {
+  const linkProps = useLinkProps({
+    to: '/rooms',
+    search: item.search,
+  });
+  return (
+    <a {...linkProps} aria-current={undefined}>
+      {item.label}
+    </a>
+  );
+}
+
+function BookingsBreadcrumbLink({ item }: { item: BookingsBreadcrumb }) {
+  const linkProps = useLinkProps({ to: '/bookings' });
+  return (
+    <a {...linkProps} aria-current={undefined}>
+      {item.label}
+    </a>
+  );
+}

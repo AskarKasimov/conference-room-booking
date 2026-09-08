@@ -1,0 +1,140 @@
+.field {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.fieldLabel {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid #dce4ee;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.625rem;
+  color: var(--color-text);
+  background: white;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.trigger svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  color: #51627a;
+}
+
+.calendar {
+  width: 15rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.calendarHeader > div {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.calendarNav {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border: 0;
+  border-radius: 0.25rem;
+  padding: 0;
+  color: #64748b;
+  background: transparent;
+}
+
+.calendarNav:hover {
+  background: #f1f5f9;
+}
+
+.calendarNav svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.calendarNav:first-child svg {
+  transform: rotate(90deg);
+}
+
+.calendarNav:last-child svg {
+  transform: rotate(-90deg);
+}
+
+.calendarWeekdays,
+.calendarDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.15rem;
+}
+
+.calendarWeekdays {
+  margin-bottom: 0.25rem;
+  color: #94a3b8;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.calendarDays button,
+.calendarDays span {
+  display: grid;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 0;
+  border-radius: 0.3rem;
+  padding: 0;
+  color: #334155;
+  background: transparent;
+  font: inherit;
+  font-size: 0.75rem;
+}
+
+.calendarDays button:hover:not(:disabled) {
+  background: #e7f7f4;
+}
+
+.calendarDays button:disabled {
+  cursor: not-allowed;
+  color: #cbd5e1;
+}
+
+.calendarDays .selectedDay {
+  color: white;
+  background: var(--color-primary);
+  font-weight: 700;
+}
+
+.calendarDays .selectedDay:hover {
+  background: var(--color-primary-dark);
+}

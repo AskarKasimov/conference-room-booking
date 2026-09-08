@@ -1,11 +1,20 @@
+import { DateTime } from 'luxon';
+import CalendarIcon from '../../assets/icons/calendar.svg?react';
+import RoomIcon from '../../assets/icons/room.svg?react';
 import { useCancelBookingMutation } from './useCancelBookingMutation';
 import type { BookingView } from '../../api/contracts';
 import { ApiError } from '../../api/client';
 import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Dialog } from '../../components/ui/Dialog';
-import { formatLocalDate, formatLocalTime } from '../../lib/time';
+import { formatLocalTime } from '../../lib/time';
 import styles from './MyBookings.module.scss';
+
+function formatBookingDate(value: string, timezone: string): string {
+  const date = DateTime.fromISO(value, { setZone: true }).setZone(timezone).setLocale('ru');
+  const label = date.toFormat('cccc, d MMMM');
+  return `${label.slice(0, 1).toUpperCase()}${label.slice(1)}`;
+}
 
 export function CancelBookingDialog({
   booking,
@@ -26,15 +35,27 @@ export function CancelBookingDialog({
     }
   };
   return (
-    <Dialog open={open} title="Отменить бронирование" onOpenChange={onOpenChange}>
-      <p className={styles.confirmation}>Вы уверены, что хотите отменить это бронирование?</p>
+    <Dialog
+      open={open}
+      title="Отменить бронирование?"
+      onOpenChange={onOpenChange}
+      showClose={false}
+    >
+      <p className={styles.confirmation}>
+        Это действие нельзя будет отменить. Освободившееся время станет доступно другим сотрудникам.
+      </p>
       <div className={styles.bookingDetails}>
         <strong>{booking.title}</strong>
-        <span>
-          {booking.room.name} · {formatLocalDate(booking.startsAt, booking.office.timezone)} ·{' '}
-          {formatLocalTime(booking.startsAt, booking.office.timezone)}–
+        <p>
+          <RoomIcon aria-hidden="true" />
+          Комната «{booking.room.name}», {booking.room.floor} этаж
+        </p>
+        <p>
+          <CalendarIcon aria-hidden="true" />
+          {formatBookingDate(booking.startsAt, booking.office.timezone)},{' '}
+          {formatLocalTime(booking.startsAt, booking.office.timezone)} –{' '}
           {formatLocalTime(booking.endsAt, booking.office.timezone)}
-        </span>
+        </p>
       </div>
       {mutation.error ? (
         <Alert variant="error">
@@ -49,10 +70,10 @@ export function CancelBookingDialog({
           onClick={() => onOpenChange(false)}
           disabled={mutation.isPending}
         >
-          Оставить
+          Нет, оставить
         </Button>
         <Button variant="danger" onClick={() => void confirm()} isLoading={mutation.isPending}>
-          Отменить бронирование
+          Да, отменить
         </Button>
       </div>
     </Dialog>

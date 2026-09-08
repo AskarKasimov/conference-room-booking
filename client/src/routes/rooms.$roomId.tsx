@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, useParams, useSearch } from '@tanstack/re
 import { useState } from 'react';
 import { DateTime } from 'luxon';
 import { ErrorState } from '../components/ui/ErrorState';
+import { Breadcrumbs, type BreadcrumbItem } from '../components/ui/Breadcrumbs';
 import { PageSkeleton } from '../components/ui/PageSkeleton';
 import { Button } from '../components/ui/Button';
 import { DaySchedule } from '../features/room-detail/DaySchedule';
@@ -25,21 +26,41 @@ function RoomDetailPage() {
   const { roomId } = useParams({ from: '/rooms/$roomId' });
   const search = useSearch({ from: '/rooms/$roomId' });
   const roomQuery = useRoomDetailQuery(roomId);
-  if (roomQuery.isLoading) return <PageSkeleton label="Загрузка комнаты…" />;
-  if (roomQuery.isError || !roomQuery.data)
-    return (
+  let content: React.ReactNode;
+  let breadcrumbs: BreadcrumbItem[] = [
+    { label: 'Переговорные', to: '/rooms' },
+    { label: 'Комната' },
+  ];
+  if (roomQuery.isLoading) {
+    content = <PageSkeleton label="Загрузка комнаты…" />;
+  } else if (roomQuery.isError || !roomQuery.data) {
+    content = (
       <ErrorState
         title="Не удалось загрузить комнату"
         description="Комната не найдена или временно недоступна."
         onRetry={() => void roomQuery.refetch()}
       />
     );
-  const room = roomQuery.data;
-  const today = DateTime.now().setZone(room.office.timezone).toISODate() ?? '';
-  const date = search.date ?? today;
-  const maxDate = DateTime.fromISO(today).plus({ days: 30 }).toISODate() ?? today;
+  } else {
+    const room = roomQuery.data;
+    const today = DateTime.now().setZone(room.office.timezone).toISODate() ?? '';
+    const date = search.date ?? today;
+    const maxDate = DateTime.fromISO(today).plus({ days: 30 }).toISODate() ?? today;
+    breadcrumbs = [
+      { label: 'Переговорные', to: '/rooms' },
+      { label: room.office.name, to: '/rooms', search: { officeId: room.office.id } },
+      { label: `Комната '${room.name}'` },
+    ];
+    content = (
+      <RoomDetailContent room={room} roomId={roomId} date={date} today={today} maxDate={maxDate} />
+    );
+  }
+
   return (
-    <RoomDetailContent room={room} roomId={roomId} date={date} today={today} maxDate={maxDate} />
+    <div className={styles.page}>
+      <Breadcrumbs items={breadcrumbs} />
+      {content}
+    </div>
   );
 }
 
@@ -63,14 +84,7 @@ function RoomDetailContent({
   const preferredSlot =
     date === today ? getNextSlot(room.office.timezone) : { date, startTime: '09:00' };
   return (
-    <div className={styles.page}>
-      <nav className={styles.breadcrumbs} aria-label="Навигационная цепочка">
-        <span>Переговорные</span>
-        <span aria-hidden="true">›</span>
-        <span>{room.office.name}</span>
-        <span aria-hidden="true">›</span>
-        <strong>Комната '{room.name}'</strong>
-      </nav>
+    <>
       <div className={styles.layout}>
         <RoomSummaryCard room={room} />
         <div className={styles.scheduleWrap}>
@@ -115,13 +129,13 @@ function RoomDetailContent({
       <BookingDialog
         selection={{
           room,
-          date: preferredSlot.date === date ? date : preferredSlot.date,
+          date,
           startTime: preferredSlot.startTime,
           durationMinutes: 60,
         }}
         open={bookingOpen}
         onOpenChange={setBookingOpen}
       />
-    </div>
+    </>
   );
 }

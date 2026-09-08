@@ -1,4 +1,6 @@
 import type { RoomSummary } from '../../api/contracts';
+import ClockIcon from '../../assets/icons/clock.svg?react';
+import PeopleIcon from '../../assets/icons/people.svg?react';
 import { Button } from '../../components/ui/Button';
 import styles from './RoomSearch.module.scss';
 
@@ -21,10 +23,11 @@ export function RoomCard({
         </div>
       </div>
       <p className={styles.meta}>
-        <span aria-hidden="true">♧</span> Вместимость: до {room.capacity} человек
+        <PeopleIcon aria-hidden="true" />
+        Вместимость: до {room.capacity} человек
       </p>
       <p className={styles.meta}>
-        <span aria-hidden="true">◷</span>{' '}
+        <ClockIcon aria-hidden="true" />
         {availability ? 'Свободна весь день' : 'Занята на выбранное время'}
       </p>
       <p
@@ -34,8 +37,14 @@ export function RoomCard({
         {availability ? 'Доступно на выбранное время' : 'Недоступно на выбранное время'}
       </p>
       <div className={styles.cardActions}>
-        <a href={`/rooms/${room.id}`}>Подробнее</a>
-        <Button disabled={!availability} onClick={() => onBook(room)}>
+        <a className={styles.cardDetails} href={`/rooms/${room.id}`}>
+          Подробнее
+        </a>
+        <Button
+          className={`${styles.cardBookButton} ${!availability ? styles.disabledBookButton : ''}`}
+          disabled={!availability}
+          onClick={() => onBook(room)}
+        >
           Забронировать
         </Button>
       </div>

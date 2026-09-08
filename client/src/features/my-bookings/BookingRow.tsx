@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DateTime } from 'luxon';
 import type { BookingView } from '../../api/contracts';
 import { Button } from '../../components/ui/Button';
+import OfficeIcon from '../../assets/icons/office.svg?react';
 import { formatLocalTime } from '../../lib/time';
 import { CancelBookingDialog } from './CancelBookingDialog';
 import styles from './MyBookings.module.scss';
@@ -17,12 +18,18 @@ export function BookingRow({ booking, canCancel }: { booking: BookingView; canCa
         <span>{localDate.toFormat('LLLL').toUpperCase()}</span>
         <strong>{localDate.toFormat('d')}</strong>
       </div>
-      <div>
+      <div className={styles.bookingInfo}>
         <h2>{booking.title}</h2>
-        <p>
-          <span aria-hidden="true">⌂</span> {booking.room.name} · {booking.room.floor} этаж ·{' '}
-          {formatLocalTime(booking.startsAt, booking.office.timezone)}–
-          {formatLocalTime(booking.endsAt, booking.office.timezone)} МСК
+        <p className={styles.metadata}>
+          <OfficeIcon aria-hidden="true" />
+          <span className={styles.roomName}>{booking.room.name}</span>
+          <span className={styles.metadataSeparator} aria-hidden="true">•</span>
+          <span className={styles.metadataItem}>{booking.room.floor} этаж</span>
+          <span className={styles.metadataSeparator} aria-hidden="true">•</span>
+          <span className={styles.metadataItem}>
+            {formatLocalTime(booking.startsAt, booking.office.timezone)}–
+            {formatLocalTime(booking.endsAt, booking.office.timezone)} МСК
+          </span>
         </p>
       </div>
       {canCancel ? (

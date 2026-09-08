@@ -13,6 +13,7 @@ export function BookingsFilters({
   return (
     <Select
       label="Офис"
+      hideLabel
       value={value ?? ''}
       onValueChange={(next) => onChange(next || undefined)}
       options={[

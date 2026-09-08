@@ -14,14 +14,17 @@ import { useRoomsQuery } from '../hooks/useRoomsQuery';
 import { buildOfficeInterval } from '../lib/time';
 import styles from '../features/room-search/RoomSearch.module.scss';
 import { BookingDialog } from '../features/booking/BookingDialog';
-import { BookingSuccessNotice } from '../features/booking/BookingSuccessNotice';
+import {
+  BookingSuccessNotice,
+  type BookingSuccess,
+} from '../features/booking/BookingSuccessNotice';
 import { useRealtimeActiveContext } from '../realtime/RealtimeProvider';
 
 export const Route = createFileRoute('/rooms/')({ component: RoomsPage });
 
 function RoomsPage() {
   const [bookingRoom, setBookingRoom] = useState<import('../api/contracts').RoomSummary>();
-  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState<BookingSuccess>();
   const search = useSearch({ from: '/rooms' });
   const navigate = useNavigate({ from: '/rooms' });
   const offices = useOfficesQuery();
@@ -35,85 +38,96 @@ function RoomsPage() {
       search: { officeId: office.id, ...getDefaultRoomFilters(office), minCapacity: undefined },
     });
   }, [navigate, office, selectedOffice]);
-  if (offices.isLoading) return <PageSkeleton label="Загрузка офисов…" />;
-  if (offices.isError)
-    return (
+  let content: React.ReactNode;
+  if (offices.isLoading) {
+    content = <PageSkeleton label="Загрузка офисов…" />;
+  } else if (offices.isError) {
+    content = (
       <ErrorState
         title="Не удалось загрузить офисы"
         description="Попробуйте повторить запрос."
         onRetry={() => void offices.refetch()}
       />
     );
-  if (!office)
-    return (
+  } else if (!office) {
+    content = (
       <EmptyState
         title="Нет доступных офисов"
         description="Когда офисы появятся, здесь можно будет выбрать переговорную."
       />
     );
-  const selectOffice = (officeId: string) => {
-    const selected = officeList.find((item) => item.id === officeId);
-    if (!selected) return;
-    void navigate({
-      search: { officeId, ...getDefaultRoomFilters(selected), minCapacity: undefined },
-    });
-  };
-  const filters = {
-    date: search.date ?? getDefaultRoomFilters(office).date,
-    startTime: search.startTime ?? getDefaultRoomFilters(office).startTime,
-    duration: search.duration ?? 60,
-    minCapacity: search.minCapacity,
-  };
-  let interval: ReturnType<typeof buildOfficeInterval> | undefined;
-  try {
-    interval = buildOfficeInterval({
-      ...filters,
-      durationMinutes: filters.duration,
-      timezone: office.timezone,
-    });
-  } catch {
-    interval = undefined;
+  } else {
+    const selectOffice = (officeId: string) => {
+      const selected = officeList.find((item) => item.id === officeId);
+      if (!selected) return;
+      void navigate({
+        search: { officeId, ...getDefaultRoomFilters(selected), minCapacity: undefined },
+      });
+    };
+    const filters = {
+      date: search.date ?? getDefaultRoomFilters(office).date,
+      startTime: search.startTime ?? getDefaultRoomFilters(office).startTime,
+      duration: search.duration ?? 60,
+      minCapacity: search.minCapacity,
+    };
+    let interval: ReturnType<typeof buildOfficeInterval> | undefined;
+    try {
+      interval = buildOfficeInterval({
+        ...filters,
+        durationMinutes: filters.duration,
+        timezone: office.timezone,
+      });
+    } catch {
+      interval = undefined;
+    }
+    const updateFilters = (next: RoomFilterValue) =>
+      void navigate({ search: { ...search, ...next, officeId: office.id } });
+    content = (
+      <>
+        {bookingSuccess ? (
+          <BookingSuccessNotice
+            booking={bookingSuccess}
+            onDismiss={() => setBookingSuccess(undefined)}
+          />
+        ) : null}
+        <section className={styles.officePanel}>
+          <OfficeSelector
+            className={styles.officeSelector}
+            offices={officeList}
+            value={office.id}
+            onChange={selectOffice}
+          />
+          <OfficeMeta className={styles.officeMeta} office={office} />
+        </section>
+        <section className={styles.filtersPanel}>
+          <RoomFilters value={filters} onChange={updateFilters} />
+        </section>
+        <RoomsResults
+          officeId={office.id}
+          interval={interval}
+          minCapacity={filters.minCapacity}
+          onBook={setBookingRoom}
+        />
+        {bookingRoom && interval ? (
+          <BookingDialog
+            selection={{
+              room: bookingRoom,
+              date: filters.date,
+              startTime: filters.startTime,
+              durationMinutes: filters.duration,
+            }}
+            open
+            onOpenChange={(open) => {
+              if (!open) setBookingRoom(undefined);
+            }}
+            onSuccess={setBookingSuccess}
+          />
+        ) : null}
+      </>
+    );
   }
-  const updateFilters = (next: RoomFilterValue) =>
-    void navigate({ search: { ...search, ...next, officeId: office.id } });
-  return (
-    <div className={styles.page}>
-      {bookingSuccess ? <BookingSuccessNotice /> : null}
-      <section className={styles.officePanel}>
-        <OfficeSelector
-          className={styles.officeSelector}
-          offices={officeList}
-          value={office.id}
-          onChange={selectOffice}
-        />
-        <OfficeMeta className={styles.officeMeta} office={office} />
-      </section>
-      <section className={styles.filtersPanel}>
-        <RoomFilters value={filters} onChange={updateFilters} />
-      </section>
-      <RoomsResults
-        officeId={office.id}
-        interval={interval}
-        minCapacity={filters.minCapacity}
-        onBook={setBookingRoom}
-      />
-      {bookingRoom && interval ? (
-        <BookingDialog
-          selection={{
-            room: bookingRoom,
-            date: filters.date,
-            startTime: filters.startTime,
-            durationMinutes: filters.duration,
-          }}
-          open
-          onOpenChange={(open) => {
-            if (!open) setBookingRoom(undefined);
-          }}
-          onSuccess={() => setBookingSuccess(true)}
-        />
-      ) : null}
-    </div>
-  );
+
+  return <div className={styles.page}>{content}</div>;
 }
 
 function RoomsResults({

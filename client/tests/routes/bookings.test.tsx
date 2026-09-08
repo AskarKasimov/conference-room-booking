@@ -91,21 +91,31 @@ it('updates the past tab and sends the office filter', async () => {
   expect(router.state.location.search.scope).toBe('past');
 });
 
-it('requests all bookings from the visual all-time control', async () => {
+it('shows the filtered booking count only in the active tab', async () => {
   const user = userEvent.setup();
-  let requestedUrl = '';
   server.use(
     http.get('*/api/v1/bookings', ({ request }) => {
-      requestedUrl = request.url;
-      return HttpResponse.json({ items: [] });
+      const scope = new URL(request.url).searchParams.get('scope');
+      return HttpResponse.json({
+        items:
+          scope === 'past'
+            ? [booking('past-booking', '2026-09-01T07:00:00.000Z')]
+            : [
+                booking('upcoming-one', '2026-09-10T07:00:00.000Z'),
+                booking('upcoming-two', '2026-09-12T07:00:00.000Z'),
+              ],
+      });
     }),
   );
-  const router = renderBookings();
+  renderBookings();
 
-  await user.click(await screen.findByRole('button', { name: 'За все время' }));
+  expect(await screen.findByRole('link', { name: 'Предстоящие (2)' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Прошедшие' })).toBeInTheDocument();
 
-  expect(new URL(requestedUrl).searchParams.get('scope')).toBe('all');
-  expect(router.state.location.search.scope).toBe('all');
+  await user.click(screen.getByRole('link', { name: 'Прошедшие' }));
+
+  expect(await screen.findByRole('link', { name: 'Прошедшие (1)' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Предстоящие' })).toBeInTheDocument();
 });
 
 it('shows a loading status while bookings are pending', async () => {
