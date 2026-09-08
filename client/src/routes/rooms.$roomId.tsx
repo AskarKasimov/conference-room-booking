@@ -1,0 +1,86 @@
+import { createFileRoute, useNavigate, useParams, useSearch } from '@tanstack/react-router';
+import { DateTime } from 'luxon';
+import { ErrorState } from '../components/ui/ErrorState';
+import { PageSkeleton } from '../components/ui/PageSkeleton';
+import { Button } from '../components/ui/Button';
+import { DaySchedule } from '../features/room-detail/DaySchedule';
+import { RoomSummaryCard } from '../features/room-detail/RoomSummaryCard';
+import { ScheduleDateControl } from '../features/room-detail/ScheduleDateControl';
+import { useRoomDetailQuery } from '../hooks/useRoomDetailQuery';
+import { useRoomScheduleQuery } from '../hooks/useRoomScheduleQuery';
+import styles from '../features/room-detail/RoomDetail.module.scss';
+
+export const Route = createFileRoute('/rooms/$roomId')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    date: typeof search.date === 'string' ? search.date : undefined,
+  }),
+  component: RoomDetailPage,
+});
+
+function RoomDetailPage() {
+  const { roomId } = useParams({ from: '/rooms/$roomId' });
+  const search = useSearch({ from: '/rooms/$roomId' });
+  const roomQuery = useRoomDetailQuery(roomId);
+  if (roomQuery.isLoading) return <PageSkeleton label="Загрузка комнаты…" />;
+  if (roomQuery.isError || !roomQuery.data)
+    return (
+      <ErrorState
+        title="Не удалось загрузить комнату"
+        description="Комната не найдена или временно недоступна."
+        onRetry={() => void roomQuery.refetch()}
+      />
+    );
+  const room = roomQuery.data;
+  const today = DateTime.now().setZone(room.office.timezone).toISODate() ?? '';
+  const date = search.date ?? today;
+  const maxDate = DateTime.fromISO(today).plus({ days: 30 }).toISODate() ?? today;
+  return (
+    <RoomDetailContent room={room} roomId={roomId} date={date} today={today} maxDate={maxDate} />
+  );
+}
+
+function RoomDetailContent({
+  room,
+  roomId,
+  date,
+  today,
+  maxDate,
+}: {
+  room: Awaited<ReturnType<typeof import('../api/endpoints').api.getRoom>>;
+  roomId: string;
+  date: string;
+  today: string;
+  maxDate: string;
+}) {
+  const navigate = useNavigate({ from: '/rooms/$roomId' });
+  const schedule = useRoomScheduleQuery(roomId, date, room.office.timezone);
+  return (
+    <div className={styles.page}>
+      <RoomSummaryCard room={room} />
+      <div className={styles.scheduleWrap}>
+        <div>
+          <ScheduleDateControl
+            value={date}
+            min={today}
+            max={maxDate}
+            onChange={(nextDate) => void navigate({ search: { date: nextDate } })}
+          />
+          <Button type="button" onClick={() => undefined}>
+            Забронировать комнату
+          </Button>
+        </div>
+        {schedule.isLoading ? (
+          <PageSkeleton label="Загрузка расписания…" />
+        ) : schedule.isError ? (
+          <ErrorState
+            title="Не удалось загрузить расписание"
+            description="Попробуйте обновить расписание."
+            onRetry={() => void schedule.refetch()}
+          />
+        ) : (
+          <DaySchedule bookings={schedule.data ?? []} timezone={room.office.timezone} date={date} />
+        )}
+      </div>
+    </div>
+  );
+}
