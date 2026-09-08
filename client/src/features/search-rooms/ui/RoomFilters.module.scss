@@ -4,6 +4,37 @@
   column-gap: var(--space-4);
   row-gap: var(--space-4);
 }
+.filtersDisabled {
+  grid-template-columns: 9.5rem 5.375rem 7.375rem 7.9375rem;
+  column-gap: 1rem;
+}
+.filtersDisabled .field {
+  gap: 0.375rem;
+}
+.filtersDisabled .fieldLabel {
+  color: #99a3b0;
+}
+.filtersDisabled .select:disabled {
+  min-height: 2.4375rem;
+  border-color: #e2e8f0;
+  padding: 0.625rem 0.875rem;
+  color: #99a3b0;
+  background: transparent;
+}
+.filtersDisabled .select:disabled .fieldIcon,
+.filtersDisabled .select:disabled .chevron {
+  color: #475569;
+}
+.filtersDisabled .dateField :global(button:disabled) {
+  min-height: 2.4375rem;
+  border-color: #e2e8f0;
+  padding: 0.625rem 0.875rem;
+  color: #99a3b0;
+  background: transparent;
+}
+.filtersDisabled .dateField :global(button:disabled svg) {
+  color: #475569;
+}
 .field {
   display: grid;
   gap: 0.55rem;
@@ -11,8 +42,8 @@
 }
 .fieldLabel {
   color: #94a3b8;
-  font-size: 0.75rem;
-  font-weight: 750;
+  font-size: 0.6875rem;
+  font-weight: 700;
   letter-spacing: 0.01em;
   line-height: 1;
   text-transform: uppercase;
@@ -21,15 +52,38 @@
 .dateField {
   width: 10rem;
 }
+.filtersDisabled .dateField {
+  width: 9.5rem;
+}
+.dateField > span {
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
 .timeField {
   width: 6.5rem;
+}
+.filtersDisabled .timeField {
+  width: 5.375rem;
+}
+.filtersDisabled .timeField .select {
+  width: 4.9375rem;
+}
+.filtersDisabled .minValueMeasure {
+  display: none;
 }
 .durationField {
   width: max-content;
   min-width: 6.5rem;
 }
+.filtersDisabled .durationField {
+  width: 7.375rem;
+  min-width: 0;
+}
 .capacityField {
   width: 7rem;
+}
+.filtersDisabled .capacityField {
+  width: 7.9375rem;
 }
 .select {
   min-height: 2.5rem;
@@ -38,15 +92,30 @@
   padding: 0.5rem;
   color: var(--color-text);
   background: white;
-  font-size: 0.875rem;
-  font-weight: 400;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   cursor: pointer;
   font: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
   text-align: left;
+}
+.select:disabled {
+  color: #cbd5e1;
+  background: #fbfcfd;
+  cursor: not-allowed;
+}
+.select:disabled .fieldIcon,
+.select:disabled .chevron {
+  color: #b5beca;
+}
+.filtersDisabled .durationField .select:disabled .chevron,
+.filtersDisabled .capacityField .select:disabled .chevron {
+  color: #475569;
+  stroke: #475569;
+  opacity: 1;
 }
 .timeField .select,
 .capacityField .select,
@@ -118,10 +187,22 @@
   .filters {
     grid-template-columns: minmax(0, 10rem);
   }
+  .filtersDisabled {
+    grid-template-columns: minmax(0, 10rem);
+  }
   .dateField,
   .timeField,
   .durationField,
   .capacityField {
     width: min(100%, 10rem);
+  }
+  .filtersDisabled .dateField,
+  .filtersDisabled .timeField,
+  .filtersDisabled .durationField,
+  .filtersDisabled .capacityField {
+    width: min(100%, 10rem);
+  }
+  .filtersDisabled .timeField .select {
+    width: 100%;
   }
 }

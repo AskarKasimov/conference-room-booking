@@ -91,6 +91,22 @@ describe('room search route', () => {
     expect(requestedUrl).toBe('');
   });
 
+  it('shows disabled room filters and office details while no office is selected', async () => {
+    renderRooms();
+
+    expect(await screen.findByRole('heading', { name: 'Выберите офис' })).toBeInTheDocument();
+    expect(screen.getByText('Адрес не выбран')).toBeInTheDocument();
+    expect(screen.getByText('Местное время: ---')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Выберите дату' })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Время начала' })).toHaveTextContent('—:—');
+    expect(screen.getByRole('combobox', { name: 'Время начала' })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Длительность' })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Вместимость' })).toBeDisabled();
+    expect(
+      screen.getByText('Для просмотра доступных переговорных сначала выберите офис из списка выше'),
+    ).toBeInTheDocument();
+  });
+
   it('clears an unknown office from the URL without requesting it', async () => {
     let requestedOfficeId: string | null = null;
     server.use(

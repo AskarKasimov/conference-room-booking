@@ -67,6 +67,8 @@ export function DatePicker({
   id,
   ariaInvalid,
   ariaDescribedBy,
+  placeholder,
+  disabled = false,
 }: {
   label?: string;
   value: string;
@@ -77,6 +79,8 @@ export function DatePicker({
   id?: string | undefined;
   ariaInvalid?: boolean | undefined;
   ariaDescribedBy?: string | undefined;
+  placeholder?: string;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState(() => monthStart(dateFromValue(value)));
@@ -98,17 +102,18 @@ export function DatePicker({
 
   return (
     <div className={`${styles.field} ${className ?? ''}`}>
-      <span className={styles.fieldLabel}>{label}</span>
+      <span className={disabled ? styles.fieldLabelDisabled : styles.fieldLabel}>{label}</span>
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger
           id={id}
           className={styles.trigger}
-          aria-label={dateLabel(selected)}
+          aria-label={value ? dateLabel(selected) : (placeholder ?? dateLabel(selected))}
           aria-invalid={ariaInvalid}
           aria-describedby={ariaDescribedBy}
+          disabled={disabled}
         >
           <CalendarIcon aria-hidden="true" />
-          {dateLabel(selected)}
+          {value ? dateLabel(selected) : placeholder}
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Content className={styles.calendar} align="start" sideOffset={6}>

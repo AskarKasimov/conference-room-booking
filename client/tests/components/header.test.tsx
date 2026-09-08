@@ -19,7 +19,8 @@ it('renders the BookRoom brand and the current user presentation', async () => {
 
   expect(await screen.findByRole('link', { name: 'BookRoom' })).toHaveAttribute('href', '/rooms');
   expect(screen.getByRole('link', { name: 'Переговорные' })).toBeInTheDocument();
-  expect(await screen.findByText('Константин Кузнецов')).toBeInTheDocument();
+  expect(await screen.findByText('Константин К.')).toBeInTheDocument();
+  expect(screen.getByLabelText('Константин Кузнецов, КК')).toBeInTheDocument();
   expect(await screen.findByText('КК')).toBeInTheDocument();
 });
 

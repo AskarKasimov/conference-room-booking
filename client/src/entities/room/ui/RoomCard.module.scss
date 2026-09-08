@@ -12,12 +12,13 @@
 }
 .card p {
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   line-height: 1.25rem;
 }
 .card h2 {
   line-height: 1.5rem;
   font-size: 1.125rem;
+  font-weight: 700;
 }
 .cardHeading > div {
   display: grid;
@@ -58,8 +59,13 @@
   display: grid;
   place-items: center;
   color: var(--color-primary);
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   text-decoration: none;
+}
+.cardBookButton {
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 .disabledBookButton:disabled {
   opacity: 1;
@@ -69,7 +75,7 @@
 .available,
 .unavailable {
   border-radius: var(--radius-sm);
-  font-weight: 700;
+  font-weight: 600;
 }
 .availability {
   display: flex;
@@ -78,7 +84,7 @@
   min-height: 2.3125rem;
   margin-top: 0.375rem !important;
   padding: 0.5rem 0.625rem;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
 }
 .available {
   color: var(--color-primary-dark) !important;

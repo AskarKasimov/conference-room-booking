@@ -8,6 +8,13 @@ export function Header() {
   const { containerRef, indicatorStyle, ready } = useSlidingIndicator(pathname);
   const user = useCurrentUserQuery().data;
   const displayName = user?.displayName ?? 'Загрузка профиля…';
+  const displayNameParts = displayName.trim().split(/\s+/);
+  const firstName = displayNameParts[0];
+  const surname = displayNameParts.at(-1);
+  const shortDisplayName =
+    displayNameParts.length > 1 && firstName && surname
+      ? `${firstName} ${surname.charAt(0)}.`
+      : displayName;
   const initials = user?.initials ?? '…';
   return (
     <header className={styles.header}>
@@ -42,7 +49,7 @@ export function Header() {
         />
       </nav>
       <div className={styles.profile}>
-        <span className={styles.userName}>{displayName}</span>
+        <span className={styles.userName}>{shortDisplayName}</span>
         <span className={styles.user} aria-label={`${displayName}, ${initials}`}>
           {initials}
         </span>

@@ -29,6 +29,8 @@ function FilterSelect({
   className,
   valuePrefix,
   minValueLabel,
+  placeholder,
+  disabled = false,
 }: {
   label: string;
   value: string;
@@ -39,20 +41,26 @@ function FilterSelect({
   className?: string | undefined;
   valuePrefix?: string | undefined;
   minValueLabel?: string;
+  placeholder?: string;
+  disabled?: boolean;
 }) {
   const emptyValue = '__empty_filter_option__';
   return (
     <label className={`${styles.field} ${className ?? ''}`}>
       <span className={styles.fieldLabel}>{label}</span>
       <Select.Root
-        value={value || (options.some(([optionValue]) => optionValue === '') ? emptyValue : '')}
+        value={
+          disabled
+            ? value
+            : value || (options.some(([optionValue]) => optionValue === '') ? emptyValue : '')
+        }
         onValueChange={(next) => onChange(next === emptyValue ? '' : next)}
       >
-        <Select.Trigger className={styles.select} aria-label={label}>
+        <Select.Trigger className={styles.select} aria-label={label} disabled={disabled}>
           {Icon && <Icon className={styles.fieldIcon} aria-hidden="true" />}
           <span className={styles.selectValue}>
             {valuePrefix}
-            <Select.Value />
+            <Select.Value placeholder={placeholder} />
             {minValueLabel && (
               <span className={styles.minValueMeasure} aria-hidden="true">
                 {minValueLabel}
@@ -86,11 +94,13 @@ export function RoomFilters({
   onChange,
   timezone,
   now = new Date(),
+  disabled = false,
 }: {
   value: RoomFilterValue;
   onChange: (value: RoomFilterValue) => void;
   timezone: string;
   now?: Date | undefined;
+  disabled?: boolean;
 }) {
   const { min, max } = getBookableDateBounds(timezone, now);
   const availableTimes = getBookableTimeOptions(value.date, timezone, now);
@@ -106,12 +116,13 @@ export function RoomFilters({
   };
 
   return (
-    <div className={styles.filters}>
+    <div className={`${styles.filters} ${disabled ? styles.filtersDisabled : ''}`}>
       <DatePicker
         className={styles.dateField}
         value={value.date}
         min={min}
         max={max}
+        {...(disabled ? { placeholder: 'Выберите дату', disabled: true } : {})}
         onValueChange={(date) => {
           const time = getBookableTimeOptions(date, timezone, now)[0];
           update({
@@ -134,10 +145,12 @@ export function RoomFilters({
         options={availableTimes.map((time): [string, string] => [time, time])}
         icon={ClockIcon}
         className={styles.timeField}
+        {...(disabled ? { placeholder: '—:—' } : {})}
+        disabled={disabled}
       />
       <FilterSelect
         label="Длительность"
-        value={String(value.duration)}
+        value={disabled ? '' : String(value.duration)}
         onChange={(duration) => update({ duration: Number(duration) })}
         options={getDurationOptions(value.startTime).map((minutes): [string, string] => [
           String(minutes),
@@ -146,6 +159,8 @@ export function RoomFilters({
         chevron
         className={styles.durationField}
         minValueLabel="10 ч 45 мин"
+        {...(disabled ? { placeholder: 'Выберите' } : {})}
+        disabled={disabled}
       />
       <FilterSelect
         label="Вместимость"
@@ -164,6 +179,8 @@ export function RoomFilters({
         chevron
         className={styles.capacityField}
         valuePrefix={value.minCapacity ? 'Мин. ' : undefined}
+        {...(disabled ? { placeholder: 'Не указано' } : {})}
+        disabled={disabled}
       />
     </div>
   );

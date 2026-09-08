@@ -13,6 +13,11 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
+.fieldLabelDisabled {
+  color: #99a3b0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
 
 .trigger {
   display: flex;
@@ -31,12 +36,20 @@
   text-align: left;
   white-space: nowrap;
 }
+.trigger:disabled {
+  color: #cbd5e1;
+  background: #fbfcfd;
+  cursor: not-allowed;
+}
 
 .trigger svg {
   flex: 0 0 auto;
   width: 1rem;
   height: 1rem;
   color: #51627a;
+}
+.trigger:disabled svg {
+  color: #b5beca;
 }
 
 .calendar {

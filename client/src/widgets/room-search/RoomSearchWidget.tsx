@@ -15,6 +15,7 @@ import {
 import { useContextRegistration } from '../../shared/lib';
 import { RoomGrid } from './RoomGrid';
 import styles from './RoomSearch.module.scss';
+import BuildingIcon from '../../shared/assets/icons/building.svg?react';
 
 export function OfficeSelection({
   offices,
@@ -23,20 +24,40 @@ export function OfficeSelection({
   offices: Office[];
   onOfficeChange: (officeId: string) => void;
 }) {
+  const timezone = offices.at(0)?.timezone ?? 'UTC';
+
   return (
-    <div className={styles.page}>
-      <section className={styles.officePanel}>
+    <div className={`${styles.page} ${styles.pageOfficeSelection}`}>
+      <section className={`${styles.officePanel} ${styles.officePanelUnselected}`}>
         <OfficeSelector
           className={styles.officeSelector}
           offices={offices}
           value=""
           onChange={onOfficeChange}
         />
+        <p className={styles.officeMeta}>
+          <span>Адрес не выбран</span>
+          <span className={styles.officeMetaDot} aria-hidden="true" />
+          <span>Местное время: ---</span>
+        </p>
       </section>
-      <EmptyState
-        title="Выберите офис"
-        description="Чтобы посмотреть доступные переговорные, сначала выберите офис."
-      />
+      <section className={`${styles.filtersPanel} ${styles.filtersPanelDisabled}`}>
+        <RoomFilters
+          value={{ date: '', startTime: '', duration: 0 }}
+          timezone={timezone}
+          disabled
+          onChange={() => {}}
+        />
+      </section>
+      <section className={styles.officeEmptyState}>
+        <span className={styles.officeEmptyIcon} aria-hidden="true">
+          <BuildingIcon />
+        </span>
+        <div className={styles.officeEmptyText}>
+          <h1>Выберите офис</h1>
+          <p>Для просмотра доступных переговорных сначала выберите офис из списка выше</p>
+        </div>
+      </section>
     </div>
   );
 }
