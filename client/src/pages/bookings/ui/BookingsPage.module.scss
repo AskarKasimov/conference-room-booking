@@ -5,7 +5,7 @@
 .page h1 {
   margin: 0;
 }
-.pageFullHeight {
+.page:has(.bookingsEmpty, .bookingsError) {
   display: flex;
   flex: 1 0 auto;
   min-height: 0;
@@ -102,12 +102,12 @@
   min-height: 18rem;
   margin-top: var(--space-1-5);
 }
-.stateRegionFull {
+.stateRegion:has(.bookingsEmpty, .bookingsError) {
   display: flex;
   min-height: 0;
   flex: 1 1 0;
 }
-.stateRegion.stateRegionFull > :global(section) {
+.stateRegion:has(.bookingsEmpty, .bookingsError) > :global(div) > :global(section) {
   box-sizing: border-box;
   min-height: 0;
   flex: 1 1 0;
@@ -124,7 +124,7 @@
 .bookingsError .description {
   line-height: 1.4375rem;
 }
-.stateRegion > :global(section) {
+.stateRegion > :global(div) > :global(section) {
   min-height: 18rem;
   padding: var(--space-10) var(--space-4);
   background: var(--color-transparent);

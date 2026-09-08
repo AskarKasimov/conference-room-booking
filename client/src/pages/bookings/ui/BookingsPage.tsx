@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { DateTime } from 'luxon';
-import { Button, PageState } from '../../../shared/ui';
+import { Button, DelayedContent, PageState } from '../../../shared/ui';
 import { useBookingsQuery } from '../../../entities/booking';
 import { useOfficesQuery } from '../../../entities/office';
 import { useCurrentUserQuery } from '../../../entities/user';
@@ -38,7 +38,6 @@ export function BookingsPage() {
         });
   const loading = offices.isLoading || bookings.isLoading || bookings.isPlaceholderData;
   const error = offices.isError || bookings.isError;
-  const empty = !loading && !error && items.length === 0;
 
   function updateFilters(next: { officeId?: string | undefined; period?: string | undefined }) {
     const params = new URLSearchParams();
@@ -51,8 +50,9 @@ export function BookingsPage() {
   }
 
   let content: React.ReactNode;
+  let fallback: React.ReactNode;
   if (loading) {
-    content = (
+    fallback = (
       <div className={styles.skeletonList} role="status" aria-label="Загрузка бронирований…">
         {[0, 1].map((row) => (
           <div className={styles.bookingSkeleton} key={row}>
@@ -112,15 +112,20 @@ export function BookingsPage() {
   }
 
   return (
-    <div className={`${styles.page} ${empty || error ? styles.pageFullHeight : ''}`}>
-      {loading ? (
-        <div className={styles.pageHeader} aria-hidden="true">
-          <div className={styles.headerTitleSkeleton} />
-          <div className={styles.headerFiltersSkeleton}>
-            <i />
-            <i />
-          </div>
-        </div>
+    <div className={styles.page}>
+      {offices.isLoading ? (
+        <DelayedContent
+          pending
+          fallback={
+            <div className={styles.pageHeader} aria-hidden="true">
+              <div className={styles.headerTitleSkeleton} />
+              <div className={styles.headerFiltersSkeleton}>
+                <i />
+                <i />
+              </div>
+            </div>
+          }
+        />
       ) : (
         <div className={styles.pageHeader}>
           <h1>Мои бронирования</h1>
@@ -135,11 +140,16 @@ export function BookingsPage() {
           </div>
         </div>
       )}
-      {loading ? (
-        <div className={styles.tabsSkeleton} aria-hidden="true">
-          <i />
-          <i />
-        </div>
+      {offices.isLoading ? (
+        <DelayedContent
+          pending
+          fallback={
+            <div className={styles.tabsSkeleton} aria-hidden="true">
+              <i />
+              <i />
+            </div>
+          }
+        />
       ) : (
         <BookingTabs
           scope={search.scope}
@@ -148,8 +158,10 @@ export function BookingsPage() {
           count={items.length}
         />
       )}
-      <section className={`${styles.stateRegion} ${empty || error ? styles.stateRegionFull : ''}`}>
-        {content}
+      <section className={styles.stateRegion}>
+        <DelayedContent pending={loading} fallback={fallback}>
+          {content}
+        </DelayedContent>
       </section>
     </div>
   );

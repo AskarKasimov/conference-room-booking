@@ -21,7 +21,7 @@ describe('application navigation', () => {
   it('does not render breadcrumbs on the primary rooms route', async () => {
     renderRoute('/rooms');
 
-    expect(await screen.findByRole('status', { name: 'Загрузка офисов…' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Выберите офис' })).toBeVisible();
     expect(
       screen.queryByRole('navigation', { name: 'Навигационная цепочка' }),
     ).not.toBeInTheDocument();
@@ -31,7 +31,7 @@ describe('application navigation', () => {
     server.use(http.get('*/api/v1/bookings', () => HttpResponse.json({ items: [] })));
     renderRoute('/bookings');
 
-    expect(await screen.findByRole('status', { name: 'Загрузка бронирований…' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Нет бронирований' })).toBeVisible();
     expect(
       screen.queryByRole('navigation', { name: 'Навигационная цепочка' }),
     ).not.toBeInTheDocument();

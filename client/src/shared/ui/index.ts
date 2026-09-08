@@ -10,3 +10,4 @@ export { ErrorState } from './ErrorState';
 export { PageSkeleton } from './PageSkeleton';
 export { PageState } from './PageState';
 export { Select } from './Select';
+export { DelayedContent } from './DelayedContent';

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { EmptyState } from '../../../shared/ui';
 import { ErrorState } from '../../../shared/ui';
-import { PageSkeleton } from '../../../shared/ui';
+import { DelayedContent, PageSkeleton } from '../../../shared/ui';
 import { getDefaultRoomFilters } from '../../../entities/booking';
 import { useOfficesQuery } from '../../../entities/office';
 import type { RoomSummary } from '../../../entities/room';
@@ -32,7 +32,7 @@ export function RoomsPage() {
   if (offices.isLoading) {
     return (
       <div className={styles.page}>
-        <PageSkeleton label="Загрузка офисов…" />
+        <DelayedContent pending fallback={<PageSkeleton label="Загрузка офисов…" />} />
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, EmptyState, PageState } from '../../shared/ui';
+import { Button, DelayedContent, EmptyState, PageState } from '../../shared/ui';
 import { OfficeSelector } from '../../features/select-office';
 import { OfficeMeta, type Office } from '../../entities/office';
 import { RoomFilters, type RoomFilterValue } from '../../features/search-rooms';
@@ -116,6 +116,7 @@ export function RoomSearchWidget({
   );
 
   let results: React.ReactNode;
+  let fallback: React.ReactNode;
   if (!interval) {
     results = (
       <EmptyState
@@ -124,7 +125,7 @@ export function RoomSearchWidget({
       />
     );
   } else if (rooms.isLoading) {
-    results = (
+    fallback = (
       <section className={styles.loadingResults} role="status" aria-label="Загрузка переговорных…">
         <h1>Загрузка переговорных…</h1>
         <div className={styles.loadingGrid} aria-hidden="true">
@@ -152,6 +153,7 @@ export function RoomSearchWidget({
     results = (
       <PageState
         variant="error"
+        className={styles.roomError}
         bleed
         headingLevel={1}
         icon={<AlertTriangleIcon />}
@@ -178,6 +180,7 @@ export function RoomSearchWidget({
     results = (
       <PageState
         variant="empty"
+        className={styles.roomEmpty}
         bleed
         headingLevel={1}
         icon={
@@ -205,12 +208,8 @@ export function RoomSearchWidget({
     );
   }
 
-  const hasNoRooms = rooms.isSuccess && rooms.data.length === 0;
-
   return (
-    <div
-      className={`${styles.page} ${rooms.isError ? styles.pageRoomsError : ''} ${hasNoRooms ? styles.pageRoomsEmpty : ''}`}
-    >
+    <div className={styles.page}>
       {bookingSuccess ? (
         <BookingSuccessNotice
           booking={bookingSuccess}
@@ -233,7 +232,9 @@ export function RoomSearchWidget({
       <section className={styles.filtersPanel}>
         <RoomFilters value={filters} timezone={timezone} now={now} onChange={onFiltersChange} />
       </section>
-      {results}
+      <DelayedContent pending={Boolean(interval) && rooms.isLoading} fallback={fallback}>
+        {results}
+      </DelayedContent>
       {bookingRoom && interval ? (
         <BookingDialog
           selection={{

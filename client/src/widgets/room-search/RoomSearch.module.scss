@@ -120,8 +120,7 @@
   font-size: 0.9375rem;
   line-height: 1.375rem;
 }
-.pageRoomsError,
-.pageRoomsEmpty {
+.page:has(.roomError, .roomEmpty) {
   display: flex;
   flex: 1 0 auto;
   min-height: 0;

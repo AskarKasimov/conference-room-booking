@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DateTime } from 'luxon';
-import { Button, PageState } from '../../shared/ui';
+import { Button, DelayedContent, PageState } from '../../shared/ui';
 import { DaySchedule, getDefaultDuration, getNextSlot } from '../../entities/booking';
 import type { RoomWithOffice } from '../../entities/room';
 import { useRoomScheduleQuery } from '../../entities/booking';
@@ -56,23 +56,26 @@ export function RoomScheduleWidget({
               </div>
               <ScheduleDateControl value={date} min={today} max={maxDate} onChange={onDateChange} />
             </div>
-            {schedule.isLoading ? (
-              <div
-                className={styles.scheduleSkeleton}
-                role="status"
-                aria-label="Загрузка расписания…"
-              >
-                <div className={styles.scheduleSkeletonHeader} />
-                <div className={styles.scheduleSkeletonRows} />
-              </div>
-            ) : (
+            <DelayedContent
+              pending={schedule.isLoading}
+              fallback={
+                <div
+                  className={styles.scheduleSkeleton}
+                  role="status"
+                  aria-label="Загрузка расписания…"
+                >
+                  <div className={styles.scheduleSkeletonHeader} />
+                  <div className={styles.scheduleSkeletonRows} />
+                </div>
+              }
+            >
               <DaySchedule
                 bookings={schedule.data ?? []}
                 timezone={room.office.timezone}
                 date={date}
                 currentUserId={currentUser.data?.id}
               />
-            )}
+            </DelayedContent>
             <div className={styles.scheduleActions}>
               <Button type="button" onClick={() => setBookingOpen(true)}>
                 Забронировать комнату
