@@ -12,10 +12,20 @@ export function useBookingsQuery(filters: BookingListQuery) {
   });
 }
 
-export function useRoomScheduleQuery(roomId: string, date: string, timezone: string) {
-  const interval = getWorkdayInterval(date, timezone);
+export function useRoomScheduleQuery(
+  roomId: string,
+  date: string,
+  timezone: string,
+  enabled = true,
+) {
+  const interval = date ? getWorkdayInterval(date, timezone) : undefined;
   return useQuery({
     queryKey: scheduleQueryKeys.byRoom(roomId, date),
-    queryFn: async () => (await getRoomSchedule(roomId, interval)).items,
+    queryFn: async () => {
+      if (!interval) throw new Error('Для расписания нужна дата.');
+      return (await getRoomSchedule(roomId, interval)).items;
+    },
+    placeholderData: keepPreviousData,
+    enabled: enabled && Boolean(interval),
   });
 }

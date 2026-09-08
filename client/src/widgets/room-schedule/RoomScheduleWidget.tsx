@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { Button, DelayedContent, PageState } from '../../shared/ui';
 import { DaySchedule, getDefaultDuration, getNextSlot } from '../../entities/booking';
 import type { RoomWithOffice } from '../../entities/room';
-import { useRoomScheduleQuery } from '../../entities/booking';
+import type { useRoomScheduleQuery } from '../../entities/booking';
 import { useContextRegistration } from '../../shared/lib';
 import { useCurrentUserQuery } from '../../entities/user';
 import { BookingDialog } from '../../features/create-booking';
@@ -16,17 +16,18 @@ export function RoomScheduleWidget({
   date,
   today,
   maxDate,
+  schedule,
   onDateChange,
 }: {
   room: RoomWithOffice;
   date: string;
   today: string;
   maxDate: string;
+  schedule: ReturnType<typeof useRoomScheduleQuery>;
   onDateChange: (date: string) => void;
 }) {
   const [bookingOpen, setBookingOpen] = useState(false);
   const currentUser = useCurrentUserQuery();
-  const schedule = useRoomScheduleQuery(room.id, date, room.office.timezone);
   useContextRegistration({ selectedRoom: { roomId: room.id, date } });
   const preferredSlot =
     date === today ? getNextSlot(room.office.timezone) : { date, startTime: '09:00' };
@@ -57,7 +58,7 @@ export function RoomScheduleWidget({
               <ScheduleDateControl value={date} min={today} max={maxDate} onChange={onDateChange} />
             </div>
             <DelayedContent
-              pending={schedule.isLoading}
+              pending={schedule.isFetching}
               fallback={
                 <div
                   className={styles.scheduleSkeleton}

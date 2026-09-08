@@ -52,6 +52,67 @@ const ownBooking = {
   owner: currentUserFixture,
 };
 
+it('shows the room and hourly schedule skeleton while room details load', async () => {
+  let release!: () => void;
+  const response = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  server.use(
+    http.get('*/api/v1/rooms/room-everest', async () => {
+      await response;
+      return HttpResponse.json(room);
+    }),
+  );
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <MemoryRouter initialEntries={['/rooms/room-everest']}>
+        <AppRoutes />
+      </MemoryRouter>
+    </AppProviders>,
+  );
+
+  const skeleton = await screen.findByRole('status', { name: 'Загрузка комнаты…' });
+  expect(skeleton.querySelectorAll('section')).toHaveLength(2);
+  expect(skeleton.querySelectorAll('[data-time-row]')).toHaveLength(12);
+  expect(skeleton).toHaveTextContent('09:00');
+  expect(skeleton).toHaveTextContent('20:00');
+  release();
+});
+
+it('keeps the same room skeleton while the schedule request is loading', async () => {
+  let release!: () => void;
+  let scheduleRequested = false;
+  const response = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  server.use(
+    http.get('*/api/v1/rooms/room-everest', () => HttpResponse.json(room)),
+    http.get('*/api/v1/rooms/room-everest/bookings', async () => {
+      scheduleRequested = true;
+      await response;
+      return HttpResponse.json({ items: [] });
+    }),
+  );
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <MemoryRouter initialEntries={['/rooms/room-everest']}>
+        <AppRoutes />
+      </MemoryRouter>
+    </AppProviders>,
+  );
+
+  await waitFor(() => expect(scheduleRequested).toBe(true));
+  const skeleton = await screen.findByRole('status', { name: 'Загрузка комнаты…' });
+  expect(skeleton.querySelectorAll('section')).toHaveLength(2);
+  expect(skeleton.querySelectorAll('[data-time-row]')).toHaveLength(12);
+  expect(skeleton.querySelectorAll('[data-info-row]')).toHaveLength(room.features.length + 1);
+  expect(
+    screen.queryByRole('navigation', { name: 'Навигационная цепочка' }),
+  ).not.toBeInTheDocument();
+  release();
+  expect(await screen.findByRole('heading', { name: 'Расписание на день' })).toBeInTheDocument();
+});
+
 it('loads room details and a local workday schedule', async () => {
   let scheduleUrl = '';
   server.use(
