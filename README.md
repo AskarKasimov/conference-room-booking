@@ -59,6 +59,17 @@ docker compose up --build
 
 Клиент будет доступен на `http://localhost:5173`, сервер — на `http://localhost:3000`. Для изменения портов и адресов API используйте переменные из `docker-compose.yml`, например `CLIENT_PORT`, `SERVER_PORT`, `VITE_API_BASE_URL` и `VITE_WS_URL`.
 
+### Разработка в Docker
+
+```bash
+cp .env.example .env
+docker compose -f docker-compose.dev.yml up --build
+```
+
+Настройки портов и адресов API находятся в корневом `.env`. По умолчанию фронтенд доступен на `http://localhost:5173`, API — на `http://localhost:3000`.
+
+Dev-compose наследует сервисы через `extends` и выбирает стадии `dev` в Dockerfile. Исходники подключены через volumes: Vite обновляет фронтенд через HMR, `tsx watch` перезапускает бэкенд. Зависимости хранятся в отдельных volumes. После изменения зависимостей выполните `docker compose -f docker-compose.dev.yml run --rm client npm ci` (для бэкенда — `server`). При перезапуске mock-backend данные в памяти сбрасываются.
+
 ## Маршруты
 
 - `/` — перенаправляет на `/rooms`;

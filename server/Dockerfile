@@ -5,6 +5,10 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+FROM dependencies AS dev
+
+CMD ["npm", "run", "dev"]
+
 FROM dependencies AS build
 
 COPY . .
