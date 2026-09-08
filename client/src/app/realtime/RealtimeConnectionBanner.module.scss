@@ -4,12 +4,12 @@
   height: 0;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
   overflow: hidden;
-  border-bottom: 0 solid #fde047;
-  padding: 0 2rem;
-  color: #854d0e;
-  background: #fef08a;
+  border-bottom: 0 solid var(--color-warning-border);
+  padding: 0 var(--space-8);
+  color: var(--color-warning);
+  background: var(--color-warning-surface);
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.25rem;

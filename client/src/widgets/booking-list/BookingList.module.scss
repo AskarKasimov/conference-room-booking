@@ -34,5 +34,5 @@
 }
 .list {
   display: grid;
-  gap: 1.25rem;
+  gap: var(--space-5);
 }

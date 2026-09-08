@@ -4,7 +4,7 @@
   align-content: center;
   justify-items: center;
   gap: var(--space-3);
-  border: 1px dashed #cbd8dd;
+  border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-8) var(--space-6);
   background: var(--color-surface);
@@ -15,7 +15,7 @@
   width: 4.5rem;
   height: 4.5rem;
   place-items: center;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   color: var(--color-primary);
   background: var(--color-accent);
   font-size: 2.75rem;
@@ -35,14 +35,19 @@
 }
 .skeleton {
   display: grid;
-  gap: 1.25rem;
+  gap: var(--space-5);
 }
 .skeleton::before,
 .skeleton::after {
   display: block;
   min-height: 8rem;
   border-radius: var(--radius-md);
-  background: linear-gradient(90deg, #edf3f5, #f8fbfc, #edf3f5);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-subtle),
+    var(--color-page),
+    var(--color-surface-subtle)
+  );
   background-size: 200% 100%;
   content: '';
   animation: shimmer 1.5s infinite;

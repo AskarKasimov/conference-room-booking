@@ -5,8 +5,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  margin-top: -2.25rem;
+  gap: var(--space-8);
+  margin-top: calc(var(--space-9) * -1);
   margin-bottom: calc(var(--space-10) * -1);
   text-align: center;
 }
@@ -18,15 +18,15 @@
   margin: 0;
 }
 .illustration h1 {
-  margin-top: 0.75rem;
-  color: #0f172a;
+  margin-top: var(--space-3);
+  color: var(--color-text);
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 2.375rem;
 }
 .illustration > p:not(.code) {
-  margin-top: 0.75rem;
-  color: #64748b;
+  margin-top: var(--space-3);
+  color: var(--color-muted);
   font-size: 0.875rem;
   line-height: 1.5rem;
 }
@@ -42,10 +42,10 @@
   min-height: 3rem;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   border-radius: var(--radius-sm);
-  padding: 0.75rem 1.5rem;
-  color: white;
+  padding: var(--space-3) var(--space-6);
+  color: var(--color-on-primary);
   background: var(--color-primary);
   font-size: 0.875rem;
   font-weight: 600;

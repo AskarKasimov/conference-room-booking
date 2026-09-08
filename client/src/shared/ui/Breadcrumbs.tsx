@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import ChevronRightIcon from '../assets/icons/chevron-right-room-detail.svg';
+import ChevronRightIcon from '../assets/icons/chevron-right-room-detail.svg?react';
 import styles from './Breadcrumbs.module.scss';
 
 type RoomsBreadcrumb = {
@@ -30,7 +30,7 @@ export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; cla
           const isCurrent = index === items.length - 1;
           return (
             <li key={`${item.label}-${index}`}>
-              {index > 0 && <img src={ChevronRightIcon} alt="" aria-hidden="true" />}
+              {index > 0 && <ChevronRightIcon aria-hidden="true" />}
               {isCurrent ? (
                 <span aria-current="page">{item.label}</span>
               ) : 'to' in item && item.to === '/rooms' ? (

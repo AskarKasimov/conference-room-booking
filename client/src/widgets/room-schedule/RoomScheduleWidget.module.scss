@@ -1,11 +1,11 @@
 .scheduleWrap {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 2rem;
-  background: white;
+  padding: var(--space-8);
+  background: var(--color-surface);
 }
 .scheduleHeader {
   display: flex;
@@ -35,30 +35,30 @@
 .scheduleActions {
   display: flex;
   justify-content: end;
-  padding: 0.75rem 0;
+  padding: var(--space-3) 0;
 }
 .scheduleActions :global(button) {
   min-height: 2.4375rem;
-  padding: 0.625rem 1.5rem;
+  padding: var(--space-2-5) var(--space-6);
   font-size: 0.875rem;
   font-weight: 600;
 }
 .scheduleError {
   box-sizing: border-box;
   min-height: 28.6875rem !important;
-  gap: 1.5rem !important;
+  gap: var(--space-6) !important;
   padding: 0 !important;
-  background: #fff !important;
+  background: var(--color-surface) !important;
 }
 .scheduleError h2 {
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.875rem;
 }
 .scheduleError p {
   max-width: 26.25rem;
-  color: #475569;
+  color: var(--color-muted);
   font-size: 0.9375rem;
   line-height: 1.4375rem;
 }
@@ -66,9 +66,9 @@
   min-height: 2.6875rem;
   width: 11.625rem;
   border: 0;
-  padding: 0.625rem 1.25rem;
-  color: #fff;
-  background: #0d9488;
+  padding: var(--space-2-5) var(--space-5);
+  color: var(--color-on-primary);
+  background: var(--color-primary);
   font-size: 0.875rem;
 }
 .scheduleErrorCard {
@@ -77,14 +77,19 @@
 }
 .scheduleSkeleton {
   display: grid;
-  gap: 2rem;
+  gap: var(--space-8);
   min-height: 36rem;
-  padding-top: 1.5rem;
+  padding-top: var(--space-6);
 }
 .scheduleSkeletonHeader,
 .scheduleSkeletonRows {
-  border-radius: 0.5rem;
-  background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 37%, #f1f5f9 63%);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-subtle) 25%,
+    var(--color-page) 37%,
+    var(--color-surface-subtle) 63%
+  );
   background-size: 400% 100%;
   animation: shimmer 1.4s ease infinite;
 }
@@ -107,6 +112,6 @@
     display: grid;
   }
   .scheduleWrap {
-    padding: 1.25rem;
+    padding: var(--space-5);
   }
 }

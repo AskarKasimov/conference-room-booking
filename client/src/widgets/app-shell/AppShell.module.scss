@@ -11,5 +11,5 @@
   flex-direction: column;
   width: min(100% - (var(--page-gutter) * 2), var(--content-width));
   margin: 0 auto;
-  padding: 2.25rem 0 var(--space-10);
+  padding: var(--space-9) 0 var(--space-10);
 }

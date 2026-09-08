@@ -1,8 +1,8 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useCurrentUserQuery } from '../../entities/user';
 import { useSlidingIndicator } from '../../shared/lib';
-import CalendarCheckIcon from '../../shared/assets/icons/calendar-check-room-detail.svg';
-import AvatarCircleIcon from '../../shared/assets/icons/avatar-circle.svg';
+import CalendarCheckIcon from '../../shared/assets/icons/calendar-check-room-detail.svg?react';
+import AvatarCircleIcon from '../../shared/assets/icons/avatar-circle.svg?react';
 import styles from './Header.module.scss';
 
 export function Header() {
@@ -22,7 +22,7 @@ export function Header() {
     <header className={styles.header}>
       <Link to="/rooms" className={styles.logo} aria-label="BookRoom">
         <span className={styles.logoMark} aria-hidden="true">
-          <img src={CalendarCheckIcon} alt="" />
+          <CalendarCheckIcon aria-hidden="true" />
         </span>
         <span>BookRoom</span>
       </Link>
@@ -50,7 +50,7 @@ export function Header() {
       <div className={styles.profile}>
         <span className={styles.userName}>{shortDisplayName}</span>
         <span className={styles.user} aria-label={`${displayName}, ${initials}`}>
-          <img src={AvatarCircleIcon} alt="" />
+          <AvatarCircleIcon aria-hidden="true" />
           <span>{initials}</span>
         </span>
       </div>

@@ -1,52 +1,52 @@
 .button {
   min-height: 2.75rem;
-  border: 1px solid transparent;
+  border: 1px solid var(--color-transparent);
   border-radius: var(--radius-sm);
-  padding: 0.625rem 1rem;
+  padding: var(--space-2-5) var(--space-4);
   font-weight: 700;
 }
 .primary {
-  color: white;
+  color: var(--color-on-primary);
   background: var(--color-primary);
 }
 .primary:hover:not(:disabled) {
   background: var(--color-primary-dark);
 }
 .primary:active:not(:disabled) {
-  background: #06675f;
+  background: var(--color-primary-active);
 }
 .secondary {
   color: var(--color-text);
-  background: white;
+  background: var(--color-surface);
   border-color: var(--color-border);
 }
 .secondary:hover:not(:disabled) {
-  border-color: #cbd5e1;
-  background: #f8fafc;
+  border-color: var(--color-border-strong);
+  background: var(--color-page);
 }
 .secondary:active:not(:disabled) {
-  border-color: #94a3b8;
-  background: #f1f5f9;
+  border-color: var(--color-border-hover);
+  background: var(--color-surface-subtle);
 }
 .danger {
-  color: white;
+  color: var(--color-on-primary);
   background: var(--color-danger);
 }
 .danger:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--color-danger);
 }
 .danger:active:not(:disabled) {
-  background: #b91c1c;
+  background: var(--color-danger-dark);
 }
 .ghost {
   color: var(--color-primary-dark);
-  background: transparent;
+  background: var(--color-transparent);
 }
 .ghost:hover:not(:disabled) {
-  background: #f0fdfa;
+  background: var(--color-select-highlight);
 }
 .ghost:active:not(:disabled) {
-  background: #ccfbf1;
+  background: var(--color-accent);
 }
 .button:disabled {
   opacity: 0.6;
