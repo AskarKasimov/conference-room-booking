@@ -37,9 +37,8 @@ export function getTimeOptions() {
 }
 
 export function getBookableDateBounds(timezone: string, now = new Date()) {
-  const current = DateTime.fromJSDate(now).setZone(timezone);
   const horizon = DateTime.fromJSDate(now).plus({ days: MAX_BOOKING_DAYS }).setZone(timezone);
-  return { min: current.toISODate() ?? '', max: horizon.toISODate() ?? '' };
+  return { min: getBookableDate(timezone, now), max: horizon.toISODate() ?? '' };
 }
 
 export function getBookableTimeOptions(date: string, timezone: string, now = new Date()) {
