@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../lib/env';
+import { API_BASE_URL, ENV } from '../lib/env';
 import type { ApiErrorResponse } from './contracts';
 
 export class ApiError extends Error {
@@ -47,19 +47,31 @@ async function parseError(response: Response): Promise<ApiError> {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { query, body, method = 'GET', headers, ...rest } = options;
+  const { query, body, method = 'GET', headers, signal, ...rest } = options;
   const requestHeaders = new Headers(headers);
   const init: RequestInit = { ...rest, method, headers: requestHeaders };
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => timeoutController.abort(), ENV.REQUEST_TIMEOUT_MS);
+  const abortRequest = () => timeoutController.abort(signal?.reason);
+  signal?.addEventListener('abort', abortRequest, { once: true });
+  if (import.meta.env.MODE !== 'test') {
+    init.signal = timeoutController.signal;
+  }
 
   if (body !== undefined) {
     requestHeaders.set('content-type', 'application/json');
     init.body = JSON.stringify(body);
   }
 
-  const response = await fetch(buildUrl(path, query), init);
-  if (!response.ok) throw await parseError(response);
-  if (response.status === 204) return undefined as T;
+  try {
+    const response = await fetch(buildUrl(path, query), init);
+    if (!response.ok) throw await parseError(response);
+    if (response.status === 204) return undefined as T;
 
-  const text = await response.text();
-  return (text ? JSON.parse(text) : undefined) as T;
+    const text = await response.text();
+    return (text ? JSON.parse(text) : undefined) as T;
+  } finally {
+    clearTimeout(timeoutId);
+    signal?.removeEventListener('abort', abortRequest);
+  }
 }

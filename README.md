@@ -20,10 +20,11 @@ cd client && npm ci && cp .env.example .env && npm run dev
 
 Файл `client/.env`:
 
-| Переменная          | Значение в `.env.example` | Назначение                                        |
-| ------------------- | ------------------------- | ------------------------------------------------- |
-| `VITE_API_BASE_URL` | `http://localhost:3000`   | обязательный origin REST API                      |
-| `VITE_WS_URL`       | из `VITE_API_BASE_URL`    | полный URL WebSocket; если задан, имеет приоритет |
+| Переменная                | Значение в `.env.example`       | Назначение                           |
+| ------------------------- | ------------------------------- | ------------------------------------ |
+| `VITE_API_BASE_URL`       | `http://localhost:3000`         | обязательный origin REST API         |
+| `VITE_WS_URL`             | `ws://localhost:3000/api/v1/ws` | обязательный URL WebSocket           |
+| `VITE_REQUEST_TIMEOUT_MS` | `10000`                         | timeout REST-запроса в миллисекундах |
 
 ## Команды
 
