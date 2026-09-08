@@ -11,7 +11,7 @@
 cd server && npm ci && npm run dev
 
 # terminal 2
-cd client && npm ci && cp .env.example .env && npm run dev
+cp .env.example client/.env && cd client && npm ci && npm run dev
 ```
 
 После запуска откройте `http://localhost:5173`. API доступен на `http://localhost:3000`
@@ -27,9 +27,12 @@ npm run dev
 
 ## Переменные окружения клиента
 
-Файл `client/.env`:
+Для локального запуска скопируйте корневой `.env.example` в `client/.env`.
+Vite загружает переменные из `client/.env`; корневой `.env` использует Docker Compose.
 
-| Переменная                | Значение в `.env.example`       | Назначение                           |
+Значения клиента при `SERVER_PORT=3000`:
+
+| Переменная                | Значение                        | Назначение                           |
 | ------------------------- | ------------------------------- | ------------------------------------ |
 | `VITE_API_BASE_URL`       | `http://localhost:3000`         | обязательный origin REST API         |
 | `VITE_WS_URL`             | `ws://localhost:3000/api/v1/ws` | обязательный URL WebSocket           |
