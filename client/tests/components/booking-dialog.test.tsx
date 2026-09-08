@@ -27,22 +27,19 @@ afterEach(() => vi.useRealTimers());
 it('submits ISO timestamps and closes after a successful response', async () => {
   const user = userEvent.setup();
   let payload: Record<string, unknown> | undefined;
-  let open = true;
   server.use(
     http.post('*/api/v1/bookings', async ({ request }) => {
       payload = (await request.json()) as Record<string, unknown>;
       return HttpResponse.json({ id: 'booking-1' }, { status: 201 });
     }),
   );
+  function ControlledBookingDialog() {
+    const [open, setOpen] = useState(true);
+    return <BookingDialog selection={selection} open={open} onOpenChange={setOpen} />;
+  }
   render(
     <AppProviders client={createTestQueryClient()}>
-      <BookingDialog
-        selection={selection}
-        open={open}
-        onOpenChange={(next) => {
-          open = next;
-        }}
-      />
+      <ControlledBookingDialog />
     </AppProviders>,
   );
 
@@ -54,6 +51,7 @@ it('submits ISO timestamps and closes after a successful response', async () => 
   await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
   expect(await screen.findByRole('status')).toHaveTextContent('Бронирование создано');
+  expect(screen.queryByRole('heading', { name: 'Новое бронирование' })).not.toBeInTheDocument();
   expect(
     screen.getByText('Комната Эверест, 20 октября, 10:00–11:00 (Europe/Moscow)'),
   ).toBeInTheDocument();
@@ -70,9 +68,13 @@ it('keeps the duration within the workday after moving the start to 19:45', asyn
       return HttpResponse.json({ id: 'booking-1' }, { status: 201 });
     }),
   );
+  function ControlledBookingDialog() {
+    const [open, setOpen] = useState(true);
+    return <BookingDialog selection={selection} open={open} onOpenChange={setOpen} />;
+  }
   render(
     <AppProviders client={createTestQueryClient()}>
-      <BookingDialog selection={selection} open onOpenChange={() => undefined} />
+      <ControlledBookingDialog />
     </AppProviders>,
   );
 

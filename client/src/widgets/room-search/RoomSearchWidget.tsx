@@ -67,6 +67,7 @@ export function RoomSearchWidget({
   onBookingClose: () => void;
 }) {
   const [bookingSuccess, setBookingSuccess] = useState<BookingSuccess>();
+  const [bookingOpen, setBookingOpen] = useState(false);
   const rooms = useRoomsQuery(
     interval
       ? {
@@ -116,7 +117,14 @@ export function RoomSearchWidget({
     results = (
       <section className={styles.results}>
         <h1>Доступные переговорные в этом офисе</h1>
-        <RoomGrid rooms={rooms.data} date={filters.date} onBook={onBook} />
+        <RoomGrid
+          rooms={rooms.data}
+          date={filters.date}
+          onBook={(room) => {
+            onBook(room);
+            setBookingOpen(true);
+          }}
+        />
       </section>
     );
   } else {
@@ -154,13 +162,13 @@ export function RoomSearchWidget({
             startTime: filters.startTime,
             durationMinutes: filters.duration,
           }}
-          open
+          open={bookingOpen}
           onOpenChange={(open) => {
-            if (!open) onBookingClose();
+            setBookingOpen(open);
           }}
+          onCloseComplete={onBookingClose}
           onSuccess={(booking) => {
             setBookingSuccess(booking);
-            onBookingClose();
           }}
         />
       ) : null}

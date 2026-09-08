@@ -11,6 +11,7 @@ interface DialogProps extends PropsWithChildren {
   onOpenChange: (open: boolean) => void;
   returnFocusRef?: RefObject<HTMLElement | null>;
   showClose?: boolean;
+  onCloseComplete?: () => void;
 }
 
 export function Dialog({
@@ -20,6 +21,7 @@ export function Dialog({
   onOpenChange,
   returnFocusRef,
   showClose = true,
+  onCloseComplete,
   children,
 }: DialogProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -34,7 +36,10 @@ export function Dialog({
             event.preventDefault();
             headingRef.current?.focus();
           }}
-          onCloseAutoFocus={() => returnFocusRef?.current?.focus()}
+          onCloseAutoFocus={() => {
+            returnFocusRef?.current?.focus();
+            onCloseComplete?.();
+          }}
         >
           <div className={styles.content}>
             <div className={styles.header}>
