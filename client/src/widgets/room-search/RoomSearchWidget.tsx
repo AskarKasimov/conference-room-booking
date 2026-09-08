@@ -205,8 +205,12 @@ export function RoomSearchWidget({
     );
   }
 
+  const hasNoRooms = rooms.isSuccess && rooms.data.length === 0;
+
   return (
-    <div className={`${styles.page} ${rooms.isError ? styles.pageRoomsError : ''}`}>
+    <div
+      className={`${styles.page} ${rooms.isError ? styles.pageRoomsError : ''} ${hasNoRooms ? styles.pageRoomsEmpty : ''}`}
+    >
       {bookingSuccess ? (
         <BookingSuccessNotice
           booking={bookingSuccess}
@@ -220,7 +224,11 @@ export function RoomSearchWidget({
           value={office.id}
           onChange={onOfficeChange}
         />
-        <OfficeMeta className={styles.officeMeta} office={office} />
+        <OfficeMeta
+          className={styles.officeMeta}
+          separatorClassName={styles.officeMetaDot}
+          office={office}
+        />
       </section>
       <section className={styles.filtersPanel}>
         <RoomFilters value={filters} timezone={timezone} now={now} onChange={onFiltersChange} />

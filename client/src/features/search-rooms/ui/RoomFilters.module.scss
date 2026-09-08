@@ -1,43 +1,25 @@
 .filters {
   display: grid;
-  grid-template-columns: 9.375rem 5.4375rem 5.6875rem 7.8125rem;
-  column-gap: var(--space-4);
-  row-gap: var(--space-4);
-}
-.filtersDisabled {
-  grid-template-columns: 9.5rem 5.375rem 7.375rem 7.9375rem;
-  column-gap: 1rem;
-}
-.filtersDisabled .field {
-  gap: 0.375rem;
-  min-width: 0;
+  grid-template-columns: 9.5rem 6rem 8.5rem 10rem;
+  gap: var(--space-4);
 }
 .filtersDisabled .fieldLabel {
   color: #99a3b0;
 }
 .filtersDisabled .select:disabled {
-  height: 2.4375rem;
-  min-width: 0;
-  min-height: 2.4375rem;
-  border-color: #e2e8f0;
-  padding: 0.5rem 0.875rem;
   color: #99a3b0;
   background: transparent;
 }
+.filtersDisabled .dateField :global(button:disabled) {
+  color: #99a3b0;
+  background: transparent;
+}
+.filtersDisabled .dateField :global(button:disabled svg),
 .filtersDisabled .select:disabled .fieldIcon,
 .filtersDisabled .select:disabled .chevron {
   color: #475569;
-}
-.filtersDisabled .dateField :global(button:disabled) {
-  height: 2.4375rem;
-  min-height: 2.4375rem;
-  border-color: #e2e8f0;
-  padding: 0.5rem 0.875rem;
-  color: #99a3b0;
-  background: transparent;
-}
-.filtersDisabled .dateField :global(button:disabled svg) {
-  color: #475569;
+  stroke: #475569;
+  opacity: 1;
 }
 .field {
   display: grid;
@@ -53,54 +35,12 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
-.dateField {
-  width: 9.375rem;
-}
-.filtersDisabled .dateField {
-  width: 9.5rem;
-}
 .dateField > span {
   font-size: 0.6875rem;
   font-weight: 700;
 }
-.timeField {
-  width: 5.4375rem;
-}
-.filtersDisabled .timeField {
-  width: 5.375rem;
-}
-.filtersDisabled .timeField .select {
-  width: 100%;
-}
-.filtersDisabled .minValueMeasure {
-  display: none;
-}
-.durationField {
-  width: 5.6875rem;
-  min-width: 0;
-}
-.filtersDisabled .durationField {
-  width: 7.375rem;
-  min-width: 0;
-}
-.capacityField {
-  width: 7.8125rem;
-}
-.filtersDisabled .capacityField {
-  width: 7.9375rem;
-  min-width: 0;
-}
-.filtersDisabled .capacityField .select:disabled {
-  gap: 0.25rem;
-  padding-right: 0.25rem;
-  font-size: 0.75rem;
-}
-.filtersDisabled .capacityField .fieldIcon,
-.filtersDisabled .capacityField .chevron {
-  width: 0.875rem;
-  height: 0.875rem;
-}
 .select {
+  min-width: 0;
   min-height: 2.4375rem;
   border: 1px solid #e2e8f0;
   border-radius: var(--radius-sm);
@@ -137,12 +77,6 @@
 .select:disabled .chevron {
   color: #b5beca;
 }
-.filtersDisabled .durationField .select:disabled .chevron,
-.filtersDisabled .capacityField .select:disabled .chevron {
-  color: #475569;
-  stroke: #475569;
-  opacity: 1;
-}
 .timeField .select,
 .capacityField .select,
 .durationField .select {
@@ -154,15 +88,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.durationField .selectValue {
-  display: grid;
-}
-.durationField .selectValue > * {
-  grid-area: 1 / 1;
-}
-.minValueMeasure {
-  visibility: hidden;
 }
 .fieldIcon {
   flex: 0 0 auto;
@@ -212,23 +137,5 @@
 @media (max-width: 560px) {
   .filters {
     grid-template-columns: minmax(0, 10rem);
-  }
-  .filtersDisabled {
-    grid-template-columns: minmax(0, 10rem);
-  }
-  .dateField,
-  .timeField,
-  .durationField,
-  .capacityField {
-    width: min(100%, 10rem);
-  }
-  .filtersDisabled .dateField,
-  .filtersDisabled .timeField,
-  .filtersDisabled .durationField,
-  .filtersDisabled .capacityField {
-    width: min(100%, 10rem);
-  }
-  .filtersDisabled .timeField .select {
-    width: 100%;
   }
 }

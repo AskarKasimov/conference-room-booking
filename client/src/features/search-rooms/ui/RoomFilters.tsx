@@ -28,7 +28,6 @@ function FilterSelect({
   chevron = false,
   className,
   valuePrefix,
-  minValueLabel,
   placeholder,
   disabled = false,
 }: {
@@ -40,7 +39,6 @@ function FilterSelect({
   chevron?: boolean;
   className?: string | undefined;
   valuePrefix?: string | undefined;
-  minValueLabel?: string;
   placeholder?: string;
   disabled?: boolean;
 }) {
@@ -61,11 +59,6 @@ function FilterSelect({
           <span className={styles.selectValue}>
             {valuePrefix}
             <Select.Value placeholder={placeholder} />
-            {minValueLabel && (
-              <span className={styles.minValueMeasure} aria-hidden="true">
-                {minValueLabel}
-              </span>
-            )}
           </span>
           {chevron && <ChevronDownIcon className={styles.chevron} aria-hidden="true" />}
         </Select.Trigger>
@@ -158,7 +151,6 @@ export function RoomFilters({
         ])}
         chevron
         className={styles.durationField}
-        minValueLabel="10 ч 45 мин"
         {...(disabled ? { placeholder: 'Выберите' } : {})}
         disabled={disabled}
       />

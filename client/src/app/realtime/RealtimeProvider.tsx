@@ -1,11 +1,10 @@
-import type { PropsWithChildren } from 'react';
+import type { ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { applyRealtimeEvent, parseRealtimeEvent } from './events';
 import { parseRealtimeActiveContext, type RealtimeActiveContext } from './activeContext';
 import { getRealtimeUrl } from './wsUrl';
 import { ContextRegistration } from '../../shared/lib';
-import { RealtimeConnectionBanner } from './RealtimeConnectionBanner';
 
 const RECONNECT_DELAY_MS = 1000;
 
@@ -15,7 +14,12 @@ export interface RealtimeSocket {
   close(): void;
 }
 
-interface RealtimeProviderProps extends PropsWithChildren {
+export interface RealtimeStatus {
+  isDisconnected: boolean;
+}
+
+interface RealtimeProviderProps {
+  children: ReactNode | ((status: RealtimeStatus) => ReactNode);
   activeContext?: RealtimeActiveContext;
   socketFactory?: (url: string) => RealtimeSocket;
 }
@@ -119,11 +123,8 @@ export function RealtimeProvider({
   }, [client, socketFactory]);
 
   return (
-    <>
-      {isDisconnected ? <RealtimeConnectionBanner /> : null}
-      <ContextRegistration.Provider value={registerActiveContext}>
-        {children}
-      </ContextRegistration.Provider>
-    </>
+    <ContextRegistration.Provider value={registerActiveContext}>
+      {typeof children === 'function' ? children({ isDisconnected }) : children}
+    </ContextRegistration.Provider>
   );
 }

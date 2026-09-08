@@ -38,6 +38,9 @@
   stroke-width: 2.5;
 }
 .officeMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin: 0.25rem 0 0;
   color: var(--color-muted);
   font-size: 0.8125rem;
@@ -57,9 +60,6 @@
   color: var(--color-text);
 }
 .officePanelUnselected .officeMeta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
   margin-top: 0.25rem;
   color: #99a3b0;
 }
@@ -86,7 +86,8 @@
 }
 .pageOfficeSelection {
   display: flex;
-  min-height: calc(100vh - 4.5rem);
+  flex: 1 0 auto;
+  min-height: 0;
   flex-direction: column;
   margin-bottom: calc(var(--space-10) * -1);
 }
@@ -119,9 +120,11 @@
   font-size: 0.9375rem;
   line-height: 1.375rem;
 }
-.pageRoomsError {
+.pageRoomsError,
+.pageRoomsEmpty {
   display: flex;
-  min-height: calc(100vh - 7.125rem);
+  flex: 1 0 auto;
+  min-height: 0;
   flex-direction: column;
   margin-bottom: calc(var(--space-10) * -1);
 }

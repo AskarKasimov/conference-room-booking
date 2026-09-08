@@ -1,7 +1,14 @@
 .shell {
+  display: flex;
+  flex: 1 0 auto;
   min-height: 100vh;
+  flex-direction: column;
 }
 .main {
+  display: flex;
+  flex: 1 0 auto;
+  min-height: 0;
+  flex-direction: column;
   width: min(100% - (var(--page-gutter) * 2), var(--content-width));
   margin: 0 auto;
   padding: 2.25rem 0 var(--space-10);

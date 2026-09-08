@@ -5,9 +5,11 @@ import type { Office } from '../model/types';
 export function OfficeMeta({
   office,
   className,
+  separatorClassName,
 }: {
   office: Office;
   className?: string | undefined;
+  separatorClassName?: string | undefined;
 }) {
   const now = useClock();
   const localNow = DateTime.fromJSDate(now).setZone(office.timezone);
@@ -24,7 +26,11 @@ export function OfficeMeta({
 
   return (
     <p className={className}>
-      {office.address} · Местное время: {localNow.toFormat('HH:mm')} {timeZoneAbbreviation}
+      <span>{office.address}</span>
+      <span className={separatorClassName} aria-hidden="true" />
+      <span>
+        Местное время: {localNow.toFormat('HH:mm')} {timeZoneAbbreviation}
+      </span>
     </p>
   );
 }

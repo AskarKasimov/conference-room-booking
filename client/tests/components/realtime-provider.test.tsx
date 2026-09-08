@@ -3,6 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { ws } from 'msw';
 import { RealtimeProvider, type RealtimeSocket } from '../../src/app/realtime/RealtimeProvider';
+import { RealtimeConnectionBanner } from '../../src/app/realtime';
 import { bookingQueryKeys } from '../../src/entities/booking';
 import { server } from '../support/server';
 
@@ -66,7 +67,12 @@ it('creates one socket, applies events, ignores malformed messages, and closes o
   const { unmount } = render(
     <QueryClientProvider client={client}>
       <RealtimeProvider socketFactory={factory}>
-        <span>content</span>
+        {({ isDisconnected }) => (
+          <>
+            <RealtimeConnectionBanner isVisible={isDisconnected} />
+            <span>content</span>
+          </>
+        )}
       </RealtimeProvider>
     </QueryClientProvider>,
   );
@@ -108,13 +114,21 @@ it('shows connection loss and resyncs after the socket reconnects', async () => 
   const { unmount } = render(
     <QueryClientProvider client={client}>
       <RealtimeProvider socketFactory={factory}>
-        <span>content</span>
+        {({ isDisconnected }) => (
+          <>
+            <RealtimeConnectionBanner isVisible={isDisconnected} />
+            <span>content</span>
+          </>
+        )}
       </RealtimeProvider>
     </QueryClientProvider>,
   );
 
   act(() => firstSocket.emit('close'));
-  expect(screen.getByRole('status')).toHaveTextContent('Соединение потеряно. Переподключение...');
+  const banner = screen.getByRole('status');
+  expect(banner).toHaveTextContent('Соединение потеряно. Переподключение...');
+  expect(banner).toHaveAttribute('aria-hidden', 'false');
+  expect(banner.parentElement).toContainElement(screen.getByText('content'));
 
   await act(async () => {
     await vi.advanceTimersByTimeAsync(1000);
@@ -122,7 +136,10 @@ it('shows connection loss and resyncs after the socket reconnects', async () => 
   expect(factory).toHaveBeenCalledTimes(2);
 
   act(() => secondSocket.emit('open'));
-  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  expect(screen.getByText('Соединение потеряно. Переподключение...').parentElement).toHaveAttribute(
+    'aria-hidden',
+    'true',
+  );
   expect(invalidateQueries).toHaveBeenCalledWith();
 
   unmount();

@@ -1,22 +1,43 @@
 .banner {
   display: flex;
   box-sizing: border-box;
-  height: 2.4375rem;
-  min-height: 2.4375rem;
+  height: 0;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  border-bottom: 1px solid #fde047;
+  overflow: hidden;
+  border-bottom: 0 solid #fde047;
   padding: 0 2rem;
   color: #854d0e;
   background: #fef08a;
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition:
+    height 220ms ease,
+    border-bottom-width 220ms ease,
+    opacity 160ms ease,
+    transform 220ms ease;
+}
+
+.visible {
+  height: 2.4375rem;
+  border-bottom-width: 1px;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .banner svg {
   flex: 0 0 auto;
   width: 1.125rem;
   height: 1.125rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner {
+    transition: none;
+  }
 }

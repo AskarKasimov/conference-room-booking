@@ -1,6 +1,7 @@
 .notFound {
   display: flex;
-  min-height: calc(100vh - 4.5rem);
+  flex: 1 0 auto;
+  min-height: 0;
   flex-direction: column;
   align-items: center;
   justify-content: center;

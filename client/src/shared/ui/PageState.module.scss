@@ -17,11 +17,9 @@
 }
 .error.bleed,
 .empty.bleed {
-  min-height: calc(100vh - 16.6875rem);
   background: #f8fafc;
 }
 .error.bleed {
-  min-height: calc(100vh - 19.125rem);
   transform: translateY(-1.25rem);
 }
 .empty {

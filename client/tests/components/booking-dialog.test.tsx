@@ -247,3 +247,34 @@ it('dismisses the successful-booking notification', async () => {
 
   expect(screen.queryByRole('status')).not.toBeInTheDocument();
 });
+
+it('automatically dismisses the successful-booking notification after three seconds', async () => {
+  vi.useFakeTimers();
+  function Notice() {
+    const [visible, setVisible] = useState(true);
+    return visible ? (
+      <BookingSuccessNotice
+        booking={{
+          roomName: 'Эверест',
+          date: '2026-10-20',
+          startTime: '10:00',
+          durationMinutes: 60,
+          timezone: 'Europe/Moscow',
+        }}
+        onDismiss={() => setVisible(false)}
+      />
+    ) : null;
+  }
+
+  render(<Notice />);
+
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(2999);
+  });
+  expect(screen.getByRole('status')).toBeInTheDocument();
+
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(1);
+  });
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+});

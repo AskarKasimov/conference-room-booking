@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { DateTime } from 'luxon';
 import CloseIcon from '../../../shared/assets/icons/close.svg?react';
 import styles from './Booking.module.scss';
@@ -17,6 +18,21 @@ export function BookingSuccessNotice({
   booking: BookingSuccess;
   onDismiss: () => void;
 }) {
+  const onDismissRef = useRef(onDismiss);
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+  }, [onDismiss]);
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => onDismissRef.current(), 3000);
+    return () => window.clearTimeout(timeoutId);
+  }, [
+    booking.date,
+    booking.durationMinutes,
+    booking.roomName,
+    booking.startTime,
+    booking.timezone,
+  ]);
+
   const startsAt = DateTime.fromISO(`${booking.date}T${booking.startTime}`, {
     zone: booking.timezone,
   }).setLocale('ru');
