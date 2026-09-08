@@ -4,7 +4,12 @@ import ChevronDownIcon from '../../assets/icons/chevron-down.svg?react';
 import ClockIcon from '../../assets/icons/clock.svg?react';
 import PeopleIcon from '../../assets/icons/people.svg?react';
 import { DatePicker } from '../../components/ui/DatePicker';
-import { formatDuration, getDurationOptions, getTimeOptions } from './searchParams';
+import {
+  formatDuration,
+  getBookableDateBounds,
+  getBookableTimeOptions,
+  getDurationOptions,
+} from './searchParams';
 import styles from './RoomSearch.module.scss';
 
 export interface RoomFilterValue {
@@ -79,10 +84,16 @@ function FilterSelect({
 export function RoomFilters({
   value,
   onChange,
+  timezone,
+  now = new Date(),
 }: {
   value: RoomFilterValue;
   onChange: (value: RoomFilterValue) => void;
+  timezone: string;
+  now?: Date | undefined;
 }) {
+  const { min, max } = getBookableDateBounds(timezone, now);
+  const availableTimes = getBookableTimeOptions(value.date, timezone, now);
   const update = (next: Partial<RoomFilterValue>) => onChange({ ...value, ...next });
   const updateStartTime = (startTime: string) => {
     const durationOptions = getDurationOptions(startTime);
@@ -99,13 +110,28 @@ export function RoomFilters({
       <DatePicker
         className={styles.dateField}
         value={value.date}
-        onValueChange={(date) => update({ date })}
+        min={min}
+        max={max}
+        onValueChange={(date) => {
+          const time = getBookableTimeOptions(date, timezone, now)[0];
+          update({
+            date,
+            ...(time
+              ? {
+                  startTime: time,
+                  duration: getDurationOptions(time).includes(value.duration)
+                    ? value.duration
+                    : (getDurationOptions(time).at(-1) ?? 15),
+                }
+              : {}),
+          });
+        }}
       />
       <FilterSelect
         label="Время начала"
         value={value.startTime}
         onChange={updateStartTime}
-        options={getTimeOptions().map((time): [string, string] => [time, time])}
+        options={availableTimes.map((time): [string, string] => [time, time])}
         icon={ClockIcon}
         className={styles.timeField}
       />

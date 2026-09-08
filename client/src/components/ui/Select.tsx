@@ -12,6 +12,9 @@ export function Select({
   placeholder,
   className,
   hideLabel = false,
+  id,
+  ariaInvalid,
+  ariaDescribedBy,
 }: {
   label: string;
   value: string;
@@ -20,6 +23,9 @@ export function Select({
   placeholder?: string;
   className?: string | undefined;
   hideLabel?: boolean;
+  id?: string | undefined;
+  ariaInvalid?: boolean | undefined;
+  ariaDescribedBy?: string | undefined;
 }) {
   const radixValue = value || (options.some((option) => option.value === '') ? emptyValue : '');
   return (
@@ -29,7 +35,13 @@ export function Select({
         value={radixValue}
         onValueChange={(next) => onValueChange(next === emptyValue ? '' : next)}
       >
-        <Primitive.Trigger className={styles.select} aria-label={label}>
+        <Primitive.Trigger
+          id={id}
+          className={styles.select}
+          aria-label={label}
+          aria-invalid={ariaInvalid}
+          aria-describedby={ariaDescribedBy}
+        >
           <Primitive.Value placeholder={placeholder} />
           <ChevronDownIcon className={styles.chevron} aria-hidden="true" />
         </Primitive.Trigger>

@@ -1,4 +1,5 @@
 import type { RoomSummary } from '../../api/contracts';
+import { Link } from 'react-router-dom';
 import ClockIcon from '../../assets/icons/clock.svg?react';
 import PeopleIcon from '../../assets/icons/people.svg?react';
 import { Button } from '../../components/ui/Button';
@@ -7,10 +8,12 @@ import styles from './RoomSearch.module.scss';
 export function RoomCard({
   room,
   availability = room.available,
+  date,
   onBook,
 }: {
   room: RoomSummary;
-  availability?: boolean;
+  availability?: boolean | undefined;
+  date?: string | undefined;
   requestedInterval?: { date: string; startTime: string; durationMinutes: number };
   onBook: (room: RoomSummary) => void;
 }) {
@@ -28,21 +31,32 @@ export function RoomCard({
       </p>
       <p className={styles.meta}>
         <ClockIcon aria-hidden="true" />
-        {availability ? 'Свободна весь день' : 'Занята на выбранное время'}
+        {availability === true
+          ? 'Свободна на выбранное время'
+          : availability === false
+            ? 'Занята на выбранное время'
+            : 'Доступность не подтверждена'}
       </p>
       <p
-        className={`${styles.availability} ${availability ? styles.available : styles.unavailable}`}
+        className={`${styles.availability} ${availability === true ? styles.available : styles.unavailable}`}
       >
         <span aria-hidden="true">●</span>
-        {availability ? 'Доступно на выбранное время' : 'Недоступно на выбранное время'}
+        {availability === true
+          ? 'Доступно на выбранное время'
+          : availability === false
+            ? 'Недоступно на выбранное время'
+            : 'Неизвестна для выбранного времени'}
       </p>
       <div className={styles.cardActions}>
-        <a className={styles.cardDetails} href={`/rooms/${room.id}`}>
+        <Link
+          className={styles.cardDetails}
+          to={{ pathname: `/rooms/${room.id}`, search: date ? `?date=${date}` : '' }}
+        >
           Подробнее
-        </a>
+        </Link>
         <Button
-          className={`${styles.cardBookButton} ${!availability ? styles.disabledBookButton : ''}`}
-          disabled={!availability}
+          className={`${styles.cardBookButton} ${availability !== true ? styles.disabledBookButton : ''}`}
+          disabled={availability !== true}
           onClick={() => onBook(room)}
         >
           Забронировать

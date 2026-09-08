@@ -1,8 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { RoomFilters } from '../../src/features/room-search/RoomFilters';
 import { formatDuration } from '../../src/features/room-search/searchParams';
+
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-05T07:00:00.000Z'));
+});
+
+afterEach(() => vi.useRealTimers());
 
 describe('RoomFilters', () => {
   it('emits numeric capacity and atomic filter values', async () => {
@@ -11,6 +18,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60 }}
+        timezone="Europe/Moscow"
         onChange={onChange}
       />,
     );
@@ -21,12 +29,34 @@ describe('RoomFilters', () => {
     expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ minCapacity: 8 }));
   });
 
+  it('disables dates outside the horizon and omits past start slots for today', async () => {
+    const user = userEvent.setup();
+    render(
+      <RoomFilters
+        value={{ date: '2026-09-05', startTime: '09:00', duration: 60 }}
+        timezone="Europe/Moscow"
+        onChange={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: '5 Сентября, Сб' }));
+    expect(screen.getByRole('button', { name: '4 Сентября, Пт' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Следующий месяц' }));
+    expect(screen.getByRole('button', { name: '6 Октября, Вт' })).toBeDisabled();
+
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('combobox', { name: 'Время начала' }));
+    expect(screen.queryByRole('option', { name: '10:00' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '10:15' })).toBeInTheDocument();
+  });
+
   it('writes a picked calendar date as an atomic date filter', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60 }}
+        timezone="Europe/Moscow"
         onChange={onChange}
       />,
     );
@@ -42,6 +72,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60 }}
+        timezone="Europe/Moscow"
         onChange={vi.fn()}
       />,
     );
@@ -55,6 +86,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60 }}
+        timezone="Europe/Moscow"
         onChange={vi.fn()}
       />,
     );
@@ -69,6 +101,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60 }}
+        timezone="Europe/Moscow"
         onChange={vi.fn()}
       />,
     );
@@ -85,6 +118,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60 }}
+        timezone="Europe/Moscow"
         onChange={onChange}
       />,
     );
@@ -101,6 +135,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60 }}
+        timezone="Europe/Moscow"
         onChange={vi.fn()}
       />,
     );
@@ -112,6 +147,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60 }}
+        timezone="Europe/Moscow"
         onChange={vi.fn()}
       />,
     );
@@ -123,6 +159,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '09:00', duration: 645 }}
+        timezone="Europe/Moscow"
         onChange={vi.fn()}
       />,
     );
@@ -142,6 +179,7 @@ describe('RoomFilters', () => {
     render(
       <RoomFilters
         value={{ date: '2026-09-10', startTime: '10:00', duration: 60, minCapacity: 8 }}
+        timezone="Europe/Moscow"
         onChange={vi.fn()}
       />,
     );

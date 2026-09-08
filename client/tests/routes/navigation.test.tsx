@@ -37,12 +37,10 @@ describe('application navigation', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('redirects / to /rooms', async () => {
+  it('redirects / to /rooms and requires an office selection', async () => {
     renderRoute('/');
 
-    expect(
-      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
-    ).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Выберите офис' })).toBeVisible();
   });
 
   it('shows the not-found page for an unknown URL', async () => {

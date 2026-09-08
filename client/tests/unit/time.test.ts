@@ -5,12 +5,32 @@ import {
   intervalsOverlap,
   toApiIso,
 } from '../../src/lib/time';
-import { getDefaultRoomFilters, getNextSlot } from '../../src/features/room-search/searchParams';
+import {
+  getBookableDateBounds,
+  getBookableTimeOptions,
+  getDefaultRoomFilters,
+  getNextSlot,
+} from '../../src/features/room-search/searchParams';
 import { officeFixture } from '../support/handlers';
 
 const now = new Date('2026-09-05T07:00:00.000Z');
 
 describe('time boundaries', () => {
+  it('limits calendar dates and start times by the exact office-local booking horizon', () => {
+    const current = new Date('2026-09-05T07:00:00.000Z');
+    expect(getBookableDateBounds('Europe/Moscow', current)).toEqual({
+      min: '2026-09-05',
+      max: '2026-10-05',
+    });
+    expect(getBookableTimeOptions('2026-10-05', 'Europe/Moscow', current)).toEqual([
+      '09:00',
+      '09:15',
+      '09:30',
+      '09:45',
+      '10:00',
+    ]);
+  });
+
   it.each([
     ['2026-09-05T07:45:00.000Z', '2026-09-05', '11:00'],
     ['2026-09-05T15:46:00.000Z', '2026-09-05', '19:00'],

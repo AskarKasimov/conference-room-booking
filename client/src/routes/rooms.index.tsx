@@ -19,27 +19,25 @@ import {
   type BookingSuccess,
 } from '../features/booking/BookingSuccessNotice';
 import { useRealtimeActiveContext } from '../realtime/RealtimeProvider';
+import { useClock } from '../hooks/useClock';
 
 export function RoomsPage() {
   const [bookingRoom, setBookingRoom] = useState<import('../api/contracts').RoomSummary>();
   const [bookingSuccess, setBookingSuccess] = useState<BookingSuccess>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const now = useClock();
   const search = normalizeRoomsSearch(Object.fromEntries(searchParams.entries()));
   const offices = useOfficesQuery();
   const officeList = offices.data ?? [];
   const selectedOffice = officeList.find((item) => item.id === search.officeId);
-  const office = selectedOffice ?? officeList[0];
-  const defaults = office ? getDefaultRoomFilters(office) : undefined;
+  const office = selectedOffice;
+  const defaults = office ? getDefaultRoomFilters(office, now) : undefined;
   useEffect(() => {
-    if (!office || selectedOffice) return;
-    const params = new URLSearchParams({
-      officeId: office.id,
-      ...Object.fromEntries(
-        Object.entries(getDefaultRoomFilters(office)).map(([key, value]) => [key, String(value)]),
-      ),
-    });
+    if (!offices.isSuccess || !search.officeId || selectedOffice) return;
+    const params = new URLSearchParams(searchParams);
+    params.delete('officeId');
     setSearchParams(params, { replace: true });
-  }, [office, selectedOffice, setSearchParams]);
+  }, [offices.isSuccess, search.officeId, selectedOffice, searchParams, setSearchParams]);
   let content: React.ReactNode;
   if (offices.isLoading) {
     content = <PageSkeleton label="Загрузка офисов…" />;
@@ -51,12 +49,43 @@ export function RoomsPage() {
         onRetry={() => void offices.refetch()}
       />
     );
-  } else if (!office) {
+  } else if (officeList.length === 0) {
     content = (
       <EmptyState
         title="Нет доступных офисов"
         description="Когда офисы появятся, здесь можно будет выбрать переговорную."
       />
+    );
+  } else if (!office) {
+    content = (
+      <>
+        <section className={styles.officePanel}>
+          <OfficeSelector
+            className={styles.officeSelector}
+            offices={officeList}
+            value=""
+            onChange={(officeId) => {
+              const selected = officeList.find((item) => item.id === officeId);
+              if (!selected) return;
+              setSearchParams(
+                new URLSearchParams({
+                  officeId,
+                  ...Object.fromEntries(
+                    Object.entries(getDefaultRoomFilters(selected)).map(([key, value]) => [
+                      key,
+                      String(value),
+                    ]),
+                  ),
+                }),
+              );
+            }}
+          />
+        </section>
+        <EmptyState
+          title="Выберите офис"
+          description="Чтобы посмотреть доступные переговорные, сначала выберите офис."
+        />
+      </>
     );
   } else {
     const selectOffice = (officeId: string) => {
@@ -86,6 +115,7 @@ export function RoomsPage() {
         ...filters,
         durationMinutes: filters.duration,
         timezone: office.timezone,
+        now,
       });
     } catch {
       interval = undefined;
@@ -116,12 +146,18 @@ export function RoomsPage() {
           <OfficeMeta className={styles.officeMeta} office={office} />
         </section>
         <section className={styles.filtersPanel}>
-          <RoomFilters value={filters} onChange={updateFilters} />
+          <RoomFilters
+            value={filters}
+            timezone={office.timezone}
+            now={now}
+            onChange={updateFilters}
+          />
         </section>
         <RoomsResults
           officeId={office.id}
           interval={interval}
           minCapacity={filters.minCapacity}
+          date={filters.date}
           onBook={setBookingRoom}
         />
         {bookingRoom && interval ? (
@@ -150,11 +186,13 @@ function RoomsResults({
   officeId,
   interval,
   minCapacity,
+  date,
   onBook,
 }: {
   officeId: string;
   interval?: ReturnType<typeof buildOfficeInterval> | undefined;
   minCapacity?: number | undefined;
+  date: string;
   onBook: (room: import('../api/contracts').RoomSummary) => void;
 }) {
   const rooms = useRoomsQuery(
@@ -202,7 +240,7 @@ function RoomsResults({
   return rooms.data?.length ? (
     <section className={styles.results}>
       <h1>Доступные переговорные в этом офисе</h1>
-      <RoomGrid rooms={rooms.data} onBook={onBook} />
+      <RoomGrid rooms={rooms.data} date={date} onBook={onBook} />
     </section>
   ) : (
     <EmptyState title="Комнаты не найдены" description="Измените фильтры и попробуйте снова." />

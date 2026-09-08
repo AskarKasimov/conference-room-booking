@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { z } from 'zod';
 import type { Office } from '../../api/contracts';
+import { buildOfficeInterval, MAX_BOOKING_DAYS } from '../../lib/time';
 
 export const roomsSearchSchema = z.object({
   officeId: z.string().trim().min(1).optional(),
@@ -72,6 +73,23 @@ export function getTimeOptions() {
   return Array.from({ length: 44 }, (_, index) => {
     const minutes = 9 * 60 + index * 15;
     return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+  });
+}
+
+export function getBookableDateBounds(timezone: string, now = new Date()) {
+  const current = DateTime.fromJSDate(now).setZone(timezone);
+  const horizon = DateTime.fromJSDate(now).plus({ days: MAX_BOOKING_DAYS }).setZone(timezone);
+  return { min: current.toISODate() ?? '', max: horizon.toISODate() ?? '' };
+}
+
+export function getBookableTimeOptions(date: string, timezone: string, now = new Date()) {
+  return getTimeOptions().filter((startTime) => {
+    try {
+      buildOfficeInterval({ date, startTime, durationMinutes: 15, timezone, now });
+      return true;
+    } catch {
+      return false;
+    }
   });
 }
 

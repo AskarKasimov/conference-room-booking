@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { roomFixture } from '../support/handlers';
 import { RoomCard } from '../../src/features/room-search/RoomCard';
 import styles from '../../src/features/room-search/RoomSearch.module.scss';
@@ -9,25 +10,32 @@ describe('RoomCard', () => {
   it('allows booking only when the API marks the room available', async () => {
     const user = userEvent.setup();
     const onBook = vi.fn();
-    render(<RoomCard room={roomFixture} availability={true} onBook={onBook} />);
+    render(
+      <MemoryRouter>
+        <RoomCard room={roomFixture} availability={true} date="2026-09-10" onBook={onBook} />
+      </MemoryRouter>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
     expect(onBook).toHaveBeenCalledOnce();
     expect(screen.getByText('Доступно на выбранное время')).toBeInTheDocument();
+    expect(screen.getByText('Свободна на выбранное время')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Подробнее' })).toHaveAttribute(
       'href',
-      `/rooms/${roomFixture.id}`,
+      `/rooms/${roomFixture.id}?date=2026-09-10`,
     );
   });
 
   it('disables booking for an unavailable room', () => {
     render(
-      <RoomCard
-        room={{ ...roomFixture, available: false }}
-        availability={false}
-        onBook={vi.fn()}
-      />,
+      <MemoryRouter>
+        <RoomCard
+          room={{ ...roomFixture, available: false }}
+          availability={false}
+          onBook={vi.fn()}
+        />
+      </MemoryRouter>,
     );
 
     expect(screen.getByRole('button', { name: 'Забронировать' })).toHaveClass(
@@ -38,11 +46,29 @@ describe('RoomCard', () => {
   });
 
   it('gives the details link and booking button equal action areas', () => {
-    render(<RoomCard room={roomFixture} availability={true} onBook={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <RoomCard room={roomFixture} availability={true} date="2026-09-10" onBook={vi.fn()} />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByRole('link', { name: 'Подробнее' })).toHaveClass(styles.cardDetails!);
     expect(screen.getByRole('button', { name: 'Забронировать' })).toHaveClass(
       styles.cardBookButton!,
     );
+  });
+
+  it('does not infer availability when the API omits it', () => {
+    const roomWithoutAvailability = { ...roomFixture };
+    delete roomWithoutAvailability.available;
+    render(
+      <MemoryRouter>
+        <RoomCard room={roomWithoutAvailability} onBook={vi.fn()} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Доступность не подтверждена')).toBeInTheDocument();
+    expect(screen.getByText('Неизвестна для выбранного времени')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Забронировать' })).toBeDisabled();
   });
 });
