@@ -31,4 +31,19 @@ describe('booking form schema', () => {
       expect(() => schema.parse(input)).toThrow();
     }
   });
+
+  it('attaches invalid dates and durations to their own fields', () => {
+    const badDate = schema.safeParse({ ...base, date: '2026-02-30' });
+    const badDuration = schema.safeParse({ ...base, durationMinutes: 10 });
+
+    expect(badDate.success).toBe(false);
+    if (!badDate.success) expect(badDate.error.issues[0]?.path).toEqual(['date']);
+    expect(badDuration.success).toBe(false);
+    if (!badDuration.success)
+      expect(badDuration.error.issues[0]?.path).toEqual(['durationMinutes']);
+  });
+
+  it('accepts a comment at the 2000-character limit', () => {
+    expect(schema.safeParse({ ...base, comment: 'x'.repeat(2000) }).success).toBe(true);
+  });
 });

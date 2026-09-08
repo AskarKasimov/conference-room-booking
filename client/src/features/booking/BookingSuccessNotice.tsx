@@ -21,7 +21,6 @@ export function BookingSuccessNotice({
     zone: booking.timezone,
   }).setLocale('ru');
   const endsAt = startsAt.plus({ minutes: booking.durationMinutes });
-  const timezone = booking.timezone === 'Europe/Moscow' ? 'MSK' : booking.timezone;
 
   return (
     <div className={styles.successNotice} role="status">
@@ -32,7 +31,7 @@ export function BookingSuccessNotice({
         <strong>Бронирование создано</strong>
         <p>
           Комната {booking.roomName}, {startsAt.toFormat('d MMMM')}, {startsAt.toFormat('HH:mm')}–
-          {endsAt.toFormat('HH:mm')} {timezone}
+          {endsAt.toFormat('HH:mm')} ({booking.timezone})
         </p>
       </div>
       <button

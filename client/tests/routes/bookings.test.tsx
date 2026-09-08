@@ -71,6 +71,33 @@ it('requests upcoming bookings by default and sorts rows', async () => {
   expect(new URL(requestedUrl).searchParams.get('scope')).toBe('upcoming');
 });
 
+it.each([
+  ['/bookings?scope=past', ['newest', 'middle', 'oldest']],
+  ['/bookings?scope=all', ['oldest', 'middle', 'newest']],
+])('orders booking rows for %s', async (entry, expectedOrder) => {
+  server.use(
+    http.get('*/api/v1/bookings', () =>
+      HttpResponse.json({
+        items: [
+          booking('oldest', '2026-09-10T07:00:00.000Z'),
+          booking('newest', '2026-09-12T07:00:00.000Z'),
+          booking('middle', '2026-09-11T07:00:00.000Z'),
+        ],
+      }),
+    ),
+  );
+  renderBookings(entry);
+
+  await screen.findByRole('heading', { name: 'Мои бронирования' });
+  const rows = expectedOrder.map((id) => screen.getByRole('heading', { name: id }));
+  expect(
+    rows[0]!.compareDocumentPosition(rows[1]!) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    rows[1]!.compareDocumentPosition(rows[2]!) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+});
+
 it('updates the past tab and sends the office filter', async () => {
   const user = userEvent.setup();
   let requestedUrl = '';

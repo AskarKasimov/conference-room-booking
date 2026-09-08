@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { expect, it } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { BookingRow } from '../../src/features/my-bookings/BookingRow';
 import styles from '../../src/features/my-bookings/MyBookings.module.scss';
@@ -37,16 +37,23 @@ const booking = {
   },
 };
 
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-01T08:00:00.000Z'));
+});
+
+afterEach(() => vi.useRealTimers());
+
 it('renders room, floor, and time as the booking card metadata', () => {
   render(
     <AppProviders client={createTestQueryClient()}>
-      <BookingRow booking={booking} canCancel />
+      <BookingRow booking={booking} canCancel currentUserId="user-1" />
     </AppProviders>,
   );
 
   expect(screen.getByText('Эверест')).toHaveClass(styles.roomName!);
   expect(screen.getByText('12 этаж')).toHaveClass(styles.metadataItem!);
-  expect(screen.getByText('10:00–11:00 МСК')).toHaveClass(styles.metadataItem!);
+  expect(screen.getByText('10:00–11:00 (Europe/Moscow)')).toHaveClass(styles.metadataItem!);
 });
 
 it('shows the warning, booking details, icons, and equal-priority choices before cancellation', async () => {
@@ -60,7 +67,7 @@ it('shows the warning, booking details, icons, and equal-priority choices before
   );
   render(
     <AppProviders client={createTestQueryClient()}>
-      <BookingRow booking={booking} canCancel />
+      <BookingRow booking={booking} canCancel currentUserId="user-1" />
     </AppProviders>,
   );
 
@@ -70,7 +77,7 @@ it('shows the warning, booking details, icons, and equal-priority choices before
     'Это действие нельзя будет отменить. Освободившееся время станет доступно другим сотрудникам.',
   );
   expect(dialog).toHaveTextContent('Комната «Эверест», 12 этаж');
-  expect(dialog).toHaveTextContent('Четверг, 10 сентября, 10:00 – 11:00');
+  expect(dialog).toHaveTextContent('Четверг, 10 сентября, 10:00 – 11:00 (Europe/Moscow)');
   expect(dialog.querySelectorAll('svg')).toHaveLength(2);
   expect(screen.queryByRole('button', { name: 'Закрыть' })).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Нет, оставить' })).toBeInTheDocument();
@@ -91,7 +98,7 @@ it('keeps the row and shows an API error when cancellation fails', async () => {
   );
   render(
     <AppProviders client={createTestQueryClient()}>
-      <BookingRow booking={booking} canCancel />
+      <BookingRow booking={booking} canCancel currentUserId="user-1" />
     </AppProviders>,
   );
 
@@ -100,4 +107,55 @@ it('keeps the row and shows an API error when cancellation fails', async () => {
 
   expect(await screen.findByRole('alert')).toHaveTextContent('Нельзя отменить');
   expect(screen.getByRole('heading', { name: 'Планирование', hidden: true })).toBeInTheDocument();
+});
+
+it('hides cancellation when a booking belongs to another user', () => {
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <BookingRow booking={booking} canCancel currentUserId="someone-else" />
+    </AppProviders>,
+  );
+
+  expect(screen.queryByRole('button', { name: 'Отменить' })).not.toBeInTheDocument();
+});
+
+it('removes cancellation at the booking start without remounting the row', async () => {
+  vi.useRealTimers();
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-09-10T06:59:00.000Z'));
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <BookingRow booking={booking} canCancel currentUserId="user-1" />
+    </AppProviders>,
+  );
+
+  expect(screen.getByRole('button', { name: 'Отменить' })).toBeInTheDocument();
+  await vi.advanceTimersByTimeAsync(60_000);
+
+  expect(screen.queryByRole('button', { name: 'Отменить' })).not.toBeInTheDocument();
+});
+
+it('refuses DELETE if the booking starts while its confirmation dialog is open', async () => {
+  vi.useRealTimers();
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-09-10T06:59:00.000Z'));
+  let deletes = 0;
+  server.use(
+    http.delete('*/api/v1/bookings/booking-1', () => {
+      deletes += 1;
+      return HttpResponse.json(null, { status: 204 });
+    }),
+  );
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <BookingRow booking={booking} canCancel currentUserId="user-1" />
+    </AppProviders>,
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: 'Отменить' }));
+  await vi.advanceTimersByTimeAsync(60_000);
+  fireEvent.click(screen.getByRole('button', { name: 'Да, отменить' }));
+
+  expect(deletes).toBe(0);
+  expect(screen.getByRole('alert')).toHaveTextContent('Встреча уже началась');
 });

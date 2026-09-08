@@ -31,6 +31,14 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
 }
+.intervalFields > div {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.form [aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
 .invalid input {
   border-color: var(--color-danger) !important;
 }

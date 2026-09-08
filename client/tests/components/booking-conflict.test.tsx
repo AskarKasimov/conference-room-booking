@@ -80,6 +80,7 @@ describe('booking dialog', () => {
     await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
     expect(await screen.findByText('Укажите название встречи')).toBeInTheDocument();
+    expect(screen.getByLabelText('Тема встречи *')).toHaveFocus();
     expect(requests).toBe(0);
   });
 });

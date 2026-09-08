@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
@@ -54,7 +54,9 @@ it('submits ISO timestamps and closes after a successful response', async () => 
   await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
   expect(await screen.findByRole('status')).toHaveTextContent('Бронирование создано');
-  expect(screen.getByText('Комната Эверест, 20 октября, 10:00–11:00 MSK')).toBeInTheDocument();
+  expect(
+    screen.getByText('Комната Эверест, 20 октября, 10:00–11:00 (Europe/Moscow)'),
+  ).toBeInTheDocument();
   expect(payload?.startsAt).toMatch(/2026-10-20T10:00:00\.000\+03:00/);
   expect(payload?.endsAt).toMatch(/2026-10-20T11:00:00\.000\+03:00/);
 });
@@ -103,6 +105,68 @@ it('uses the shared calendar control for the booking date', async () => {
   expect(screen.getByRole('button', { name: '21 Октября, Ср' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: '21 Октября, Ср' }));
   expect(screen.getByText(/Бронирование на 2026-10-21/)).toBeInTheDocument();
+});
+
+it('shows and clears the comment validation error without sending an invalid request', async () => {
+  let posts = 0;
+  server.use(
+    http.post('*/api/v1/bookings', () => {
+      posts += 1;
+      return HttpResponse.json({ id: 'booking-1' }, { status: 201 });
+    }),
+  );
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <BookingDialog selection={selection} open onOpenChange={() => undefined} />
+    </AppProviders>,
+  );
+  const comment = screen.getByLabelText('Комментарий');
+
+  fireEvent.change(comment, { target: { value: 'x'.repeat(2001) } });
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Забронировать' }));
+
+  expect(await screen.findByText('Комментарий не должен быть длиннее 2000 символов')).toBeVisible();
+  expect(comment).toHaveAttribute('aria-invalid', 'true');
+  expect(comment).toHaveAttribute('aria-describedby', 'booking-comment-error');
+  expect(posts).toBe(0);
+
+  fireEvent.change(comment, { target: { value: 'x'.repeat(2000) } });
+
+  await waitFor(() =>
+    expect(screen.queryByText('Комментарий не должен быть длиннее 2000 символов')).toBeNull(),
+  );
+});
+
+it('rejects a previously valid interval after its start time passes while the form stays open', async () => {
+  vi.useRealTimers();
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-10-20T06:59:00.000Z'));
+  let posts = 0;
+  server.use(
+    http.post('*/api/v1/bookings', () => {
+      posts += 1;
+      return HttpResponse.json({ id: 'booking-1' }, { status: 201 });
+    }),
+  );
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <BookingDialog selection={selection} open onOpenChange={() => undefined} />
+    </AppProviders>,
+  );
+
+  fireEvent.change(screen.getByLabelText('Тема встречи *'), {
+    target: { value: 'Планирование' },
+  });
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(60_000);
+  });
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'Забронировать' }));
+    await Promise.resolve();
+  });
+
+  expect(screen.getByText('Бронирование можно создать только на будущее')).toBeVisible();
+  expect(posts).toBe(0);
 });
 
 it('resets to the latest schedule selection when a new form opens', async () => {

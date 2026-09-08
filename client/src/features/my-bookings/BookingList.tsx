@@ -5,16 +5,28 @@ import styles from './MyBookings.module.scss';
 export function BookingList({
   bookings,
   canCancel,
+  currentUserId,
+  scope,
 }: {
   bookings: BookingView[];
   canCancel: boolean;
+  currentUserId?: string | undefined;
+  scope: 'upcoming' | 'past' | 'all';
 }) {
   return (
     <div className={styles.list}>
       {[...bookings]
-        .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt))
+        .sort((a, b) => {
+          const order = Date.parse(a.startsAt) - Date.parse(b.startsAt);
+          return scope === 'past' ? -order : order;
+        })
         .map((booking) => (
-          <BookingRow key={booking.id} booking={booking} canCancel={canCancel} />
+          <BookingRow
+            key={booking.id}
+            booking={booking}
+            canCancel={canCancel}
+            currentUserId={currentUserId}
+          />
         ))}
     </div>
   );

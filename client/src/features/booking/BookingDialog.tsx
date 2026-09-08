@@ -9,13 +9,19 @@ import { Dialog } from '../../components/ui/Dialog';
 import { Alert } from '../../components/ui/Alert';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { Select } from '../../components/ui/Select';
-import { formatDuration, getDurationOptions, getTimeOptions } from '../room-search/searchParams';
+import {
+  formatDuration,
+  getBookableDateBounds,
+  getBookableTimeOptions,
+  getDurationOptions,
+} from '../room-search/searchParams';
 import { buildOfficeInterval } from '../../lib/time';
 import { BookingSuccessNotice, type BookingSuccess } from './BookingSuccessNotice';
 import { createBookingSchema, type BookingFormValues } from './bookingSchema';
 import { useCreateBookingMutation } from './useCreateBookingMutation';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/queryKeys';
+import { useClock } from '../../hooks/useClock';
 import styles from './Booking.module.scss';
 
 export interface BookingSelection {
@@ -36,13 +42,14 @@ export function BookingDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess?: (booking: BookingSuccess) => void;
 }) {
+  const now = useClock();
   const [success, setSuccess] = useState<BookingSuccess>();
   const [conflict, setConflict] = useState(false);
   const [refreshSucceeded, setRefreshSucceeded] = useState<boolean>();
   const [refreshTargets, setRefreshTargets] = useState('');
   const queryClient = useQueryClient();
   const mutation = useCreateBookingMutation();
-  const schema = createBookingSchema({ timezone: selection.room.office.timezone });
+  const schema = createBookingSchema({ timezone: selection.room.office.timezone, now });
   const form = useForm<
     z.input<ReturnType<typeof createBookingSchema>>,
     undefined,
@@ -58,7 +65,12 @@ export function BookingDialog({
     },
   });
   const resetForm = form.reset;
+  const triggerValidation = form.trigger;
   const resetMutation = mutation.reset;
+  useEffect(() => {
+    if (open && form.formState.isSubmitted)
+      void triggerValidation(['date', 'startTime', 'durationMinutes']);
+  }, [form.formState.isSubmitted, now, open, triggerValidation]);
   useEffect(() => {
     if (!open) return;
     resetForm({
@@ -83,7 +95,11 @@ export function BookingDialog({
     resetMutation,
   ]);
   const onSubmit = async (values: BookingFormValues) => {
-    const interval = buildOfficeInterval({ ...values, timezone: selection.room.office.timezone });
+    const interval = buildOfficeInterval({
+      ...values,
+      timezone: selection.room.office.timezone,
+      now: new Date(),
+    });
     try {
       await mutation.mutateAsync({
         roomId: selection.room.id,
@@ -142,6 +158,22 @@ export function BookingDialog({
     onSuccess?.(completedBooking);
     onOpenChange(false);
   };
+  const focusFirstInvalidField = (errors: typeof form.formState.errors) => {
+    const fields = ['title', 'date', 'startTime', 'durationMinutes', 'comment'] as const;
+    const fieldIds: Record<(typeof fields)[number], string> = {
+      title: 'booking-title',
+      date: 'booking-date',
+      startTime: 'booking-start-time',
+      durationMinutes: 'booking-duration',
+      comment: 'booking-comment',
+    };
+    const field = fields.find((key) => errors[key] !== undefined);
+    const fieldId = field ? fieldIds[field] : undefined;
+    if (fieldId) document.getElementById(fieldId)?.focus();
+  };
+  const selectedDate = form.watch('date');
+  const availableTimes = getBookableTimeOptions(selectedDate, selection.room.office.timezone, now);
+  const dateBounds = getBookableDateBounds(selection.room.office.timezone, now);
   const durationOptions = getDurationOptions(form.watch('startTime'));
   if (success)
     return <BookingSuccessNotice booking={success} onDismiss={() => setSuccess(undefined)} />;
@@ -187,10 +219,14 @@ export function BookingDialog({
             : 'Не удалось создать бронирование'}
         </Alert>
       ) : null}
-      <form className={styles.form} onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}>
+      <form
+        className={styles.form}
+        onSubmit={(event) => void form.handleSubmit(onSubmit, focusFirstInvalidField)(event)}
+      >
         <label className={form.formState.errors.title ? styles.invalid : undefined}>
           Тема встречи <span aria-hidden="true">*</span>
           <input
+            id="booking-title"
             {...form.register('title')}
             placeholder="Укажите тему встречи"
             aria-invalid={Boolean(form.formState.errors.title)}
@@ -203,27 +239,71 @@ export function BookingDialog({
           </span>
         ) : null}
         <div className={styles.intervalFields}>
-          <DatePicker
-            label="Дата"
-            value={form.watch('date')}
-            onValueChange={(date) => form.setValue('date', date, { shouldValidate: true })}
-          />
-          <Select
-            label="Время начала"
-            value={form.watch('startTime')}
-            onValueChange={(startTime) => {
-              const nextDurationOptions = getDurationOptions(startTime);
-              form.setValue('startTime', startTime, { shouldValidate: true });
-              if (!nextDurationOptions.includes(Number(form.getValues('durationMinutes'))))
-                form.setValue('durationMinutes', nextDurationOptions.at(-1) ?? 15, {
-                  shouldValidate: true,
-                });
-            }}
-            options={getTimeOptions().map((time) => ({ value: time, label: time }))}
-          />
+          <div>
+            <DatePicker
+              label="Дата"
+              id="booking-date"
+              value={selectedDate}
+              min={dateBounds.min}
+              max={dateBounds.max}
+              ariaInvalid={Boolean(form.formState.errors.date)}
+              ariaDescribedBy={form.formState.errors.date ? 'booking-date-error' : undefined}
+              onValueChange={(date) => {
+                form.setValue('date', date, { shouldValidate: true });
+                const nextTime = getBookableTimeOptions(
+                  date,
+                  selection.room.office.timezone,
+                  now,
+                )[0];
+                if (nextTime) {
+                  form.setValue('startTime', nextTime, { shouldValidate: true });
+                  const nextDurations = getDurationOptions(nextTime);
+                  if (!nextDurations.includes(Number(form.getValues('durationMinutes'))))
+                    form.setValue('durationMinutes', nextDurations.at(-1) ?? 15, {
+                      shouldValidate: true,
+                    });
+                }
+              }}
+            />
+            {form.formState.errors.date ? (
+              <span id="booking-date-error" className={styles.error}>
+                {form.formState.errors.date.message}
+              </span>
+            ) : null}
+          </div>
+          <div>
+            <Select
+              label="Время начала"
+              id="booking-start-time"
+              ariaInvalid={Boolean(form.formState.errors.startTime)}
+              ariaDescribedBy={
+                form.formState.errors.startTime ? 'booking-start-time-error' : undefined
+              }
+              value={form.watch('startTime')}
+              onValueChange={(startTime) => {
+                const nextDurationOptions = getDurationOptions(startTime);
+                form.setValue('startTime', startTime, { shouldValidate: true });
+                if (!nextDurationOptions.includes(Number(form.getValues('durationMinutes'))))
+                  form.setValue('durationMinutes', nextDurationOptions.at(-1) ?? 15, {
+                    shouldValidate: true,
+                  });
+              }}
+              options={availableTimes.map((time) => ({ value: time, label: time }))}
+            />
+            {form.formState.errors.startTime ? (
+              <span id="booking-start-time-error" className={styles.error}>
+                {form.formState.errors.startTime.message}
+              </span>
+            ) : null}
+          </div>
         </div>
         <Select
           label="Продолжительность"
+          id="booking-duration"
+          ariaInvalid={Boolean(form.formState.errors.durationMinutes)}
+          ariaDescribedBy={
+            form.formState.errors.durationMinutes ? 'booking-duration-error' : undefined
+          }
           value={String(form.watch('durationMinutes'))}
           onValueChange={(durationMinutes) =>
             form.setValue('durationMinutes', Number(durationMinutes), { shouldValidate: true })
@@ -233,16 +313,26 @@ export function BookingDialog({
             label: formatDuration(minutes),
           }))}
         />
-        {form.formState.errors.startTime ? (
-          <span className={styles.error}>{form.formState.errors.startTime.message}</span>
+        {form.formState.errors.durationMinutes ? (
+          <span id="booking-duration-error" className={styles.error}>
+            {form.formState.errors.durationMinutes.message}
+          </span>
         ) : null}
         <label>
           Комментарий
           <textarea
+            id="booking-comment"
             placeholder="Дополнительная информация для участников встречи…"
             {...form.register('comment')}
+            aria-invalid={Boolean(form.formState.errors.comment)}
+            aria-describedby={form.formState.errors.comment ? 'booking-comment-error' : undefined}
           />
         </label>
+        {form.formState.errors.comment ? (
+          <span id="booking-comment-error" className={styles.error}>
+            {form.formState.errors.comment.message}
+          </span>
+        ) : null}
         <p className={styles.summary}>
           ⓘ Бронирование на {form.watch('date')}, {form.watch('startTime')} —{' '}
           {formatDuration(Number(form.watch('durationMinutes')))}

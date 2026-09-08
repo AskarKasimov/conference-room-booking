@@ -7,6 +7,7 @@ import { ErrorState } from '../components/ui/ErrorState';
 import { PageSkeleton } from '../components/ui/PageSkeleton';
 import { useBookingsQuery } from '../hooks/useBookingsQuery';
 import { useOfficesQuery } from '../hooks/useOfficesQuery';
+import { useCurrentUserQuery } from '../hooks/useCurrentUserQuery';
 import styles from '../features/my-bookings/MyBookings.module.scss';
 
 export function BookingsPage() {
@@ -19,6 +20,7 @@ export function BookingsPage() {
     officeId: searchParams.get('officeId') ?? undefined,
   };
   const offices = useOfficesQuery();
+  const currentUser = useCurrentUserQuery();
   const bookings = useBookingsQuery({
     scope: search.scope,
     ...(search.officeId !== undefined ? { officeId: search.officeId } : {}),
@@ -60,7 +62,12 @@ export function BookingsPage() {
         </div>
         <BookingTabs scope={search.scope} officeId={search.officeId} count={items.length} />
         {items.length ? (
-          <BookingList bookings={items} canCancel={search.scope === 'upcoming'} />
+          <BookingList
+            bookings={items}
+            canCancel={search.scope === 'upcoming'}
+            currentUserId={currentUser.data?.id}
+            scope={search.scope}
+          />
         ) : (
           <EmptyState
             title={
