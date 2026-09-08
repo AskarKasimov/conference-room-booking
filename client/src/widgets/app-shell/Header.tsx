@@ -70,7 +70,11 @@ export function Header({ roomsHref, bookingsHref }: { roomsHref: string; booking
           <span className={styles.userName}>{shortDisplayName}</span>
           <span className={styles.user} aria-label={`${displayName}, ${initials}`}>
             {userQuery.isPending ? (
-              <span className={styles.avatarSkeleton} role="status" aria-label="Загрузка аватара…" />
+              <span
+                className={styles.avatarSkeleton}
+                role="status"
+                aria-label="Загрузка аватара…"
+              />
             ) : (
               <>
                 <span className={styles.avatarFallback} aria-hidden="true">
@@ -109,11 +113,7 @@ export function Header({ roomsHref, bookingsHref }: { roomsHref: string; booking
         onClick={() => setMenuOpen((open) => !open)}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          {menuOpen ? (
-            <path d="m6 6 12 12M18 6 6 18" />
-          ) : (
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          )}
+          {menuOpen ? <path d="m6 6 12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
         </svg>
       </button>
     </header>
