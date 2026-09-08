@@ -5,10 +5,32 @@ import {
   intervalsOverlap,
   toApiIso,
 } from '../../src/lib/time';
+import { getDefaultRoomFilters, getNextSlot } from '../../src/features/room-search/searchParams';
+import { officeFixture } from '../../src/test/handlers';
 
 const now = new Date('2026-09-05T07:00:00.000Z');
 
 describe('time boundaries', () => {
+  it.each([
+    ['2026-09-05T07:45:00.000Z', '2026-09-05', '11:00'],
+    ['2026-09-05T15:46:00.000Z', '2026-09-05', '19:00'],
+  ])('rounds %s to the next local quarter hour', (instant, date, startTime) => {
+    expect(getNextSlot('Europe/Moscow', new Date(instant))).toEqual({ date, startTime });
+  });
+
+  it('keeps evening defaults within office hours and advances after closing', () => {
+    expect(getDefaultRoomFilters(officeFixture, new Date('2026-09-05T16:01:00.000Z'))).toEqual({
+      date: '2026-09-05',
+      startTime: '19:15',
+      duration: 45,
+    });
+    expect(getDefaultRoomFilters(officeFixture, new Date('2026-09-05T17:01:00.000Z'))).toEqual({
+      date: '2026-09-06',
+      startTime: '09:00',
+      duration: 60,
+    });
+  });
+
   it('serializes a local time with an offset', () => {
     expect(toApiIso('2026-09-10', '10:15', 'Europe/Moscow')).toMatch(
       /2026-09-10T10:15:00\.000\+03:00$/,

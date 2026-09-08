@@ -19,11 +19,26 @@ export const roomsSearchSchema = z.object({
 export type RoomsSearch = z.infer<typeof roomsSearchSchema>;
 
 export function normalizeRoomsSearch(search: Record<string, unknown>): RoomsSearch {
-  const parsed = roomsSearchSchema.safeParse(search);
-  if (parsed.success) return parsed.data;
   const officeId =
-    typeof search.officeId === 'string' && search.officeId.trim() ? search.officeId : undefined;
-  return { officeId };
+    typeof search.officeId === 'string' && search.officeId.trim()
+      ? search.officeId.trim()
+      : undefined;
+  const date = typeof search.date === 'string' ? search.date : undefined;
+  const validDate =
+    date && DateTime.fromISO(date).isValid && DateTime.fromISO(date).toISODate() === date
+      ? date
+      : undefined;
+  const startTime = typeof search.startTime === 'string' ? search.startTime : undefined;
+  const parsedTime = startTime ? /^([01]\d|2[0-3]):[0-5]\d$/.test(startTime) : false;
+  const duration = Number(search.duration);
+  const minCapacity = Number(search.minCapacity);
+  return {
+    officeId,
+    date: validDate,
+    startTime: parsedTime ? startTime : undefined,
+    duration: Number.isInteger(duration) && duration > 0 ? duration : undefined,
+    minCapacity: Number.isInteger(minCapacity) && minCapacity > 0 ? minCapacity : undefined,
+  };
 }
 
 export function getBookableDate(timezone: string, now = new Date()): string {
@@ -39,7 +54,6 @@ export function getNextSlot(
   let local = DateTime.fromJSDate(now).setZone(timezone).plus({ minutes: 1 }).startOf('minute');
   const roundedMinute = Math.ceil(local.minute / 15) * 15;
   local = local.set({ minute: roundedMinute, second: 0, millisecond: 0 });
-  if (roundedMinute >= 60) local = local.plus({ hours: 1 }).set({ minute: 0 });
   if (local.hour < 9) local = local.set({ hour: 9, minute: 0 });
   if (local.hour >= 20) local = local.plus({ days: 1 }).set({ hour: 9, minute: 0 });
   return { date: local.toISODate() ?? '', startTime: local.toFormat('HH:mm') };
@@ -47,7 +61,11 @@ export function getNextSlot(
 
 export function getDefaultRoomFilters(office: Office, now = new Date()) {
   const slot = getNextSlot(office.timezone, now);
-  return { date: slot.date, startTime: slot.startTime, duration: 60 as number };
+  return { ...slot, duration: getDefaultDuration(slot.startTime) };
+}
+
+export function getDefaultDuration(startTime: string) {
+  return Math.min(60, getDurationOptions(startTime).at(-1) ?? 60);
 }
 
 export function getTimeOptions() {
