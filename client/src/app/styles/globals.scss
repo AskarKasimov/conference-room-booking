@@ -1,5 +1,13 @@
 @use './tokens';
 
+@font-face {
+  font-family: Manrope;
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../../shared/assets/fonts/Manrope-Variable.ttf') format('truetype');
+}
+
 *,
 *::before,
 *::after {
@@ -8,7 +16,7 @@
 
 html {
   font-family:
-    Inter,
+    Manrope,
     ui-sans-serif,
     system-ui,
     -apple-system,
