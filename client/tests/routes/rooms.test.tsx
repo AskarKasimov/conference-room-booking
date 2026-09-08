@@ -66,6 +66,7 @@ describe('room search route', () => {
     const skeleton = await screen.findByRole('status', { name: 'Загрузка офисов…' });
     expect(skeleton.querySelectorAll('[data-skeleton-section]')).toHaveLength(3);
     expect(skeleton.querySelectorAll('[data-room-card-skeleton]')).toHaveLength(4);
+    expect(skeleton.querySelectorAll('[data-skeleton-feature]')).toHaveLength(8);
     release();
     expect(
       await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),

@@ -35,8 +35,12 @@ function RoomCardSkeletonGrid({ className }: { className: string | undefined }) 
             <i />
           </div>
           <div className={styles.skeletonCardMiddle}>
-            <i />
-            <i />
+            {[0, 1].map((row) => (
+              <div className={styles.skeletonFeature} data-skeleton-feature key={row}>
+                <i />
+                <i />
+              </div>
+            ))}
           </div>
           <i className={styles.skeletonAvailability} />
           <div className={styles.skeletonCardActions}>

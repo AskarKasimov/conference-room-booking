@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildOfficeInterval,
+  formatMoscowOffset,
   getWorkdayInterval,
   intervalsOverlap,
   toApiIso,
@@ -16,6 +17,14 @@ import { officeFixture } from '../support/handlers';
 const now = new Date('2026-09-05T07:00:00.000Z');
 
 describe('time boundaries', () => {
+  it.each([
+    ['Europe/Moscow', '2026-10-20T07:00:00.000Z', 'MSK'],
+    ['Europe/Berlin', '2026-01-20T09:00:00.000Z', 'MSK-2'],
+    ['Europe/Berlin', '2026-07-20T09:00:00.000Z', 'MSK-1'],
+  ])('formats %s at %s with the shared Moscow-relative label', (timezone, instant, label) => {
+    expect(formatMoscowOffset(timezone, instant)).toBe(label);
+  });
+
   it('limits calendar dates and start times by the exact office-local booking horizon', () => {
     const current = new Date('2026-09-05T07:00:00.000Z');
     expect(getBookableDateBounds('Europe/Moscow', current)).toEqual({

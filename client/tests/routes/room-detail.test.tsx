@@ -74,6 +74,7 @@ it('shows the room and hourly schedule skeleton while room details load', async 
   const skeleton = await screen.findByRole('status', { name: 'Загрузка комнаты…' });
   expect(skeleton.querySelectorAll('section')).toHaveLength(2);
   expect(skeleton.querySelectorAll('[data-time-row]')).toHaveLength(12);
+  expect(skeleton.querySelectorAll('[data-info-row]')).toHaveLength(3);
   expect(skeleton).toHaveTextContent('09:00');
   expect(skeleton).toHaveTextContent('20:00');
   release();
@@ -105,7 +106,7 @@ it('keeps the same room skeleton while the schedule request is loading', async (
   const skeleton = await screen.findByRole('status', { name: 'Загрузка комнаты…' });
   expect(skeleton.querySelectorAll('section')).toHaveLength(2);
   expect(skeleton.querySelectorAll('[data-time-row]')).toHaveLength(12);
-  expect(skeleton.querySelectorAll('[data-info-row]')).toHaveLength(room.features.length + 1);
+  expect(skeleton.querySelectorAll('[data-info-row]')).toHaveLength(3);
   expect(
     screen.queryByRole('navigation', { name: 'Навигационная цепочка' }),
   ).not.toBeInTheDocument();

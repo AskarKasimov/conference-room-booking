@@ -77,7 +77,7 @@ it('shows the warning, booking details, icons, and equal-priority choices before
     'Это действие нельзя будет отменить. Освободившееся время станет доступно другим сотрудникам.',
   );
   expect(dialog).toHaveTextContent('Комната «Эверест», 12 этаж');
-  expect(dialog).toHaveTextContent('Четверг, 10 сентября, 10:00 - 11:00');
+  expect(dialog).toHaveTextContent('Четверг, 10 сентября, 10:00 - 11:00 MSK');
   expect(dialog.querySelectorAll('svg')).toHaveLength(2);
   expect(screen.queryByRole('button', { name: 'Закрыть' })).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Нет, оставить' })).toBeInTheDocument();

@@ -47,18 +47,21 @@ describe('DaySchedule', () => {
     expect(block?.style.height).toBe('12.5%');
   });
 
-  it('shows own title and hides another user’s title', () => {
+  it('hides titles of 15-minute bookings for every owner', () => {
     render(
       <DaySchedule
         date="2026-09-10"
         timezone="Europe/Moscow"
-        bookings={[bookingAt('10:00', 30, 'user-1'), bookingAt('11:00', 30, 'user-2')]}
+        bookings={[bookingAt('10:00', 15, 'user-1'), bookingAt('11:00', 15, 'user-2')]}
         currentUserId="user-1"
       />,
     );
 
-    expect(screen.getByText('Планирование')).toBeInTheDocument();
-    expect(screen.getByText('Занято')).toBeInTheDocument();
+    const blocks = screen.getAllByRole('listitem');
+    expect(blocks[0]).toBeEmptyDOMElement();
+    expect(blocks[1]).toBeEmptyDOMElement();
+    expect(blocks[0]).toHaveAccessibleName('Планирование, 10:00–10:15');
+    expect(blocks[1]).toHaveAccessibleName('Занято, 11:00–11:15');
   });
 
   it('keeps quarter-hour blocks at exact adjacent positions with readable names', () => {
@@ -76,11 +79,17 @@ describe('DaySchedule', () => {
     );
 
     const blocks = screen.getAllByRole('listitem');
+    const shortBlock = blocks[2];
+    if (!shortBlock) throw new Error('Expected a short booking block');
     expect(blocks[0]).toHaveStyle({ top: '8.3333%', height: '2.0833%' });
     expect(blocks[1]).toHaveStyle({ top: '10.4167%', height: '2.0833%' });
     expect(blocks[2]).toHaveStyle({ top: '89.5833%', height: '2.0833%' });
     expect(blocks[0]).toHaveAccessibleName('Планирование, 10:00–10:15');
     expect(blocks[1]).toHaveAccessibleName('Занято, 10:15–10:30');
+    expect(shortBlock).toHaveAttribute('title', 'Планирование, 19:45–20:00 MSK');
+    expect(shortBlock).toBeEmptyDOMElement();
+    expect(shortBlock).not.toHaveTextContent('19:45');
+    expect(shortBlock.querySelector('span')).not.toBeInTheDocument();
     expect(screen.getByText('20:00')).toBeInTheDocument();
   });
 });

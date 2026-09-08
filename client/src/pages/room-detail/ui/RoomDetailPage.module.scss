@@ -22,8 +22,7 @@
   gap: var(--space-3);
 }
 .breadcrumbSkeleton i,
-.infoSkeleton i,
-.scheduleSkeleton i {
+.infoSkeleton i {
   display: block;
   border-radius: var(--radius-compact);
   background: var(--color-surface-subtle);
@@ -95,60 +94,6 @@
 .infoRow i:last-child {
   height: 1rem;
 }
-.scheduleSkeleton {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: var(--space-6);
-  min-height: 50rem;
-  padding: var(--space-8);
-}
-.scheduleHeader {
-  display: flex;
-  justify-content: space-between;
-}
-.scheduleHeader > div {
-  display: grid;
-  align-content: start;
-  gap: var(--space-2);
-  width: 24%;
-}
-.scheduleHeader > div i:first-child {
-  width: 100%;
-  height: 1.5rem;
-}
-.scheduleHeader > div i:last-child {
-  width: 66%;
-  height: 1.125rem;
-}
-.scheduleHeader > i {
-  width: 10.5rem;
-  height: 3rem;
-  margin-top: 0.125rem;
-  border-radius: var(--radius-md);
-}
-.timeGrid {
-  display: grid;
-  grid-template-rows: repeat(12, 3rem);
-}
-.timeRow {
-  display: grid;
-  grid-template-columns: 3.75rem minmax(0, 1fr);
-  align-items: center;
-  color: var(--color-muted);
-  font-size: 0.8125rem;
-}
-.timeRow i {
-  height: 1px;
-  border-radius: 0;
-  background: var(--color-border);
-}
-.scheduleAction {
-  width: 15.25rem;
-  height: 3rem;
-  justify-self: end;
-  border-radius: var(--radius-md) !important;
-  background: var(--color-border) !important;
-}
 @media (max-width: 840px) {
   .page {
     margin-top: 0;
@@ -159,10 +104,5 @@
   .loadingLayout {
     grid-template-columns: 1fr;
     gap: var(--space-8);
-  }
-}
-@media (max-width: 560px) {
-  .scheduleSkeleton {
-    padding: var(--space-5);
   }
 }

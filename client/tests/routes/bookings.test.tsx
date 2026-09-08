@@ -222,6 +222,14 @@ it('keeps filters visible and delays the skeleton when switching booking scopes'
   expect(screen.queryByRole('status', { name: 'Загрузка бронирований…' })).not.toBeInTheDocument();
   expect(screen.getByRole('navigation', { name: 'Фильтр бронирований' })).toBeInTheDocument();
   expect(await screen.findByRole('status', { name: 'Загрузка бронирований…' })).toBeInTheDocument();
+  const bookingSkeletons = screen
+    .getByRole('status', { name: 'Загрузка бронирований…' })
+    .querySelectorAll('[data-booking-skeleton]');
+  expect(bookingSkeletons).toHaveLength(2);
+  bookingSkeletons.forEach((skeleton) => {
+    expect(skeleton.querySelectorAll('[data-date-skeleton] i')).toHaveLength(2);
+    expect(skeleton.querySelectorAll('[data-metadata-skeleton] i')).toHaveLength(3);
+  });
   expect(screen.getByRole('navigation', { name: 'Фильтр бронирований' })).toBeInTheDocument();
   expect(await screen.findByRole('link', { name: 'Прошедшие (0)' })).toBeInTheDocument();
 });

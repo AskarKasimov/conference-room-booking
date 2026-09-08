@@ -55,10 +55,22 @@ export function BookingsPage() {
     fallback = (
       <div className={styles.skeletonList} role="status" aria-label="Загрузка бронирований…">
         {[0, 1].map((row) => (
-          <div className={styles.bookingSkeleton} key={row}>
-            <i />
-            <i />
-            <i />
+          <div className={styles.bookingSkeleton} data-booking-skeleton key={row}>
+            <div className={styles.dateSkeleton} data-date-skeleton aria-hidden="true">
+              <i />
+              <i />
+            </div>
+            <div className={styles.bookingInfoSkeleton} aria-hidden="true">
+              <i />
+              <div className={styles.metadataSkeleton} data-metadata-skeleton>
+                <i />
+                <span>•</span>
+                <i />
+                <span>•</span>
+                <i />
+              </div>
+            </div>
+            <i className={styles.bookingActionSkeleton} aria-hidden="true" />
           </div>
         ))}
       </div>

@@ -1,5 +1,5 @@
 import type { BookingView } from '../model/types';
-import { formatLocalTime } from '../../../shared/lib';
+import { formatLocalTime, formatMoscowOffset } from '../../../shared/lib';
 import styles from './Schedule.module.scss';
 
 export function ScheduleBlock({
@@ -17,22 +17,19 @@ export function ScheduleBlock({
 }) {
   const title = own ? booking.title : 'Занято';
   const time = `${formatLocalTime(booking.startsAt, timezone)}–${formatLocalTime(booking.endsAt, timezone)}`;
-  const compact = Date.parse(booking.endsAt) - Date.parse(booking.startsAt) <= 30 * 60_000;
+  const timezoneLabel = formatMoscowOffset(timezone, booking.startsAt);
+  const isFifteenMinuteBooking =
+    Date.parse(booking.endsAt) - Date.parse(booking.startsAt) === 15 * 60_000;
   return (
     <li
-      className={[
-        styles.scheduleBlock,
-        compact ? styles.compactScheduleBlock : '',
-        own ? styles.ownScheduleBlock : '',
-      ]
+      className={[styles.scheduleBlock, own ? styles.ownScheduleBlock : '']
         .filter(Boolean)
         .join(' ')}
       style={{ top, height }}
       aria-label={`${title}, ${time}`}
-      title={`${title}, ${time}`}
+      title={`${title}, ${time} ${timezoneLabel}`}
     >
-      <strong>{title}</strong>
-      <span>{time}</span>
+      {!isFifteenMinuteBooking ? <strong>{title}</strong> : null}
     </li>
   );
 }

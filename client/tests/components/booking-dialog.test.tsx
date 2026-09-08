@@ -52,9 +52,7 @@ it('submits ISO timestamps and closes after a successful response', async () => 
 
   expect(await screen.findByRole('status')).toHaveTextContent('Бронирование создано');
   expect(screen.queryByRole('heading', { name: 'Новое бронирование' })).not.toBeInTheDocument();
-  expect(
-    screen.getByText('Комната Эверест, 20 октября, 10:00–11:00 (Europe/Moscow)'),
-  ).toBeInTheDocument();
+  expect(screen.getByText('Комната Эверест, 20 октября, 10:00–11:00 (MSK)')).toBeInTheDocument();
   expect(payload?.startsAt).toMatch(/2026-10-20T10:00:00\.000\+03:00/);
   expect(payload?.endsAt).toMatch(/2026-10-20T11:00:00\.000\+03:00/);
 });
@@ -224,7 +222,7 @@ it('opens a fresh form after a successful booking', async () => {
 });
 
 it('dismisses the successful-booking notification', async () => {
-  const user = userEvent.setup();
+  vi.useFakeTimers();
   function Notice() {
     const [visible, setVisible] = useState(true);
     return visible ? (
@@ -243,12 +241,17 @@ it('dismisses the successful-booking notification', async () => {
 
   render(<Notice />);
 
-  await user.click(screen.getByRole('button', { name: 'Закрыть уведомление' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Закрыть уведомление' }));
+  expect(screen.getByRole('status')).toHaveAttribute('data-state', 'exiting');
+
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(180);
+  });
 
   expect(screen.queryByRole('status')).not.toBeInTheDocument();
 });
 
-it('automatically dismisses the successful-booking notification after three seconds', async () => {
+it('automatically dismisses the successful-booking notification after five seconds and an exit animation', async () => {
   vi.useFakeTimers();
   function Notice() {
     const [visible, setVisible] = useState(true);
@@ -269,7 +272,17 @@ it('automatically dismisses the successful-booking notification after three seco
   render(<Notice />);
 
   await act(async () => {
-    await vi.advanceTimersByTimeAsync(2999);
+    await vi.advanceTimersByTimeAsync(4999);
+  });
+  expect(screen.getByRole('status')).toHaveAttribute('data-state', 'visible');
+
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(1);
+  });
+  expect(screen.getByRole('status')).toHaveAttribute('data-state', 'exiting');
+
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(179);
   });
   expect(screen.getByRole('status')).toBeInTheDocument();
 

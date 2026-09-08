@@ -41,23 +41,27 @@
   padding: var(--space-8);
 }
 .centered {
-  width: min(calc(100% - 1rem), 21rem);
+  width: min(calc(100% - 2rem), 31rem);
   border-radius: 0.75rem;
 }
 .centered .content {
   display: grid;
   justify-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
+  gap: 0;
+  padding: var(--space-6) var(--space-8);
 }
 .centered .header {
   display: contents;
 }
 .centered .header h2 {
   order: 2;
+  margin: 0;
   text-align: center;
   font-size: 1.375rem;
   line-height: 1.5rem;
+}
+.centered:focus-visible {
+  outline: none;
 }
 .compact .header :global(h2) {
   font-size: 1.375rem;

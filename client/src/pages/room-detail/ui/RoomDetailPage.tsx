@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 import { DelayedContent, ErrorState } from '../../../shared/ui';
 import { Breadcrumbs, type BreadcrumbItem } from '../../../shared/ui';
 import { RoomSummaryCard } from '../../../widgets/room-summary-card';
-import { RoomScheduleWidget } from '../../../widgets/room-schedule';
+import { RoomScheduleSkeleton, RoomScheduleWidget } from '../../../widgets/room-schedule';
 import { useRoomDetailQuery } from '../../../entities/room';
 import { useRoomScheduleQuery } from '../../../entities/booking';
 import { normalizeRoomsSearch } from '../../../features/search-rooms';
@@ -59,7 +59,7 @@ export function RoomDetailPage({ roomsListHref = '/rooms' }: { roomsListHref?: s
               </div>
               <i className={styles.infoDivider} />
               <div className={styles.infoRows}>
-                {Array.from({ length: room ? room.features.length + 1 : 4 }, (_, index) => (
+                {Array.from({ length: 3 }, (_, index) => (
                   <div className={styles.infoRow} data-info-row key={index}>
                     <i />
                     <i />
@@ -67,24 +67,7 @@ export function RoomDetailPage({ roomsListHref = '/rooms' }: { roomsListHref?: s
                 ))}
               </div>
             </section>
-            <section className={styles.scheduleSkeleton} aria-hidden="true">
-              <div className={styles.scheduleHeader}>
-                <div>
-                  <i />
-                  <i />
-                </div>
-                <i />
-              </div>
-              <div className={styles.timeGrid}>
-                {Array.from({ length: 12 }, (_, index) => (
-                  <div className={styles.timeRow} data-time-row key={index}>
-                    <span>{`${String(index + 9).padStart(2, '0')}:00`}</span>
-                    <i />
-                  </div>
-                ))}
-              </div>
-              <i className={styles.scheduleAction} />
-            </section>
+            <RoomScheduleSkeleton ariaHidden />
           </div>
         }
       />

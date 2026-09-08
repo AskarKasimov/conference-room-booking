@@ -22,23 +22,19 @@
   position: absolute;
   left: 0;
   right: 0;
-  display: grid;
-  align-content: center;
+  display: flex;
+  align-items: center;
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
+  padding: 0 var(--space-3);
   background: var(--color-surface-subtle);
 }
 .ownScheduleBlock {
   border-color: var(--color-primary);
   background: var(--color-accent);
 }
-.scheduleBlock span {
-  color: var(--color-text);
-}
-.ownScheduleBlock strong,
-.ownScheduleBlock span {
+.ownScheduleBlock strong {
   color: var(--color-primary-text);
 }
 .scheduleBlock strong {
@@ -47,26 +43,4 @@
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.scheduleBlock:not(.compactScheduleBlock) span {
-  display: none;
-}
-.compactScheduleBlock {
-  display: flex;
-  align-items: center;
-  gap: var(--space-tight);
-  overflow: hidden;
-  padding: 0 var(--space-1);
-  font-size: 0.625rem;
-  line-height: 1;
-  white-space: nowrap;
-}
-.compactScheduleBlock strong {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.compactScheduleBlock span {
-  flex: 0 0 auto;
-  font-size: inherit;
 }

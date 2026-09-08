@@ -97,17 +97,19 @@
 }
 .conflict p {
   order: 3;
-  max-width: 18rem;
-  margin: 0;
+  max-width: 31rem;
+  margin: var(--space-6) 0 0;
   color: var(--color-muted);
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-line;
 }
 .conflict button {
   order: 4;
   width: 100%;
-  min-height: 1.875rem;
-  margin: 0;
+  min-height: 2.25rem;
+  margin: var(--space-5) 0 0;
   padding: var(--space-1-5) var(--space-4);
   font-size: 0.875rem;
   font-weight: 600;
@@ -115,8 +117,9 @@
 .conflictIcon {
   display: grid;
   order: 1;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 3.125rem;
+  height: 3.125rem;
+  margin-bottom: var(--space-3);
   place-items: center;
   border-radius: var(--radius-full);
   color: var(--color-danger);
@@ -143,6 +146,36 @@
   background: var(--color-surface);
   box-shadow: var(--shadow-feedback);
   transform: translateX(-50%);
+  animation: successToastEnter 200ms ease-out both;
+}
+.successNotice[data-state='exiting'] {
+  animation: successToastExit 180ms ease-in forwards;
+}
+@keyframes successToastEnter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@keyframes successToastExit {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -0.5rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .successNotice,
+  .successNotice[data-state='exiting'] {
+    animation-duration: 1ms;
+  }
 }
 .successIcon {
   display: grid;

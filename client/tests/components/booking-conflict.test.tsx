@@ -64,11 +64,9 @@ describe('booking dialog', () => {
     expect(dialog.querySelector('svg')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Время уже занято' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Выбрать другое время' })).toBeInTheDocument();
-    expect(
-      await screen.findByText(
-        'Выбранный интервал был забронирован другим сотрудником. Расписание обновлено.',
-      ),
-    ).toBeInTheDocument();
+    expect(await screen.findByText((_, element) => element?.tagName === 'P')).toHaveTextContent(
+      'Выбранный интервал был забронирован другим сотрудником. Расписание обновлено.',
+    );
     expect(scheduleRequests).toBeGreaterThanOrEqual(2);
     await user.click(screen.getByRole('button', { name: 'Выбрать другое время' }));
     expect(screen.getByLabelText('Тема встречи *')).toHaveValue('Планирование');

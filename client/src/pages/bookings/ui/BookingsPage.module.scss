@@ -145,15 +145,54 @@
   padding: var(--space-inset-lg);
   background: var(--color-surface);
 }
-.bookingSkeleton > i:first-child {
+.dateSkeleton {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-1);
   width: 5rem;
   height: 5rem;
+  border-radius: var(--radius-md);
+  background: var(--color-page);
 }
-.bookingSkeleton > i:nth-child(2) {
-  width: min(100%, 32rem);
-  height: 2.5rem;
+.dateSkeleton i:first-child {
+  width: 3rem;
+  height: 0.5rem;
 }
-.bookingSkeleton > i:last-child {
+.dateSkeleton i:last-child {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.bookingInfoSkeleton {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.bookingInfoSkeleton > i {
+  width: min(100%, 25rem);
+  height: 1.125rem;
+}
+.metadataSkeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.metadataSkeleton i {
+  width: 6.25rem;
+  height: 0.875rem;
+}
+.metadataSkeleton i:nth-of-type(2) {
+  width: 5rem;
+}
+.metadataSkeleton i:last-of-type {
+  width: 8rem;
+}
+.metadataSkeleton span {
+  color: var(--color-subtle);
+  font-size: 0.75rem;
+}
+.bookingActionSkeleton {
   width: 6.3125rem;
   height: 2.4375rem;
   border-radius: var(--radius-sm);

@@ -52,7 +52,6 @@ export function BookingDialog({
   const [success, setSuccess] = useState<BookingSuccess>();
   const [conflict, setConflict] = useState(false);
   const [refreshSucceeded, setRefreshSucceeded] = useState<boolean>();
-  const [refreshTargets, setRefreshTargets] = useState('');
   const queryClient = useQueryClient();
   const mutation = useCreateBookingMutation();
   const schema = createBookingSchema({ timezone: selection.room.office.timezone, now });
@@ -89,7 +88,6 @@ export function BookingDialog({
     setSuccess(undefined);
     setConflict(false);
     setRefreshSucceeded(undefined);
-    setRefreshTargets('');
     resetMutation();
   }, [
     open,
@@ -138,15 +136,6 @@ export function BookingDialog({
             : undefined,
         ].filter((refresh): refresh is Promise<void> => Boolean(refresh));
         const refreshResults = await Promise.allSettled(refreshes);
-        setRefreshTargets(
-          hasSchedule && hasAvailability
-            ? 'Расписание и доступность обновлены.'
-            : hasSchedule
-              ? 'Расписание обновлено.'
-              : hasAvailability
-                ? 'Доступность обновлена.'
-                : '',
-        );
         setRefreshSucceeded(
           refreshes.length > 0 && refreshResults.every((result) => result.status === 'fulfilled'),
         );
@@ -214,12 +203,11 @@ export function BookingDialog({
               <AlertTriangleIcon />
             </span>
             <p>
-              Выбранный интервал был забронирован другим сотрудником.{' '}
               {refreshSucceeded === undefined
-                ? 'Проверяем актуальное расписание…'
+                ? 'Выбранный интервал был забронирован другим сотрудником. Проверяем актуальное расписание…'
                 : refreshSucceeded
-                  ? refreshTargets
-                  : 'Не удалось обновить расписание и доступность. Попробуйте обновить данные вручную.'}
+                  ? 'Выбранный интервал был забронирован другим\nсотрудником. Расписание обновлено.'
+                  : 'Выбранный интервал был забронирован другим сотрудником. Не удалось обновить расписание и доступность. Попробуйте обновить данные вручную.'}
             </p>
             <Button
               type="button"

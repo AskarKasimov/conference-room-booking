@@ -8,7 +8,7 @@ import { ApiError } from '../../../shared/api';
 import { Alert } from '../../../shared/ui';
 import { Button } from '../../../shared/ui';
 import { Dialog } from '../../../shared/ui';
-import { formatLocalTime } from '../../../shared/lib';
+import { formatLocalTime, formatMoscowOffset } from '../../../shared/lib';
 import styles from './CancelBooking.module.scss';
 import { useClock } from '../../../shared/lib';
 
@@ -68,7 +68,8 @@ export function CancelBookingDialog({
           <CalendarIcon aria-hidden="true" />
           {formatBookingDate(booking.startsAt, booking.office.timezone)},{' '}
           {formatLocalTime(booking.startsAt, booking.office.timezone)} -{' '}
-          {formatLocalTime(booking.endsAt, booking.office.timezone)}
+          {formatLocalTime(booking.endsAt, booking.office.timezone)}{' '}
+          {formatMoscowOffset(booking.office.timezone, booking.startsAt)}
         </p>
       </div>
       {hasStarted || blockedAttempt ? (
