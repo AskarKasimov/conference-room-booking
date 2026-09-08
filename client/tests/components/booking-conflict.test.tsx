@@ -5,9 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { BookingDialog } from '../../src/features/booking/BookingDialog';
 import { useRoomScheduleQuery } from '../../src/hooks/useRoomScheduleQuery';
-import { createTestQueryClient } from '../../src/test/renderWithProviders';
-import { roomFixture } from '../../src/test/handlers';
-import { server } from '../../src/test/server';
+import { createTestQueryClient } from '../support/renderWithProviders';
+import { roomFixture } from '../support/handlers';
+import { server } from '../support/server';
 
 const selection = {
   room: roomFixture,

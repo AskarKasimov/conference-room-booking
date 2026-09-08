@@ -6,7 +6,7 @@ import {
   toApiIso,
 } from '../../src/lib/time';
 import { getDefaultRoomFilters, getNextSlot } from '../../src/features/room-search/searchParams';
-import { officeFixture } from '../../src/test/handlers';
+import { officeFixture } from '../support/handlers';
 
 const now = new Date('2026-09-05T07:00:00.000Z');
 

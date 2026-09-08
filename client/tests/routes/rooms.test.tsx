@@ -4,9 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
-import { createTestQueryClient } from '../../src/test/renderWithProviders';
-import { roomFixture, officeFixture } from '../../src/test/handlers';
-import { server } from '../../src/test/server';
+import { createTestQueryClient } from '../support/renderWithProviders';
+import { roomFixture, officeFixture } from '../support/handlers';
+import { server } from '../support/server';
 import { AppRoutes } from '../../src/router';
 
 function renderRooms(entry = '/rooms') {

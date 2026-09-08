@@ -5,9 +5,9 @@ import { expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { BookingRow } from '../../src/features/my-bookings/BookingRow';
 import styles from '../../src/features/my-bookings/MyBookings.module.scss';
-import { createTestQueryClient } from '../../src/test/renderWithProviders';
-import { officeFixture } from '../../src/test/handlers';
-import { server } from '../../src/test/server';
+import { createTestQueryClient } from '../support/renderWithProviders';
+import { officeFixture } from '../support/handlers';
+import { server } from '../support/server';
 
 const booking = {
   id: 'booking-1',

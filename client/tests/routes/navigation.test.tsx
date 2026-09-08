@@ -4,8 +4,8 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { AppRoutes } from '../../src/router';
-import { createTestQueryClient } from '../../src/test/renderWithProviders';
-import { server } from '../../src/test/server';
+import { createTestQueryClient } from '../support/renderWithProviders';
+import { server } from '../support/server';
 
 function renderRoute(entry: string) {
   render(

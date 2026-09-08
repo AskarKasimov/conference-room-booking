@@ -4,9 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
-import { createTestQueryClient } from '../../src/test/renderWithProviders';
-import { currentUserFixture, officeFixture, roomFixture } from '../../src/test/handlers';
-import { server } from '../../src/test/server';
+import { createTestQueryClient } from '../support/renderWithProviders';
+import { currentUserFixture, officeFixture, roomFixture } from '../support/handlers';
+import { server } from '../support/server';
 import { AppRoutes } from '../../src/router';
 import * as roomSearch from '../../src/features/room-search/searchParams';
 

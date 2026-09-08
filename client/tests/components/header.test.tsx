@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { AppRoutes } from '../../src/router';
-import { createTestQueryClient } from '../../src/test/renderWithProviders';
+import { createTestQueryClient } from '../support/renderWithProviders';
 
 it('renders the BookRoom brand and the current user presentation', async () => {
   render(

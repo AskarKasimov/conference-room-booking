@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 import { beforeAll, afterAll } from 'vitest';
-import { server } from './server';
+import { server } from './support/server';
 
 window.scrollTo = () => undefined;
 Element.prototype.hasPointerCapture = () => false;

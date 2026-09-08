@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import type { Office, RoomSummary } from '../api/contracts';
+import type { Office, RoomSummary } from '../../src/api/contracts';
 
 export const officeFixture: Office = {
   id: 'office-moscow',

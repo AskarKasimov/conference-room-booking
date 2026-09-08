@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { roomFixture } from '../../src/test/handlers';
+import { roomFixture } from '../support/handlers';
 import { RoomCard } from '../../src/features/room-search/RoomCard';
 import styles from '../../src/features/room-search/RoomSearch.module.scss';
 
