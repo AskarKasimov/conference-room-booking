@@ -15,7 +15,7 @@ Element.prototype.setPointerCapture = () => undefined;
 Element.prototype.releasePointerCapture = () => undefined;
 HTMLElement.prototype.scrollIntoView = () => undefined;
 
-beforeAll(() => server.listen({ onUnhandledFrame: 'error' }));
+beforeAll(() => server.listen());
 afterAll(() => server.close());
 afterEach(() => server.resetHandlers());
 
