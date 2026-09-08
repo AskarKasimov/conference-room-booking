@@ -14,14 +14,11 @@ export function BookingsFilters({
     <Select
       label="Офис"
       value={value ?? ''}
-      onChange={(event) => onChange(event.target.value || undefined)}
-    >
-      <option value="">Все офисы</option>
-      {offices.map((office) => (
-        <option key={office.id} value={office.id}>
-          {office.name}
-        </option>
-      ))}
-    </Select>
+      onValueChange={(next) => onChange(next || undefined)}
+      options={[
+        { value: '', label: 'Все офисы' },
+        ...offices.map((office) => ({ value: office.id, label: office.name })),
+      ]}
+    />
   );
 }

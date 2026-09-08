@@ -1,5 +1,5 @@
-import { Select } from '../../components/ui/Select';
-import { getDurationOptions, getTimeOptions } from './searchParams';
+import * as Select from '@radix-ui/react-select';
+import { formatDuration, getDurationOptions, getTimeOptions } from './searchParams';
 import styles from './RoomSearch.module.scss';
 
 export interface RoomFilterValue {
@@ -9,6 +9,48 @@ export interface RoomFilterValue {
   minCapacity?: number;
 }
 
+function FilterSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: Array<[string, string]>;
+  onChange: (value: string) => void;
+}) {
+  const emptyValue = '__empty_filter_option__';
+  return (
+    <label className={styles.field}>
+      <span>{label}</span>
+      <Select.Root
+        value={value || (options.some(([optionValue]) => optionValue === '') ? emptyValue : '')}
+        onValueChange={(next) => onChange(next === emptyValue ? '' : next)}
+      >
+        <Select.Trigger className={styles.select} aria-label={label}>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Content className={styles.selectContent} position="popper">
+            <Select.Viewport>
+              {options.map(([optionValue, optionLabel]) => (
+                <Select.Item
+                  key={optionValue}
+                  value={optionValue || emptyValue}
+                  className={styles.selectItem}
+                >
+                  <Select.ItemText>{optionLabel}</Select.ItemText>
+                </Select.Item>
+              ))}
+            </Select.Viewport>
+          </Select.Content>
+        </Select.Portal>
+      </Select.Root>
+    </label>
+  );
+}
+
 export function RoomFilters({
   value,
   onChange,
@@ -16,11 +58,16 @@ export function RoomFilters({
   value: RoomFilterValue;
   onChange: (value: RoomFilterValue) => void;
 }) {
-  const update = (key: keyof RoomFilterValue, next: string) =>
-    onChange({
-      ...value,
-      [key]: key === 'duration' || key === 'minCapacity' ? (next ? Number(next) : undefined) : next,
+  const update = (next: Partial<RoomFilterValue>) => onChange({ ...value, ...next });
+  const updateStartTime = (startTime: string) => {
+    const durationOptions = getDurationOptions(startTime);
+    update({
+      startTime,
+      duration: durationOptions.includes(value.duration)
+        ? value.duration
+        : (durationOptions.at(-1) ?? 15),
     });
+  };
   return (
     <div className={styles.filters}>
       <label className={styles.field}>
@@ -28,41 +75,38 @@ export function RoomFilters({
         <input
           type="date"
           value={value.date}
-          onChange={(event) => update('date', event.target.value)}
+          onChange={(event) => update({ date: event.target.value })}
         />
       </label>
-      <Select
-        label="Начало"
+      <FilterSelect
+        label="Время начала"
         value={value.startTime}
-        onChange={(event) => update('startTime', event.target.value)}
-      >
-        {getTimeOptions().map((time) => (
-          <option key={time}>{time}</option>
-        ))}
-      </Select>
-      <Select
+        onChange={updateStartTime}
+        options={getTimeOptions().map((time): [string, string] => [time, time])}
+      />
+      <FilterSelect
         label="Продолжительность"
         value={String(value.duration)}
-        onChange={(event) => update('duration', event.target.value)}
-      >
-        {getDurationOptions(value.startTime).map((minutes) => (
-          <option key={minutes} value={minutes}>
-            {minutes} мин
-          </option>
-        ))}
-      </Select>
-      <Select
+        onChange={(duration) => update({ duration: Number(duration) })}
+        options={getDurationOptions(value.startTime).map((minutes): [string, string] => [
+          String(minutes),
+          formatDuration(minutes),
+        ])}
+      />
+      <FilterSelect
         label="Вместимость"
-        value={value.minCapacity ?? ''}
-        onChange={(event) => update('minCapacity', event.target.value)}
-      >
-        <option value="">Любая</option>
-        {[4, 8, 12, 20].map((capacity) => (
-          <option key={capacity} value={capacity}>
-            {capacity}+ человек
-          </option>
-        ))}
-      </Select>
+        value={String(value.minCapacity ?? '')}
+        onChange={(minCapacity) =>
+          update({ minCapacity: minCapacity ? Number(minCapacity) : undefined })
+        }
+        options={[
+          ['', 'Любая'],
+          ...[2, 4, 6, 8, 10, 12].map((capacity): [string, string] => [
+            String(capacity),
+            `${capacity} чел.`,
+          ]),
+        ]}
+      />
     </div>
   );
 }

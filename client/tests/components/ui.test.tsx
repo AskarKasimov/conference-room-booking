@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { Alert } from '../../src/components/ui/Alert';
@@ -7,6 +7,7 @@ import { Dialog } from '../../src/components/ui/Dialog';
 import { EmptyState } from '../../src/components/ui/EmptyState';
 import { ErrorState } from '../../src/components/ui/ErrorState';
 import { Select } from '../../src/components/ui/Select';
+import { OfficeSelector } from '../../src/features/offices/OfficeSelector';
 
 describe('shared UI primitives', () => {
   it('renders a loading button as disabled with status text', () => {
@@ -18,12 +19,46 @@ describe('shared UI primitives', () => {
 
   it('connects a select to its accessible label', () => {
     render(
-      <Select label="Офис" value="moscow" onChange={vi.fn()}>
-        <option value="moscow">Москва</option>
-      </Select>,
+      <Select
+        label="Офис"
+        value="moscow"
+        onValueChange={vi.fn()}
+        options={[{ value: 'moscow', label: 'Москва' }]}
+      />,
     );
 
-    expect(screen.getByLabelText('Офис')).toHaveValue('moscow');
+    expect(screen.getByRole('combobox', { name: 'Офис' })).toHaveTextContent('Москва');
+  });
+
+  it('shows the explicitly selected default option', () => {
+    render(
+      <Select
+        label="Офис"
+        value=""
+        onValueChange={vi.fn()}
+        options={[
+          { value: '', label: 'Все офисы' },
+          { value: 'moscow', label: 'Москва' },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole('combobox', { name: 'Офис' })).toHaveTextContent('Все офисы');
+  });
+
+  it('does not offer the empty office option after an office is chosen', async () => {
+    const user = userEvent.setup();
+    render(
+      <OfficeSelector
+        value={undefined}
+        onChange={vi.fn()}
+        offices={[{ id: 'moscow', name: 'Москва', address: 'Тверская', timezone: 'Europe/Moscow' }]}
+      />,
+    );
+
+    await user.click(screen.getByRole('combobox', { name: 'Офис' }));
+
+    expect(screen.queryByRole('option', { name: 'Выберите офис' })).not.toBeInTheDocument();
   });
 
   it('closes a dialog on Escape and returns focus to its trigger', async () => {
@@ -46,6 +81,19 @@ describe('shared UI primitives', () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-labelledby');
+  });
+
+  it('closes a dialog when the dimmed background is clicked', async () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Dialog open onOpenChange={onOpenChange} title="Подтверждение">
+        <p>Содержимое</p>
+      </Dialog>,
+    );
+
+    fireEvent.click(document.querySelector('[data-state="open"][data-aria-hidden="true"]')!);
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('exposes alerts and empty/error recovery states', () => {

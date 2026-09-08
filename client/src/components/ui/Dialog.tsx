@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import type { PropsWithChildren, RefObject } from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from './Button';
 import styles from './Dialog.module.scss';
 
@@ -20,41 +21,39 @@ export function Dialog({
   children,
 }: DialogProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    if (open) headingRef.current?.focus();
-    else returnFocusRef?.current?.focus();
-  }, [open, returnFocusRef]);
-  if (!open) return null;
   return (
-    <dialog
-      open
-      className={styles.dialog}
-      aria-labelledby="dialog-title"
-      aria-describedby={description ? 'dialog-description' : undefined}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          onOpenChange(false);
-        }
-      }}
-    >
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <h2 id="dialog-title" ref={headingRef} tabIndex={-1}>
-            {title}
-          </h2>
-          <Button
-            type="button"
-            variant="ghost"
-            aria-label="Закрыть"
-            onClick={() => onOpenChange(false)}
-          >
-            ×
-          </Button>
-        </div>
-        {description ? <p id="dialog-description">{description}</p> : null}
-        {children}
-      </div>
-    </dialog>
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className={styles.overlay} onClick={() => onOpenChange(false)} />
+        <DialogPrimitive.Content
+          className={styles.dialog}
+          aria-describedby={description ? 'dialog-description' : undefined}
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            headingRef.current?.focus();
+          }}
+          onCloseAutoFocus={() => returnFocusRef?.current?.focus()}
+        >
+          <div className={styles.content}>
+            <div className={styles.header}>
+              <DialogPrimitive.Title ref={headingRef} tabIndex={-1}>
+                {title}
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Close asChild>
+                <Button type="button" variant="ghost" aria-label="Закрыть">
+                  ×
+                </Button>
+              </DialogPrimitive.Close>
+            </div>
+            {description ? (
+              <DialogPrimitive.Description id="dialog-description">
+                {description}
+              </DialogPrimitive.Description>
+            ) : null}
+            {children}
+          </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }

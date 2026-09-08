@@ -25,13 +25,48 @@
   font-size: 0.875rem;
   font-weight: 600;
 }
-.field input {
+.field input,
+.select {
   min-height: 2.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 0.5rem 0.75rem;
   color: var(--color-text);
   background: white;
+}
+.select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.selectContent {
+  z-index: calc(var(--z-dialog) + 2);
+  min-width: var(--radix-select-trigger-width);
+  max-height: min(19rem, var(--radix-select-content-available-height));
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+.selectContent [data-radix-select-viewport] {
+  max-height: inherit;
+  overflow-y: auto;
+}
+.selectItem {
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  outline: 0;
+}
+.selectItem[data-highlighted] {
+  background: var(--color-accent);
+}
+.timeInput {
+  font-variant-numeric: tabular-nums;
 }
 .grid {
   display: grid;

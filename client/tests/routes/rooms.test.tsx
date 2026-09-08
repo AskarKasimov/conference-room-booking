@@ -53,8 +53,10 @@ describe('room search route', () => {
     );
     const router = renderRooms();
 
-    await user.selectOptions(await screen.findByLabelText('Офис'), officeFixture.id);
-    await user.selectOptions(screen.getByLabelText('Вместимость'), '8');
+    await user.click(await screen.findByRole('combobox', { name: 'Офис' }));
+    await user.click(await screen.findByRole('option', { name: officeFixture.name }));
+    await user.click(screen.getByRole('combobox', { name: 'Вместимость' }));
+    await user.click(screen.getByRole('option', { name: '8 чел.' }));
 
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: 'Эверест' })).toBeInTheDocument(),

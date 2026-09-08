@@ -83,7 +83,8 @@ it('updates the past tab and sends the office filter', async () => {
   const router = renderBookings();
 
   await user.click(await screen.findByRole('link', { name: 'Прошедшие' }));
-  await user.selectOptions(screen.getByLabelText('Офис'), officeFixture.id);
+  await user.click(screen.getByRole('combobox', { name: 'Офис' }));
+  await user.click(await screen.findByRole('option', { name: officeFixture.name }));
 
   expect(new URL(requestedUrl).searchParams.get('scope')).toBe('past');
   expect(new URL(requestedUrl).searchParams.get('officeId')).toBe(officeFixture.id);

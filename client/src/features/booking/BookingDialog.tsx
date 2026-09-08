@@ -7,7 +7,8 @@ import { ApiError } from '../../api/client';
 import { Button } from '../../components/ui/Button';
 import { Dialog } from '../../components/ui/Dialog';
 import { Alert } from '../../components/ui/Alert';
-import { getDurationOptions, getTimeOptions } from '../room-search/searchParams';
+import { Select } from '../../components/ui/Select';
+import { formatDuration, getDurationOptions, getTimeOptions } from '../room-search/searchParams';
 import { buildOfficeInterval } from '../../lib/time';
 import { BookingSuccessNotice } from './BookingSuccessNotice';
 import { createBookingSchema, type BookingFormValues } from './bookingSchema';
@@ -66,12 +67,13 @@ export function BookingDialog({
     onSuccess?.();
     onOpenChange(false);
   };
+  const durationOptions = getDurationOptions(form.watch('startTime'));
   if (success) return <BookingSuccessNotice />;
   const mutationError = mutation.error;
   return (
     <Dialog open={open} title="Забронировать комнату" onOpenChange={onOpenChange}>
       <p>
-        {selection.room.name} · {selection.startTime} на {selection.durationMinutes} мин
+        {selection.room.name} · {selection.startTime} на {formatDuration(selection.durationMinutes)}
       </p>
       {mutationError ? (
         <Alert variant="error">
@@ -96,20 +98,25 @@ export function BookingDialog({
           Дата
           <input type="date" {...form.register('date')} />
         </label>
-        <label>
-          Время начала
-          <select {...form.register('startTime')}>
-            {getTimeOptions().map((time) => (
-              <option key={time}>{time}</option>
-            ))}
-          </select>
-        </label>
+        <Select
+          label="Время начала"
+          value={form.watch('startTime')}
+          onValueChange={(startTime) => {
+            const nextDurationOptions = getDurationOptions(startTime);
+            form.setValue('startTime', startTime, { shouldValidate: true });
+            if (!nextDurationOptions.includes(Number(form.getValues('durationMinutes'))))
+              form.setValue('durationMinutes', nextDurationOptions.at(-1) ?? 15, {
+                shouldValidate: true,
+              });
+          }}
+          options={getTimeOptions().map((time) => ({ value: time, label: time }))}
+        />
         <label>
           Продолжительность
           <select {...form.register('durationMinutes', { valueAsNumber: true })}>
-            {getDurationOptions(form.watch('startTime')).map((minutes) => (
+            {durationOptions.map((minutes) => (
               <option key={minutes} value={minutes}>
-                {minutes} мин
+                {formatDuration(minutes)}
               </option>
             ))}
           </select>

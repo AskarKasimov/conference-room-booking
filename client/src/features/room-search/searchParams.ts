@@ -65,3 +65,11 @@ export function getDurationOptions(startTime: string) {
     (_, index) => (index + 1) * 15,
   );
 }
+
+export function formatDuration(minutes: number) {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return [hours ? `${hours} ч` : '', remainingMinutes ? `${remainingMinutes} мин` : '']
+    .filter(Boolean)
+    .join(' ');
+}
