@@ -217,10 +217,13 @@ it('keeps filters visible and delays the skeleton when switching booking scopes'
   await user.click(screen.getByRole('link', { name: 'Прошедшие' }));
   await pastRequestStarted;
 
+  expect(screen.getByRole('link', { name: 'Прошедшие' })).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Прошедшие (0)' })).not.toBeInTheDocument();
   expect(screen.queryByRole('status', { name: 'Загрузка бронирований…' })).not.toBeInTheDocument();
   expect(screen.getByRole('navigation', { name: 'Фильтр бронирований' })).toBeInTheDocument();
   expect(await screen.findByRole('status', { name: 'Загрузка бронирований…' })).toBeInTheDocument();
   expect(screen.getByRole('navigation', { name: 'Фильтр бронирований' })).toBeInTheDocument();
+  expect(await screen.findByRole('link', { name: 'Прошедшие (0)' })).toBeInTheDocument();
 });
 
 it('shows the filtered booking count only in the active tab', async () => {

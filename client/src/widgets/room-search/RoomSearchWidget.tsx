@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, DelayedContent, EmptyState, PageState } from '../../shared/ui';
+import { Button, DelayedContent, PageState } from '../../shared/ui';
 import { OfficeSelector } from '../../features/select-office';
 import { OfficeMeta, type Office } from '../../entities/office';
 import { RoomFilters, type RoomFilterValue } from '../../features/search-rooms';
@@ -15,6 +15,76 @@ import { RoomGrid } from './RoomGrid';
 import styles from './RoomSearch.module.scss';
 import BuildingIcon from '../../shared/assets/icons/building.svg?react';
 import AlertTriangleIcon from '../../shared/assets/icons/alert-triangle.svg?react';
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <circle cx="10.8" cy="10.8" r="6.8" />
+      <path d="m16 16 4.5 4.5" />
+    </svg>
+  );
+}
+
+function RoomCardSkeletonGrid({ className }: { className: string | undefined }) {
+  return (
+    <div className={className} aria-hidden="true">
+      {Array.from({ length: 4 }, (_, index) => (
+        <div className={styles.roomCardSkeleton} data-room-card-skeleton key={index}>
+          <div className={styles.skeletonCardTop}>
+            <i />
+            <i />
+          </div>
+          <div className={styles.skeletonCardMiddle}>
+            <i />
+            <i />
+          </div>
+          <i className={styles.skeletonAvailability} />
+          <div className={styles.skeletonCardActions}>
+            <i />
+            <i />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function RoomSearchSkeleton({ label = 'Загрузка офисов…' }: { label?: string }) {
+  return (
+    <div className={styles.page} role="status" aria-label={label}>
+      <section
+        className={`${styles.officePanel} ${styles.officeSkeleton}`}
+        data-skeleton-section
+        aria-hidden="true"
+      >
+        <i className={styles.officeTitleSkeleton} />
+        <div className={styles.officeMetaSkeleton}>
+          <i />
+          <span />
+          <i />
+        </div>
+      </section>
+      <section
+        className={`${styles.filtersPanel} ${styles.filtersSkeletonPanel}`}
+        data-skeleton-section
+        aria-hidden="true"
+      >
+        <div className={styles.filtersSkeleton}>
+          {Array.from({ length: 4 }, (_, index) => (
+            <div className={styles.filterSkeletonField} key={index}>
+              <i />
+              <i />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className={styles.loadingResults} data-skeleton-section aria-hidden="true">
+        <i className={styles.resultsTitleSkeleton} />
+        <RoomCardSkeletonGrid className={styles.loadingGrid} />
+      </section>
+    </div>
+  );
+}
 
 export function OfficeSelection({
   offices,
@@ -119,7 +189,12 @@ export function RoomSearchWidget({
   let fallback: React.ReactNode;
   if (!interval) {
     results = (
-      <EmptyState
+      <PageState
+        variant="empty"
+        className={styles.roomEmpty}
+        bleed
+        headingLevel={1}
+        icon={<SearchIcon />}
         title="Выберите корректный интервал"
         description="Начало должно быть в будущем, а бронирование — в пределах рабочего дня."
       />
@@ -127,26 +202,8 @@ export function RoomSearchWidget({
   } else if (rooms.isLoading) {
     fallback = (
       <section className={styles.loadingResults} role="status" aria-label="Загрузка переговорных…">
-        <h1>Загрузка переговорных…</h1>
-        <div className={styles.loadingGrid} aria-hidden="true">
-          {Array.from({ length: 4 }, (_, index) => (
-            <div className={styles.roomCardSkeleton} key={index}>
-              <div className={styles.skeletonCardTop}>
-                <i />
-                <i />
-              </div>
-              <div className={styles.skeletonCardMiddle}>
-                <i />
-                <i />
-              </div>
-              <i className={styles.skeletonAvailability} />
-              <div className={styles.skeletonCardActions}>
-                <i />
-                <i />
-              </div>
-            </div>
-          ))}
-        </div>
+        <i className={styles.resultsTitleSkeleton} aria-hidden="true" />
+        <RoomCardSkeletonGrid className={styles.loadingGrid} />
       </section>
     );
   } else if (rooms.isError) {
@@ -183,12 +240,7 @@ export function RoomSearchWidget({
         className={styles.roomEmpty}
         bleed
         headingLevel={1}
-        icon={
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-            <circle cx="10.8" cy="10.8" r="6.8" />
-            <path d="m16 16 4.5 4.5" />
-          </svg>
-        }
+        icon={<SearchIcon />}
         title="Нет доступных переговорных"
         description="Попробуйте изменить параметры фильтрации или выбрать другой офис"
         action={

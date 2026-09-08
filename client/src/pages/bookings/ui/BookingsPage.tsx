@@ -155,7 +155,9 @@ export function BookingsPage() {
           scope={search.scope}
           officeId={search.officeId}
           period={period}
-          count={items.length}
+          count={
+            bookings.data === undefined || bookings.isPlaceholderData ? undefined : items.length
+          }
         />
       )}
       <section className={styles.stateRegion}>

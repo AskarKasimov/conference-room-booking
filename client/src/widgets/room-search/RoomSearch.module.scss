@@ -13,6 +13,45 @@
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
 }
+.officeSkeleton > i,
+.officeMetaSkeleton > i,
+.filtersSkeleton i,
+.resultsTitleSkeleton {
+  display: block;
+  border-radius: var(--radius-compact);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-subtle) 25%,
+    var(--color-page) 37%,
+    var(--color-surface-subtle) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+.officeTitleSkeleton {
+  width: 15rem;
+  height: 1.5rem;
+}
+.officeMetaSkeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+.officeMetaSkeleton > i {
+  width: 12rem;
+  height: 0.8125rem;
+}
+.officeMetaSkeleton > i:last-child {
+  width: 8rem;
+}
+.officeMetaSkeleton span {
+  width: 0.25rem;
+  height: 0.25rem;
+  flex: 0 0 auto;
+  border-radius: var(--radius-full);
+  background: var(--color-subtle);
+}
 .officeSelector {
   display: block !important;
   width: fit-content;
@@ -67,6 +106,25 @@
   padding: var(--space-5) var(--page-gutter);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
+}
+.filtersSkeleton {
+  display: grid;
+  grid-template-columns: 9.5rem 6rem 8.5rem 10rem;
+  gap: var(--space-4);
+}
+.filterSkeletonField {
+  display: grid;
+  gap: var(--space-1-5);
+  min-width: 0;
+}
+.filterSkeletonField i:first-child {
+  width: 62%;
+  height: 0.6875rem;
+}
+.filterSkeletonField i:last-child {
+  height: 2.4375rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 }
 .filtersPanelDisabled {
   background: var(--color-page);
@@ -160,6 +218,10 @@
   font-size: 1.375rem;
   font-weight: 800;
 }
+.resultsTitleSkeleton {
+  width: min(24rem, 70%);
+  height: 1.875rem;
+}
 .loadingGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -238,6 +300,9 @@
   }
 }
 @media (max-width: 560px) {
+  .filtersSkeleton {
+    grid-template-columns: minmax(0, 10rem);
+  }
   .grid,
   .loadingGrid {
     grid-template-columns: 1fr;

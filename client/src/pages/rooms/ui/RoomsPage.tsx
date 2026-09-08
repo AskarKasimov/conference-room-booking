@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { EmptyState } from '../../../shared/ui';
-import { ErrorState } from '../../../shared/ui';
-import { DelayedContent, PageSkeleton } from '../../../shared/ui';
+import { DelayedContent, EmptyState, ErrorState } from '../../../shared/ui';
 import { getDefaultRoomFilters } from '../../../entities/booking';
 import { useOfficesQuery } from '../../../entities/office';
 import type { RoomSummary } from '../../../entities/room';
 import { buildOfficeInterval } from '../../../shared/lib';
 import { normalizeRoomsSearch } from '../../../features/search-rooms';
 import { useClock } from '../../../shared/lib';
-import { OfficeSelection, RoomSearchWidget } from '../../../widgets/room-search';
+import {
+  OfficeSelection,
+  RoomSearchSkeleton,
+  RoomSearchWidget,
+} from '../../../widgets/room-search';
 import styles from './RoomsPage.module.scss';
 
 export function RoomsPage() {
@@ -30,11 +32,7 @@ export function RoomsPage() {
   }, [offices.isSuccess, search.officeId, office, searchParams, setSearchParams]);
 
   if (offices.isLoading) {
-    return (
-      <div className={styles.page}>
-        <DelayedContent pending fallback={<PageSkeleton label="Загрузка офисов…" />} />
-      </div>
-    );
+    return <DelayedContent pending fallback={<RoomSearchSkeleton label="Загрузка офисов…" />} />;
   }
   if (offices.isError) {
     return (
