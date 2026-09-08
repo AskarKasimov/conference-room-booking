@@ -33,6 +33,11 @@
   background: var(--color-surface);
   box-shadow: var(--shadow-md);
 }
+.content:focus,
+.content:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-md);
+}
 .content [data-radix-select-viewport] {
   max-height: inherit;
   overflow-y: auto;
@@ -43,7 +48,11 @@
   outline: 0;
 }
 .item[data-highlighted] {
-  background: var(--color-accent);
+  background: var(--color-select-highlight);
+}
+.item:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 .error {
   color: var(--color-danger);
