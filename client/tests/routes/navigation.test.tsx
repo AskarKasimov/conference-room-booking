@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { RouterProvider } from '@tanstack/react-router';
 import { describe, expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
-import { createAppRouter } from '../../src/router';
+import { createAppRouter, createBrowserAppRouter } from '../../src/router';
 import { createTestQueryClient } from '../../src/test/renderWithProviders';
 
 describe('application navigation', () => {
@@ -20,6 +20,19 @@ describe('application navigation', () => {
 
   it('shows the not-found page for an unknown URL', async () => {
     const router = createAppRouter('/missing');
+    render(
+      <AppProviders client={createTestQueryClient()}>
+        <RouterProvider router={router} />
+      </AppProviders>,
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Ничего не найдено' })).toBeVisible();
+  });
+
+  it('uses the address-bar path when the application starts', async () => {
+    window.history.replaceState(null, '', '/%D0%B0%D1%83%D0%B0');
+    const router = createBrowserAppRouter();
+
     render(
       <AppProviders client={createTestQueryClient()}>
         <RouterProvider router={router} />

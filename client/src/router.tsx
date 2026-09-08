@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter } from '@tanstack/react-router';
+import { createBrowserHistory, createMemoryHistory, createRouter } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 
 function PendingApp() {
@@ -13,4 +13,12 @@ export function createAppRouter(initialEntry = '/') {
   });
 }
 
-export const router = createAppRouter();
+export function createBrowserAppRouter() {
+  return createRouter({
+    routeTree,
+    history: createBrowserHistory(),
+    defaultPendingComponent: PendingApp,
+  });
+}
+
+export const router = createBrowserAppRouter();
