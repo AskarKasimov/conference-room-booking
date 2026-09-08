@@ -60,4 +60,27 @@ describe('DaySchedule', () => {
     expect(screen.getByText('Планирование')).toBeInTheDocument();
     expect(screen.getByText('Занято')).toBeInTheDocument();
   });
+
+  it('keeps quarter-hour blocks at exact adjacent positions with readable names', () => {
+    render(
+      <DaySchedule
+        date="2026-09-10"
+        timezone="Europe/Moscow"
+        bookings={[
+          bookingAt('10:00', 15),
+          bookingAt('10:15', 15, 'user-2'),
+          bookingAt('19:45', 15),
+        ]}
+        currentUserId="user-1"
+      />,
+    );
+
+    const blocks = screen.getAllByRole('listitem');
+    expect(blocks[0]).toHaveStyle({ top: '9.0909%', height: '2.2727%' });
+    expect(blocks[1]).toHaveStyle({ top: '11.3636%', height: '2.2727%' });
+    expect(blocks[2]).toHaveStyle({ top: '97.7273%', height: '2.2727%' });
+    expect(blocks[0]).toHaveAccessibleName('Планирование, 10:00–10:15');
+    expect(blocks[1]).toHaveAccessibleName('Занято, 10:15–10:30');
+    expect(screen.getByText('20:00')).toBeInTheDocument();
+  });
 });
