@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { parsePath, useParams, useSearchParams } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { ErrorState } from '../../../shared/ui';
 import { Breadcrumbs, type BreadcrumbItem } from '../../../shared/ui';
 import { RoomSummaryCard } from '../../../widgets/room-summary-card';
 import { RoomScheduleWidget } from '../../../widgets/room-schedule';
 import { useRoomDetailQuery } from '../../../entities/room';
+import { normalizeRoomsSearch } from '../../../features/search-rooms';
 import styles from './RoomDetailPage.module.scss';
 
-export function RoomDetailPage() {
+export function RoomDetailPage({ roomsListHref = '/rooms' }: { roomsListHref?: string }) {
   const { roomId = '' } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedDate = searchParams.get('date');
@@ -16,7 +17,7 @@ export function RoomDetailPage() {
   let content: React.ReactNode;
   let normalizedDate: string | undefined;
   let breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Переговорные', to: '/rooms' },
+    { label: 'Переговорные', to: roomsListHref },
     { label: 'Комната' },
   ];
 
@@ -55,9 +56,18 @@ export function RoomDetailPage() {
         : today;
     normalizedDate = date;
 
+    const listSearch = normalizeRoomsSearch(
+      Object.fromEntries(new URLSearchParams(parsePath(roomsListHref).search)),
+    );
     breadcrumbs = [
-      { label: 'Переговорные', to: '/rooms' },
-      { label: room.office.name, to: '/rooms', search: { officeId: room.office.id } },
+      { label: 'Переговорные', to: roomsListHref },
+      {
+        label: room.office.name,
+        to:
+          listSearch.officeId === room.office.id
+            ? roomsListHref
+            : `/rooms?${new URLSearchParams({ officeId: room.office.id }).toString()}`,
+      },
       { label: `Комната '${room.name}'` },
     ];
     content = (

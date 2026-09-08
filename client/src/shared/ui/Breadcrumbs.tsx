@@ -1,23 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, type To } from 'react-router-dom';
 import ChevronRightIcon from '../assets/icons/chevron-right-room-detail.svg?react';
 import styles from './Breadcrumbs.module.scss';
 
-type RoomsBreadcrumb = {
+export type BreadcrumbItem = {
   label: string;
-  to: '/rooms';
-  search?: { officeId?: string };
+  to?: To;
 };
-
-type BookingsBreadcrumb = {
-  label: string;
-  to: '/bookings';
-};
-
-type CurrentBreadcrumb = {
-  label: string;
-};
-
-export type BreadcrumbItem = RoomsBreadcrumb | BookingsBreadcrumb | CurrentBreadcrumb;
 
 export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; className?: string }) {
   return (
@@ -33,10 +21,8 @@ export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; cla
               {index > 0 && <ChevronRightIcon aria-hidden="true" />}
               {isCurrent ? (
                 <span aria-current="page">{item.label}</span>
-              ) : 'to' in item && item.to === '/rooms' ? (
-                <RoomsBreadcrumbLink item={item} />
-              ) : 'to' in item && item.to === '/bookings' ? (
-                <BookingsBreadcrumbLink item={item} />
+              ) : item.to !== undefined ? (
+                <Link to={item.to}>{item.label}</Link>
               ) : (
                 <span>{item.label}</span>
               )}
@@ -45,24 +31,5 @@ export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; cla
         })}
       </ol>
     </nav>
-  );
-}
-
-function RoomsBreadcrumbLink({ item }: { item: RoomsBreadcrumb }) {
-  const query = item.search?.officeId
-    ? `?officeId=${encodeURIComponent(item.search.officeId)}`
-    : '';
-  return (
-    <Link to={`/rooms${query}`} aria-current={undefined}>
-      {item.label}
-    </Link>
-  );
-}
-
-function BookingsBreadcrumbLink({ item }: { item: BookingsBreadcrumb }) {
-  return (
-    <Link to="/bookings" aria-current={undefined}>
-      {item.label}
-    </Link>
   );
 }

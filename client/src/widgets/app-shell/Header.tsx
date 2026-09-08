@@ -5,7 +5,7 @@ import CalendarCheckIcon from '../../shared/assets/icons/calendar-check-room-det
 import AvatarCircleIcon from '../../shared/assets/icons/avatar-circle.svg?react';
 import styles from './Header.module.scss';
 
-export function Header() {
+export function Header({ roomsHref, bookingsHref }: { roomsHref: string; bookingsHref: string }) {
   const { pathname } = useLocation();
   const { containerRef, indicatorStyle, ready } = useSlidingIndicator(pathname);
   const user = useCurrentUserQuery().data;
@@ -28,14 +28,14 @@ export function Header() {
       </Link>
       <nav ref={containerRef} aria-label="Основная навигация" className={styles.nav}>
         <NavLink
-          to="/rooms"
+          to={roomsHref}
           className={({ isActive }) => (isActive ? styles.active : undefined)}
           end={false}
         >
           Переговорные
         </NavLink>
         <NavLink
-          to="/bookings"
+          to={bookingsHref}
           className={({ isActive }) => (isActive ? styles.active : undefined)}
         >
           Мои бронирования
