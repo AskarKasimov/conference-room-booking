@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate, useParams, useSearch } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
 import { ErrorState } from '../components/ui/ErrorState';
 import { Breadcrumbs, type BreadcrumbItem } from '../components/ui/Breadcrumbs';
@@ -12,19 +12,13 @@ import { useRoomDetailQuery } from '../hooks/useRoomDetailQuery';
 import { useRoomScheduleQuery } from '../hooks/useRoomScheduleQuery';
 import styles from '../features/room-detail/RoomDetail.module.scss';
 import { BookingDialog } from '../features/booking/BookingDialog';
-import { getNextSlot } from '../features/room-search/searchParams';
+import { getDefaultDuration, getNextSlot } from '../features/room-search/searchParams';
 import { useRealtimeActiveContext } from '../realtime/RealtimeProvider';
 
-export const Route = createFileRoute('/rooms/$roomId')({
-  validateSearch: (search: Record<string, unknown>) => ({
-    date: typeof search.date === 'string' ? search.date : undefined,
-  }),
-  component: RoomDetailPage,
-});
-
-function RoomDetailPage() {
-  const { roomId } = useParams({ from: '/rooms/$roomId' });
-  const search = useSearch({ from: '/rooms/$roomId' });
+export function RoomDetailPage() {
+  const { roomId = '' } = useParams();
+  const [searchParams] = useSearchParams();
+  const requestedDate = searchParams.get('date');
   const roomQuery = useRoomDetailQuery(roomId);
   let content: React.ReactNode;
   let breadcrumbs: BreadcrumbItem[] = [
@@ -44,8 +38,17 @@ function RoomDetailPage() {
   } else {
     const room = roomQuery.data;
     const today = DateTime.now().setZone(room.office.timezone).toISODate() ?? '';
-    const date = search.date ?? today;
-    const maxDate = DateTime.fromISO(today).plus({ days: 30 }).toISODate() ?? today;
+    const maxDate =
+      DateTime.fromISO(today, { zone: room.office.timezone }).plus({ days: 30 }).toISODate() ??
+      today;
+    const requestedDateTime = requestedDate ? DateTime.fromISO(requestedDate) : null;
+    const requestedIsValid = Boolean(
+      requestedDateTime?.isValid && requestedDateTime.toISODate() === requestedDate,
+    );
+    const date =
+      requestedIsValid && requestedDate! >= today && requestedDate! <= maxDate
+        ? requestedDate!
+        : today;
     breadcrumbs = [
       { label: 'Переговорные', to: '/rooms' },
       { label: room.office.name, to: '/rooms', search: { officeId: room.office.id } },
@@ -77,12 +80,19 @@ function RoomDetailContent({
   today: string;
   maxDate: string;
 }) {
-  const navigate = useNavigate({ from: '/rooms/$roomId' });
+  const [scheduleSearchParams, setSearchParams] = useSearchParams();
+  const requestedDateValue = scheduleSearchParams.get('date');
   const [bookingOpen, setBookingOpen] = useState(false);
   const schedule = useRoomScheduleQuery(roomId, date, room.office.timezone);
   useRealtimeActiveContext({ selectedRoom: { roomId, date } });
   const preferredSlot =
     date === today ? getNextSlot(room.office.timezone) : { date, startTime: '09:00' };
+  const bookingDate = preferredSlot.date;
+  useEffect(() => {
+    if (requestedDateValue !== date) {
+      setSearchParams({ date }, { replace: true });
+    }
+  }, [date, requestedDateValue, setSearchParams]);
   return (
     <>
       <div className={styles.layout}>
@@ -101,7 +111,7 @@ function RoomDetailContent({
               value={date}
               min={today}
               max={maxDate}
-              onChange={(nextDate) => void navigate({ search: { date: nextDate } })}
+              onChange={(nextDate) => setSearchParams({ date: nextDate })}
             />
           </div>
           {schedule.isLoading ? (
@@ -129,9 +139,9 @@ function RoomDetailContent({
       <BookingDialog
         selection={{
           room,
-          date,
+          date: bookingDate,
           startTime: preferredSlot.startTime,
-          durationMinutes: 60,
+          durationMinutes: getDefaultDuration(preferredSlot.startTime),
         }}
         open={bookingOpen}
         onOpenChange={setBookingOpen}

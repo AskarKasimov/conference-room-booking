@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { NavLink, Link } from 'react-router-dom';
 import styles from './Header.module.scss';
 
 export function Header() {
@@ -14,16 +14,19 @@ export function Header() {
         <span>BookRoom</span>
       </Link>
       <nav aria-label="Основная навигация" className={styles.nav}>
-        <Link
+        <NavLink
           to="/rooms"
-          activeProps={{ className: styles.active }}
-          activeOptions={{ exact: false }}
+          className={({ isActive }) => (isActive ? styles.active : undefined)}
+          end={false}
         >
           Переговорные
-        </Link>
-        <Link to="/bookings" activeProps={{ className: styles.active }}>
+        </NavLink>
+        <NavLink
+          to="/bookings"
+          className={({ isActive }) => (isActive ? styles.active : undefined)}
+        >
           Мои бронирования
-        </Link>
+        </NavLink>
       </nav>
       <div className={styles.profile}>
         <span className={styles.userName}>Константин К.</span>

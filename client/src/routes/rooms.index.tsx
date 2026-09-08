@@ -1,5 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ErrorState } from '../components/ui/ErrorState';
@@ -9,6 +8,7 @@ import { OfficeMeta } from '../features/offices/OfficeMeta';
 import { RoomFilters, type RoomFilterValue } from '../features/room-search/RoomFilters';
 import { RoomGrid } from '../features/room-search/RoomGrid';
 import { getDefaultRoomFilters } from '../features/room-search/searchParams';
+import { normalizeRoomsSearch } from '../features/room-search/searchParams';
 import { useOfficesQuery } from '../hooks/useOfficesQuery';
 import { useRoomsQuery } from '../hooks/useRoomsQuery';
 import { buildOfficeInterval } from '../lib/time';
@@ -20,24 +20,26 @@ import {
 } from '../features/booking/BookingSuccessNotice';
 import { useRealtimeActiveContext } from '../realtime/RealtimeProvider';
 
-export const Route = createFileRoute('/rooms/')({ component: RoomsPage });
-
-function RoomsPage() {
+export function RoomsPage() {
   const [bookingRoom, setBookingRoom] = useState<import('../api/contracts').RoomSummary>();
   const [bookingSuccess, setBookingSuccess] = useState<BookingSuccess>();
-  const search = useSearch({ from: '/rooms' });
-  const navigate = useNavigate({ from: '/rooms' });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = normalizeRoomsSearch(Object.fromEntries(searchParams.entries()));
   const offices = useOfficesQuery();
   const officeList = offices.data ?? [];
   const selectedOffice = officeList.find((item) => item.id === search.officeId);
   const office = selectedOffice ?? officeList[0];
+  const defaults = office ? getDefaultRoomFilters(office) : undefined;
   useEffect(() => {
     if (!office || selectedOffice) return;
-    void navigate({
-      replace: true,
-      search: { officeId: office.id, ...getDefaultRoomFilters(office), minCapacity: undefined },
+    const params = new URLSearchParams({
+      officeId: office.id,
+      ...Object.fromEntries(
+        Object.entries(getDefaultRoomFilters(office)).map(([key, value]) => [key, String(value)]),
+      ),
     });
-  }, [navigate, office, selectedOffice]);
+    setSearchParams(params, { replace: true });
+  }, [office, selectedOffice, setSearchParams]);
   let content: React.ReactNode;
   if (offices.isLoading) {
     content = <PageSkeleton label="Загрузка офисов…" />;
@@ -60,14 +62,22 @@ function RoomsPage() {
     const selectOffice = (officeId: string) => {
       const selected = officeList.find((item) => item.id === officeId);
       if (!selected) return;
-      void navigate({
-        search: { officeId, ...getDefaultRoomFilters(selected), minCapacity: undefined },
-      });
+      setSearchParams(
+        new URLSearchParams({
+          officeId,
+          ...Object.fromEntries(
+            Object.entries(getDefaultRoomFilters(selected)).map(([key, value]) => [
+              key,
+              String(value),
+            ]),
+          ),
+        }),
+      );
     };
     const filters = {
-      date: search.date ?? getDefaultRoomFilters(office).date,
-      startTime: search.startTime ?? getDefaultRoomFilters(office).startTime,
-      duration: search.duration ?? 60,
+      date: search.date ?? defaults!.date,
+      startTime: search.startTime ?? defaults!.startTime,
+      duration: search.duration ?? defaults!.duration,
       minCapacity: search.minCapacity,
     };
     let interval: ReturnType<typeof buildOfficeInterval> | undefined;
@@ -80,8 +90,14 @@ function RoomsPage() {
     } catch {
       interval = undefined;
     }
-    const updateFilters = (next: RoomFilterValue) =>
-      void navigate({ search: { ...search, ...next, officeId: office.id } });
+    const updateFilters = (next: RoomFilterValue) => {
+      const params = new URLSearchParams();
+      const values = { officeId: office.id, ...filters, ...next };
+      Object.entries(values).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') params.set(key, String(value));
+      });
+      setSearchParams(params);
+    };
     content = (
       <>
         {bookingSuccess ? (

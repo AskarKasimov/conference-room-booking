@@ -1,4 +1,4 @@
-import { useLinkProps } from '@tanstack/react-router';
+import { Link } from 'react-router-dom';
 import styles from './Breadcrumbs.module.scss';
 
 type RoomsBreadcrumb = {
@@ -47,22 +47,20 @@ export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; cla
 }
 
 function RoomsBreadcrumbLink({ item }: { item: RoomsBreadcrumb }) {
-  const linkProps = useLinkProps({
-    to: '/rooms',
-    search: item.search,
-  });
+  const query = item.search?.officeId
+    ? `?officeId=${encodeURIComponent(item.search.officeId)}`
+    : '';
   return (
-    <a {...linkProps} aria-current={undefined}>
+    <Link to={`/rooms${query}`} aria-current={undefined}>
       {item.label}
-    </a>
+    </Link>
   );
 }
 
 function BookingsBreadcrumbLink({ item }: { item: BookingsBreadcrumb }) {
-  const linkProps = useLinkProps({ to: '/bookings' });
   return (
-    <a {...linkProps} aria-current={undefined}>
+    <Link to="/bookings" aria-current={undefined}>
       {item.label}
-    </a>
+    </Link>
   );
 }

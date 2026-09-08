@@ -1,9 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { Link } from 'react-router-dom';
 import styles from '../components/ui/State.module.scss';
 
-export const Route = createFileRoute('/$')({ component: NotFoundPage });
-
-function NotFoundPage() {
+export function NotFoundPage() {
   return (
     <section className={styles.notFound}>
       <p className={styles.code}>404</p>

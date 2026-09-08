@@ -1,29 +1,31 @@
 import { render, screen } from '@testing-library/react';
-import { RouterProvider } from '@tanstack/react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
-import { createAppRouter } from '../../src/router';
+import { AppRoutes } from '../../src/router';
 import { createTestQueryClient } from '../../src/test/renderWithProviders';
 
 it('renders the BookRoom brand and the current user presentation', async () => {
-  const router = createAppRouter('/rooms');
   render(
     <AppProviders client={createTestQueryClient()}>
-      <RouterProvider router={router} />
+      <MemoryRouter initialEntries={['/rooms']}>
+        <AppRoutes />
+      </MemoryRouter>
     </AppProviders>,
   );
 
   expect(await screen.findByRole('link', { name: 'BookRoom' })).toHaveAttribute('href', '/rooms');
   expect(screen.getByRole('link', { name: 'Переговорные' })).toBeInTheDocument();
-  expect(screen.getByText('Константин К.')).toBeInTheDocument();
-  expect(screen.getByText('КК')).toBeInTheDocument();
+  expect(await screen.findByText('Константин К.')).toBeInTheDocument();
+  expect(await screen.findByText('КК')).toBeInTheDocument();
 });
 
 it('renders the visual 404 recovery screen', async () => {
-  const router = createAppRouter('/missing');
   render(
     <AppProviders client={createTestQueryClient()}>
-      <RouterProvider router={router} />
+      <MemoryRouter initialEntries={['/missing']}>
+        <AppRoutes />
+      </MemoryRouter>
     </AppProviders>,
   );
 
@@ -35,10 +37,11 @@ it('renders the visual 404 recovery screen', async () => {
 });
 
 it('vertically centers the primary navigation inside the header', async () => {
-  const router = createAppRouter('/rooms');
   render(
     <AppProviders client={createTestQueryClient()}>
-      <RouterProvider router={router} />
+      <MemoryRouter initialEntries={['/rooms']}>
+        <AppRoutes />
+      </MemoryRouter>
     </AppProviders>,
   );
 
@@ -47,10 +50,11 @@ it('vertically centers the primary navigation inside the header', async () => {
 });
 
 it('keeps the active-link underline on the bottom edge of a compact header', async () => {
-  const router = createAppRouter('/rooms');
   render(
     <AppProviders client={createTestQueryClient()}>
-      <RouterProvider router={router} />
+      <MemoryRouter initialEntries={['/rooms']}>
+        <AppRoutes />
+      </MemoryRouter>
     </AppProviders>,
   );
 

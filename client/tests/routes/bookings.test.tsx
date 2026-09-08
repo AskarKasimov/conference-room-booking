@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { RouterProvider } from '@tanstack/react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { delay, http, HttpResponse } from 'msw';
 import { expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
-import { createAppRouter } from '../../src/router';
+import { AppRoutes } from '../../src/router';
 import { createTestQueryClient } from '../../src/test/renderWithProviders';
 import { officeFixture } from '../../src/test/handlers';
 import { server } from '../../src/test/server';
@@ -38,13 +38,13 @@ const booking = (id: string, startsAt: string) => ({
 });
 
 function renderBookings(entry = '/bookings') {
-  const router = createAppRouter(entry);
   render(
     <AppProviders client={createTestQueryClient()}>
-      <RouterProvider router={router} />
+      <MemoryRouter initialEntries={[entry]}>
+        <AppRoutes />
+      </MemoryRouter>
     </AppProviders>,
   );
-  return router;
 }
 
 it('requests upcoming bookings by default and sorts rows', async () => {
@@ -80,7 +80,7 @@ it('updates the past tab and sends the office filter', async () => {
       return HttpResponse.json({ items: [] });
     }),
   );
-  const router = renderBookings();
+  renderBookings();
 
   await user.click(await screen.findByRole('link', { name: 'Прошедшие' }));
   await user.click(screen.getByRole('combobox', { name: 'Офис' }));
@@ -88,7 +88,7 @@ it('updates the past tab and sends the office filter', async () => {
 
   expect(new URL(requestedUrl).searchParams.get('scope')).toBe('past');
   expect(new URL(requestedUrl).searchParams.get('officeId')).toBe(officeFixture.id);
-  expect(router.state.location.search.scope).toBe('past');
+  expect(new URL(requestedUrl).searchParams.get('scope')).toBe('past');
 });
 
 it('shows the filtered booking count only in the active tab', async () => {

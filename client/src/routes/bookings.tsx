@@ -1,5 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useSearchParams } from 'react-router-dom';
 import { BookingList } from '../features/my-bookings/BookingList';
 import { BookingTabs } from '../features/my-bookings/BookingTabs';
 import { BookingsFilters } from '../features/my-bookings/BookingsFilters';
@@ -10,20 +9,15 @@ import { useBookingsQuery } from '../hooks/useBookingsQuery';
 import { useOfficesQuery } from '../hooks/useOfficesQuery';
 import styles from '../features/my-bookings/MyBookings.module.scss';
 
-export const Route = createFileRoute('/bookings')({
-  validateSearch: (search: Record<string, unknown>) => ({
-    scope:
-      search.scope === 'past' || search.scope === 'all'
-        ? (search.scope as 'past' | 'all')
-        : ('upcoming' as const),
-    officeId: typeof search.officeId === 'string' ? search.officeId : undefined,
-  }),
-  component: BookingsPage,
-});
-
-function BookingsPage() {
-  const search = useSearch({ from: '/bookings' });
-  const navigate = useNavigate({ from: '/bookings' });
+export function BookingsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const scopeValue = searchParams.get('scope');
+  const scope: 'upcoming' | 'past' | 'all' =
+    scopeValue === 'past' || scopeValue === 'all' ? scopeValue : 'upcoming';
+  const search = {
+    scope,
+    officeId: searchParams.get('officeId') ?? undefined,
+  };
   const offices = useOfficesQuery();
   const bookings = useBookingsQuery({ scope: search.scope, officeId: search.officeId });
 
@@ -52,7 +46,12 @@ function BookingsPage() {
             <BookingsFilters
               offices={offices.data ?? []}
               value={search.officeId}
-              onChange={(officeId) => void navigate({ search: { scope: search.scope, officeId } })}
+              onChange={(officeId) => {
+                const params = new URLSearchParams();
+                params.set('scope', search.scope);
+                if (officeId) params.set('officeId', officeId);
+                setSearchParams(params);
+              }}
             />
           </div>
         </div>

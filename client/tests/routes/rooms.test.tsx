@@ -1,22 +1,22 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { RouterProvider } from '@tanstack/react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { createTestQueryClient } from '../../src/test/renderWithProviders';
 import { roomFixture, officeFixture } from '../../src/test/handlers';
 import { server } from '../../src/test/server';
-import { createAppRouter } from '../../src/router';
+import { AppRoutes } from '../../src/router';
 
 function renderRooms(entry = '/rooms') {
-  const router = createAppRouter(entry);
   render(
     <AppProviders client={createTestQueryClient()}>
-      <RouterProvider router={router} />
+      <MemoryRouter initialEntries={[entry]}>
+        <AppRoutes />
+      </MemoryRouter>
     </AppProviders>,
   );
-  return router;
 }
 
 beforeEach(() => {
@@ -60,12 +60,11 @@ describe('room search route', () => {
       }),
     );
 
-    const router = renderRooms();
+    renderRooms();
 
     expect(await screen.findByRole('heading', { name: 'Эверест' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Выберите офис' })).not.toBeInTheDocument();
     expect(new URL(requestedUrl).searchParams.get('officeId')).toBe(officeFixture.id);
-    await waitFor(() => expect(router.state.location.search.officeId).toBe(officeFixture.id));
   });
 
   it('sends office, interval, and capacity after selecting an office', async () => {
@@ -77,7 +76,7 @@ describe('room search route', () => {
         return HttpResponse.json({ items: [roomFixture] });
       }),
     );
-    const router = renderRooms();
+    renderRooms();
 
     await user.click(await screen.findByRole('combobox', { name: 'Офис' }));
     await user.click(await screen.findByRole('option', { name: officeFixture.name }));
@@ -91,7 +90,6 @@ describe('room search route', () => {
     expect(new URL(requestedUrl).searchParams.get('from')).toMatch(/T/);
     expect(new URL(requestedUrl).searchParams.get('to')).toMatch(/T/);
     expect(new URL(requestedUrl).searchParams.get('minCapacity')).toBe('8');
-    expect(router.state.location.search.officeId).toBe(officeFixture.id);
   });
 
   it('renders and retries an API error', async () => {

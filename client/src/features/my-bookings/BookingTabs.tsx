@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link } from 'react-router-dom';
 import styles from './MyBookings.module.scss';
 
 export function BookingTabs({
@@ -13,13 +13,15 @@ export function BookingTabs({
   return (
     <nav aria-label="Фильтр бронирований" className={styles.tabs}>
       <Link
-        to="/bookings"
-        search={{ scope: 'upcoming', officeId }}
+        to={`/bookings?scope=upcoming${officeId ? `&officeId=${encodeURIComponent(officeId)}` : ''}`}
         data-active={scope === 'upcoming'}
       >
         Предстоящие{scope === 'upcoming' ? ` (${count})` : ''}
       </Link>
-      <Link to="/bookings" search={{ scope: 'past', officeId }} data-active={scope === 'past'}>
+      <Link
+        to={`/bookings?scope=past${officeId ? `&officeId=${encodeURIComponent(officeId)}` : ''}`}
+        data-active={scope === 'past'}
+      >
         Прошедшие{scope === 'past' ? ` (${count})` : ''}
       </Link>
     </nav>

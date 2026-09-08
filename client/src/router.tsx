@@ -1,24 +1,20 @@
-import { createBrowserHistory, createMemoryHistory, createRouter } from '@tanstack/react-router';
-import { routeTree } from './routeTree.gen';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AppShell } from './components/layout/AppShell';
+import { RoomsPage } from './routes/rooms.index';
+import { RoomDetailPage } from './routes/rooms.$roomId';
+import { BookingsPage } from './routes/bookings';
+import { NotFoundPage } from './routes/$';
 
-function PendingApp() {
-  return <main aria-label="Загрузка приложения" />;
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route path="/" element={<Navigate to="/rooms" replace />} />
+        <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
+        <Route path="/bookings" element={<BookingsPage />} />
+      </Route>
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
 }
-
-export function createAppRouter(initialEntry = '/') {
-  return createRouter({
-    routeTree,
-    history: createMemoryHistory({ initialEntries: [initialEntry] }),
-    defaultPendingComponent: PendingApp,
-  });
-}
-
-export function createBrowserAppRouter() {
-  return createRouter({
-    routeTree,
-    history: createBrowserHistory(),
-    defaultPendingComponent: PendingApp,
-  });
-}
-
-export const router = createBrowserAppRouter();
