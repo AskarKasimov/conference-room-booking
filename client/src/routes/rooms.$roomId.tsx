@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, useParams, useSearch } from '@tanstack/react-router';
+import { useState } from 'react';
 import { DateTime } from 'luxon';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageSkeleton } from '../components/ui/PageSkeleton';
@@ -9,6 +10,8 @@ import { ScheduleDateControl } from '../features/room-detail/ScheduleDateControl
 import { useRoomDetailQuery } from '../hooks/useRoomDetailQuery';
 import { useRoomScheduleQuery } from '../hooks/useRoomScheduleQuery';
 import styles from '../features/room-detail/RoomDetail.module.scss';
+import { BookingDialog } from '../features/booking/BookingDialog';
+import { getNextSlot } from '../features/room-search/searchParams';
 
 export const Route = createFileRoute('/rooms/$roomId')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -53,7 +56,10 @@ function RoomDetailContent({
   maxDate: string;
 }) {
   const navigate = useNavigate({ from: '/rooms/$roomId' });
+  const [bookingOpen, setBookingOpen] = useState(false);
   const schedule = useRoomScheduleQuery(roomId, date, room.office.timezone);
+  const preferredSlot =
+    date === today ? getNextSlot(room.office.timezone) : { date, startTime: '09:00' };
   return (
     <div className={styles.page}>
       <RoomSummaryCard room={room} />
@@ -65,7 +71,7 @@ function RoomDetailContent({
             max={maxDate}
             onChange={(nextDate) => void navigate({ search: { date: nextDate } })}
           />
-          <Button type="button" onClick={() => undefined}>
+          <Button type="button" onClick={() => setBookingOpen(true)}>
             Забронировать комнату
           </Button>
         </div>
@@ -81,6 +87,16 @@ function RoomDetailContent({
           <DaySchedule bookings={schedule.data ?? []} timezone={room.office.timezone} date={date} />
         )}
       </div>
+      <BookingDialog
+        selection={{
+          room,
+          date: preferredSlot.date === date ? date : preferredSlot.date,
+          startTime: preferredSlot.startTime,
+          durationMinutes: 60,
+        }}
+        open={bookingOpen}
+        onOpenChange={setBookingOpen}
+      />
     </div>
   );
 }

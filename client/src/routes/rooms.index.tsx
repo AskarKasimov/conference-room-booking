@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useState } from 'react';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageSkeleton } from '../components/ui/PageSkeleton';
@@ -12,10 +13,12 @@ import { useOfficesQuery } from '../hooks/useOfficesQuery';
 import { useRoomsQuery } from '../hooks/useRoomsQuery';
 import { buildOfficeInterval } from '../lib/time';
 import styles from '../features/room-search/RoomSearch.module.scss';
+import { BookingDialog } from '../features/booking/BookingDialog';
 
 export const Route = createFileRoute('/rooms/')({ component: RoomsPage });
 
 function RoomsPage() {
+  const [bookingRoom, setBookingRoom] = useState<import('../api/contracts').RoomSummary>();
   const search = useSearch({ from: '/rooms' });
   const navigate = useNavigate({ from: '/rooms' });
   const offices = useOfficesQuery();
@@ -84,7 +87,26 @@ function RoomsPage() {
         <OfficeSelector offices={offices.data} value={office.id} onChange={selectOffice} />
         <RoomFilters value={filters} onChange={updateFilters} />
       </div>
-      <RoomsResults officeId={office.id} interval={interval} minCapacity={filters.minCapacity} />
+      <RoomsResults
+        officeId={office.id}
+        interval={interval}
+        minCapacity={filters.minCapacity}
+        onBook={setBookingRoom}
+      />
+      {bookingRoom && interval ? (
+        <BookingDialog
+          selection={{
+            room: bookingRoom,
+            date: filters.date,
+            startTime: filters.startTime,
+            durationMinutes: filters.duration,
+          }}
+          open
+          onOpenChange={(open) => {
+            if (!open) setBookingRoom(undefined);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
@@ -93,10 +115,12 @@ function RoomsResults({
   officeId,
   interval,
   minCapacity,
+  onBook,
 }: {
   officeId: string;
   interval?: ReturnType<typeof buildOfficeInterval>;
   minCapacity?: number;
+  onBook: (room: import('../api/contracts').RoomSummary) => void;
 }) {
   const rooms = useRoomsQuery(
     interval ? { officeId, from: interval.from, to: interval.to, minCapacity } : undefined,
@@ -118,7 +142,7 @@ function RoomsResults({
       />
     );
   return rooms.data?.length ? (
-    <RoomGrid rooms={rooms.data} onBook={() => undefined} />
+    <RoomGrid rooms={rooms.data} onBook={onBook} />
   ) : (
     <EmptyState title="Комнаты не найдены" description="Измените фильтры и попробуйте снова." />
   );
