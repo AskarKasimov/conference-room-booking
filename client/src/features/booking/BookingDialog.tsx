@@ -25,10 +25,12 @@ export function BookingDialog({
   selection,
   open,
   onOpenChange,
+  onSuccess,
 }: {
   selection: BookingSelection;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }) {
   const [success, setSuccess] = useState(false);
   const mutation = useCreateBookingMutation();
@@ -61,6 +63,7 @@ export function BookingDialog({
       return;
     }
     setSuccess(true);
+    onSuccess?.();
     onOpenChange(false);
   };
   if (success) return <BookingSuccessNotice />;

@@ -14,12 +14,14 @@ import { useRoomsQuery } from '../hooks/useRoomsQuery';
 import { buildOfficeInterval } from '../lib/time';
 import styles from '../features/room-search/RoomSearch.module.scss';
 import { BookingDialog } from '../features/booking/BookingDialog';
+import { BookingSuccessNotice } from '../features/booking/BookingSuccessNotice';
 import { useRealtimeActiveContext } from '../realtime/RealtimeProvider';
 
 export const Route = createFileRoute('/rooms/')({ component: RoomsPage });
 
 function RoomsPage() {
   const [bookingRoom, setBookingRoom] = useState<import('../api/contracts').RoomSummary>();
+  const [bookingSuccess, setBookingSuccess] = useState(false);
   const search = useSearch({ from: '/rooms' });
   const navigate = useNavigate({ from: '/rooms' });
   const offices = useOfficesQuery();
@@ -80,6 +82,7 @@ function RoomsPage() {
     void navigate({ search: { ...search, ...next, officeId: office.id } });
   return (
     <div className={styles.page}>
+      {bookingSuccess ? <BookingSuccessNotice /> : null}
       <div>
         <h1>Переговорные комнаты</h1>
         <OfficeMeta office={office} />
@@ -106,6 +109,7 @@ function RoomsPage() {
           onOpenChange={(open) => {
             if (!open) setBookingRoom(undefined);
           }}
+          onSuccess={() => setBookingSuccess(true)}
         />
       ) : null}
     </div>

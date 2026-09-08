@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider } from '@tanstack/react-router';
-import { http, HttpResponse } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 import { expect, it } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { createAppRouter } from '../../src/router';
@@ -88,4 +88,40 @@ it('updates the past tab and sends the office filter', async () => {
   expect(new URL(requestedUrl).searchParams.get('scope')).toBe('past');
   expect(new URL(requestedUrl).searchParams.get('officeId')).toBe(officeFixture.id);
   expect(router.state.location.search.scope).toBe('past');
+});
+
+it('shows a loading status while bookings are pending', async () => {
+  server.use(
+    http.get('*/api/v1/offices', async () => {
+      await delay('infinite');
+      return HttpResponse.json({ items: [] });
+    }),
+    http.get('*/api/v1/bookings', async () => {
+      await delay('infinite');
+      return HttpResponse.json({ items: [] });
+    }),
+  );
+  renderBookings();
+
+  expect(await screen.findByRole('status', { name: 'Загрузка бронирований…' })).toBeInTheDocument();
+});
+
+it('retries a failed bookings request and renders an empty state', async () => {
+  let requests = 0;
+  server.use(
+    http.get('*/api/v1/bookings', () => {
+      requests += 1;
+      return requests === 1
+        ? HttpResponse.json({ error: { code: 'FAIL', message: 'Ошибка' } }, { status: 500 })
+        : HttpResponse.json({ items: [] });
+    }),
+  );
+  renderBookings();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось загрузить бронирования');
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Повторить' }));
+  expect(
+    await screen.findByRole('heading', { name: 'Нет предстоящих бронирований' }),
+  ).toBeInTheDocument();
+  expect(requests).toBe(2);
 });
