@@ -10,7 +10,7 @@ const bookingReferenceSchema = z
     startsAt: z.string(),
     endsAt: z.string(),
   })
-  .passthrough();
+  .loose();
 
 const realtimeEventSchema = z.discriminatedUnion('type', [
   z.object({

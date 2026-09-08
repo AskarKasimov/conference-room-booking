@@ -1,6 +1,6 @@
 import cors from '@fastify/cors';
 import websocket from '@fastify/websocket';
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { type FastifyInstance, type FastifyLoggerOptions } from 'fastify';
 import type { Clock } from './clock.js';
 import { SystemClock } from './clock.js';
 import { loadConfig, type AppConfig } from './config.js';
@@ -17,7 +17,7 @@ import { MemoryStore } from './store/memory-store.js';
 export interface AppOptions {
   clock?: Clock;
   config?: AppConfig;
-  logger?: boolean;
+  logger?: boolean | FastifyLoggerOptions;
 }
 
 interface ValidationIssue {

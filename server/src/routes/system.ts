@@ -5,6 +5,7 @@ export const systemRoutes: FastifyPluginCallback = (app, _options, done) => {
   app.get(
     '/health',
     {
+      logLevel: 'silent',
       schema: {
         summary: 'Проверка состояния сервиса',
         response: {

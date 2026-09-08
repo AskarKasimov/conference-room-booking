@@ -1,4 +1,4 @@
-FROM node:20-alpine AS dependencies
+FROM node:24-alpine AS dependencies
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ ENV VITE_REQUEST_TIMEOUT_MS=${VITE_REQUEST_TIMEOUT_MS}
 COPY . .
 RUN npm run build
 
-FROM nginx:1.27-alpine AS production
+FROM nginx:stable-alpine AS production
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html

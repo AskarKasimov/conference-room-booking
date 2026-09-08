@@ -11,4 +11,17 @@ describe('GET /health', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ status: 'ok' });
   });
+
+  it('does not log health checks and keeps request logging for API routes', async () => {
+    const logs: string[] = [];
+    const app = await buildTestApp({
+      logger: { stream: { write: (message) => logs.push(message) } },
+    });
+
+    await app.inject({ method: 'GET', url: '/health' });
+    expect(logs.join('')).not.toContain('"url":"/health"');
+
+    await app.inject({ method: 'GET', url: '/api/v1/me' });
+    expect(logs.join('')).toContain('"url":"/api/v1/me"');
+  });
 });

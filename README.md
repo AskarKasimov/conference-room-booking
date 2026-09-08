@@ -4,7 +4,7 @@
 
 ## Быстрый запуск
 
-Требуется Node.js 20 или новее.
+Требуется Node.js 24 или новее.
 
 ```bash
 # terminal 1
@@ -85,7 +85,7 @@ Dev-compose наследует сервисы через `extends` и выбир
 
 ## Технологии
 
-- React 18, TypeScript и Vite;
+- React 19, TypeScript и Vite;
 - React Router DOM для маршрутизации и TanStack Query для кеширования и обновления серверных данных;
 - React Hook Form и Zod для формы бронирования и валидации;
 - Luxon для вычислений в часовых поясах офисов;

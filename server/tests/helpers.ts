@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { buildApp } from '../src/app.js';
+import { buildApp, type AppOptions } from '../src/app.js';
 import type { Clock } from '../src/clock.js';
 import type { AppConfig } from '../src/config.js';
 
@@ -21,8 +21,14 @@ const testConfig: AppConfig = {
   environment: 'test',
 };
 
-export async function buildTestApp(): Promise<FastifyInstance> {
-  const app = await buildApp({ logger: false, clock: new FixedClock(), config: testConfig });
+export async function buildTestApp(
+  options: Pick<AppOptions, 'logger'> = {},
+): Promise<FastifyInstance> {
+  const app = await buildApp({
+    logger: options.logger ?? false,
+    clock: new FixedClock(),
+    config: testConfig,
+  });
   apps.add(app);
   return app;
 }

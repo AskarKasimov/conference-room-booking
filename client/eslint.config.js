@@ -1,8 +1,9 @@
 import eslint from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+export default defineConfig(
   { ignores: ['dist', 'coverage', 'node_modules'] },
   eslint.configs.recommended,
   {
@@ -22,5 +23,11 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-member-access': 'off',
     },
   },
-  reactHooks.configs['recommended-latest'],
+  {
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+    },
+  },
 );
