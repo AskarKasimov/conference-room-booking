@@ -58,8 +58,14 @@ export function BookingsPage() {
             />
           </div>
         </div>
-        <BookingTabs scope={search.scope} officeId={search.officeId} count={items.length} />
-        {items.length ? (
+        <BookingTabs
+          scope={search.scope}
+          officeId={search.officeId}
+          count={bookings.isPlaceholderData ? undefined : items.length}
+        />
+        {bookings.isPlaceholderData ? (
+          <PageSkeleton label="Загрузка бронирований…" />
+        ) : items.length ? (
           <BookingList
             bookings={items}
             canCancel={search.scope === 'upcoming'}

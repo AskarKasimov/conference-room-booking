@@ -53,8 +53,25 @@
 .active {
   color: var(--color-primary) !important;
 }
-.active {
-  border-bottom-color: var(--color-primary) !important;
+.indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--indicator-width);
+  height: 3px;
+  background: var(--color-primary);
+  transform: translateX(var(--indicator-left));
+  pointer-events: none;
+}
+.indicator[data-ready='true'] {
+  transition:
+    transform 260ms ease,
+    width 260ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .indicator[data-ready='true'] {
+    transition: none;
+  }
 }
 .profile {
   display: inline-flex;
@@ -86,7 +103,7 @@
     height: 2.5rem;
   }
   .nav {
-    position: static;
+    position: relative;
     gap: var(--space-3);
     transform: none;
     font-size: 0.875rem;

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getRoomSchedule, listBookings } from './endpoints';
 import type { BookingListQuery } from './types';
 import { getWorkdayInterval } from '../../../shared/lib';
@@ -8,6 +8,7 @@ export function useBookingsQuery(filters: BookingListQuery) {
   return useQuery({
     queryKey: bookingQueryKeys.list(filters),
     queryFn: async () => (await listBookings(filters)).items,
+    placeholderData: keepPreviousData,
   });
 }
 

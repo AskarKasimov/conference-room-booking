@@ -1,8 +1,11 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useCurrentUserQuery } from '../../entities/user';
+import { useSlidingIndicator } from '../../shared/lib';
 import styles from './Header.module.scss';
 
 export function Header() {
+  const { pathname } = useLocation();
+  const { containerRef, indicatorStyle, ready } = useSlidingIndicator(pathname);
   const user = useCurrentUserQuery().data;
   const displayName = user?.displayName ?? 'Загрузка профиля…';
   const initials = user?.initials ?? '…';
@@ -17,7 +20,7 @@ export function Header() {
         </span>
         <span>BookRoom</span>
       </Link>
-      <nav aria-label="Основная навигация" className={styles.nav}>
+      <nav ref={containerRef} aria-label="Основная навигация" className={styles.nav}>
         <NavLink
           to="/rooms"
           className={({ isActive }) => (isActive ? styles.active : undefined)}
@@ -31,6 +34,12 @@ export function Header() {
         >
           Мои бронирования
         </NavLink>
+        <span
+          aria-hidden="true"
+          className={styles.indicator}
+          data-ready={ready}
+          style={indicatorStyle}
+        />
       </nav>
       <div className={styles.profile}>
         <span className={styles.userName}>{displayName}</span>
