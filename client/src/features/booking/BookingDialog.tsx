@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
@@ -14,6 +14,8 @@ import { buildOfficeInterval } from '../../lib/time';
 import { BookingSuccessNotice, type BookingSuccess } from './BookingSuccessNotice';
 import { createBookingSchema, type BookingFormValues } from './bookingSchema';
 import { useCreateBookingMutation } from './useCreateBookingMutation';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../../lib/queryKeys';
 import styles from './Booking.module.scss';
 
 export interface BookingSelection {
@@ -36,6 +38,9 @@ export function BookingDialog({
 }) {
   const [success, setSuccess] = useState<BookingSuccess>();
   const [conflict, setConflict] = useState(false);
+  const [refreshSucceeded, setRefreshSucceeded] = useState<boolean>();
+  const [refreshTargets, setRefreshTargets] = useState('');
+  const queryClient = useQueryClient();
   const mutation = useCreateBookingMutation();
   const schema = createBookingSchema({ timezone: selection.room.office.timezone });
   const form = useForm<
@@ -52,6 +57,31 @@ export function BookingDialog({
       durationMinutes: selection.durationMinutes,
     },
   });
+  const resetForm = form.reset;
+  const resetMutation = mutation.reset;
+  useEffect(() => {
+    if (!open) return;
+    resetForm({
+      title: '',
+      comment: '',
+      date: selection.date,
+      startTime: selection.startTime,
+      durationMinutes: selection.durationMinutes,
+    });
+    setSuccess(undefined);
+    setConflict(false);
+    setRefreshSucceeded(undefined);
+    setRefreshTargets('');
+    resetMutation();
+  }, [
+    open,
+    selection.room.id,
+    selection.date,
+    selection.startTime,
+    selection.durationMinutes,
+    resetForm,
+    resetMutation,
+  ]);
   const onSubmit = async (values: BookingFormValues) => {
     const interval = buildOfficeInterval({ ...values, timezone: selection.room.office.timezone });
     try {
@@ -63,7 +93,42 @@ export function BookingDialog({
         endsAt: interval.to,
       });
     } catch (error) {
-      if (error instanceof ApiError && error.code === 'BOOKING_CONFLICT') setConflict(true);
+      if (error instanceof ApiError && error.code === 'BOOKING_CONFLICT') {
+        setConflict(true);
+        const hasSchedule =
+          queryClient.getQueryCache().findAll({ queryKey: queryKeys.schedules.all, type: 'active' })
+            .length > 0;
+        const hasAvailability =
+          queryClient.getQueryCache().findAll({ queryKey: queryKeys.rooms.all, type: 'active' })
+            .length > 0;
+        const refreshes = [
+          hasSchedule
+            ? queryClient.refetchQueries(
+                { queryKey: queryKeys.schedules.all, type: 'active' },
+                { throwOnError: true },
+              )
+            : undefined,
+          hasAvailability
+            ? queryClient.refetchQueries(
+                { queryKey: queryKeys.rooms.all, type: 'active' },
+                { throwOnError: true },
+              )
+            : undefined,
+        ].filter((refresh): refresh is Promise<void> => Boolean(refresh));
+        const refreshResults = await Promise.allSettled(refreshes);
+        setRefreshTargets(
+          hasSchedule && hasAvailability
+            ? 'Расписание и доступность обновлены.'
+            : hasSchedule
+              ? 'Расписание обновлено.'
+              : hasAvailability
+                ? 'Доступность обновлена.'
+                : '',
+        );
+        setRefreshSucceeded(
+          refreshes.length > 0 && refreshResults.every((result) => result.status === 'fulfilled'),
+        );
+      }
       return;
     }
     const completedBooking = {
@@ -87,7 +152,14 @@ export function BookingDialog({
           <span className={styles.conflictIcon} aria-hidden="true">
             !
           </span>
-          <p>Выбранный интервал был забронирован другим сотрудником. Расписание обновлено.</p>
+          <p>
+            Выбранный интервал был забронирован другим сотрудником.{' '}
+            {refreshSucceeded === undefined
+              ? 'Проверяем актуальное расписание…'
+              : refreshSucceeded
+                ? refreshTargets
+                : 'Не удалось обновить расписание и доступность. Попробуйте обновить данные вручную.'}
+          </p>
           <Button
             type="button"
             onClick={() => {

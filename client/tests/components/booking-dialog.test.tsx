@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { expect, it } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { AppProviders } from '../../src/app/AppProviders';
 import { BookingDialog } from '../../src/features/booking/BookingDialog';
 import { BookingSuccessNotice } from '../../src/features/booking/BookingSuccessNotice';
@@ -12,10 +12,17 @@ import { server } from '../../src/test/server';
 
 const selection = {
   room: roomFixture,
-  date: '2026-09-10',
+  date: '2026-10-20',
   startTime: '10:00',
   durationMinutes: 60,
 };
+
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-01T08:00:00.000Z'));
+});
+
+afterEach(() => vi.useRealTimers());
 
 it('submits ISO timestamps and closes after a successful response', async () => {
   const user = userEvent.setup();
@@ -47,9 +54,9 @@ it('submits ISO timestamps and closes after a successful response', async () => 
   await user.click(screen.getByRole('button', { name: 'Забронировать' }));
 
   expect(await screen.findByRole('status')).toHaveTextContent('Бронирование создано');
-  expect(screen.getByText('Комната Эверест, 10 сентября, 10:00–11:00 MSK')).toBeInTheDocument();
-  expect(payload?.startsAt).toMatch(/2026-09-10T10:00:00\.000\+03:00/);
-  expect(payload?.endsAt).toMatch(/2026-09-10T11:00:00\.000\+03:00/);
+  expect(screen.getByText('Комната Эверест, 20 октября, 10:00–11:00 MSK')).toBeInTheDocument();
+  expect(payload?.startsAt).toMatch(/2026-10-20T10:00:00\.000\+03:00/);
+  expect(payload?.endsAt).toMatch(/2026-10-20T11:00:00\.000\+03:00/);
 });
 
 it('keeps the duration within the workday after moving the start to 19:45', async () => {
@@ -91,11 +98,63 @@ it('uses the shared calendar control for the booking date', async () => {
     </AppProviders>,
   );
 
-  await user.click(screen.getByRole('button', { name: '10 Сентября, Чт' }));
+  await user.click(screen.getByRole('button', { name: '20 Октября, Вт' }));
 
-  expect(screen.getByRole('button', { name: '11 Сентября, Пт' })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: '11 Сентября, Пт' }));
-  expect(screen.getByText(/Бронирование на 2026-09-11/)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '21 Октября, Ср' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: '21 Октября, Ср' }));
+  expect(screen.getByText(/Бронирование на 2026-10-21/)).toBeInTheDocument();
+});
+
+it('resets to the latest schedule selection when a new form opens', async () => {
+  const { rerender } = render(
+    <AppProviders client={createTestQueryClient()}>
+      <BookingDialog selection={selection} open={false} onOpenChange={() => undefined} />
+    </AppProviders>,
+  );
+  rerender(
+    <AppProviders client={createTestQueryClient()}>
+      <BookingDialog
+        selection={{ ...selection, date: '2026-10-21', startTime: '13:30', durationMinutes: 45 }}
+        open
+        onOpenChange={() => undefined}
+      />
+    </AppProviders>,
+  );
+
+  expect(await screen.findByText(/Бронирование на 2026-10-21, 13:30/)).toBeInTheDocument();
+  expect(screen.getByLabelText('Тема встречи *')).toHaveValue('');
+});
+
+it('opens a fresh form after a successful booking', async () => {
+  const user = userEvent.setup();
+  server.use(
+    http.post('*/api/v1/bookings', () => HttpResponse.json({ id: 'booking-1' }, { status: 201 })),
+  );
+  function ControlledDialog() {
+    const [open, setOpen] = useState(true);
+    return (
+      <>
+        <button type="button" onClick={() => setOpen(true)}>
+          Новое бронирование
+        </button>
+        <BookingDialog selection={selection} open={open} onOpenChange={setOpen} />
+      </>
+    );
+  }
+  render(
+    <AppProviders client={createTestQueryClient()}>
+      <ControlledDialog />
+    </AppProviders>,
+  );
+
+  await user.type(screen.getByLabelText('Тема встречи *'), 'Первая встреча');
+  await user.click(screen.getByRole('button', { name: 'Забронировать' }));
+  expect(await screen.findByRole('status')).toHaveTextContent('Бронирование создано');
+  await user.click(screen.getByRole('button', { name: 'Новое бронирование' }));
+
+  expect(await screen.findByRole('heading', { name: 'Новое бронирование' })).toBeInTheDocument();
+  expect(screen.queryByText('Бронирование создано')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Тема встречи *')).toHaveValue('');
 });
 
 it('dismisses the successful-booking notification', async () => {
@@ -106,7 +165,7 @@ it('dismisses the successful-booking notification', async () => {
       <BookingSuccessNotice
         booking={{
           roomName: 'Эверест',
-          date: '2026-09-10',
+          date: '2026-10-20',
           startTime: '10:00',
           durationMinutes: 60,
           timezone: 'Europe/Moscow',
