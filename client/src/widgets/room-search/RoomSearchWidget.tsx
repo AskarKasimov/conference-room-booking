@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { EmptyState } from '../../shared/ui';
-import { ErrorState } from '../../shared/ui';
 import { PageSkeleton } from '../../shared/ui';
+import { Button } from '../../shared/ui';
 import { OfficeSelector } from '../../features/select-office';
 import { OfficeMeta, type Office } from '../../entities/office';
 import { RoomFilters, type RoomFilterValue } from '../../features/search-rooms';
@@ -16,6 +16,7 @@ import { useContextRegistration } from '../../shared/lib';
 import { RoomGrid } from './RoomGrid';
 import styles from './RoomSearch.module.scss';
 import BuildingIcon from '../../shared/assets/icons/building.svg?react';
+import AlertTriangleIcon from '../../shared/assets/icons/alert-triangle.svg?react';
 
 export function OfficeSelection({
   offices,
@@ -128,11 +129,18 @@ export function RoomSearchWidget({
     results = <PageSkeleton label="Загрузка комнат…" />;
   } else if (rooms.isError) {
     results = (
-      <ErrorState
-        title="Не удалось загрузить комнаты"
-        description="Попробуйте обновить список."
-        onRetry={() => void rooms.refetch()}
-      />
+      <section className={styles.roomsErrorState} role="alert">
+        <span className={styles.roomsErrorIcon} aria-hidden="true">
+          <AlertTriangleIcon />
+        </span>
+        <div className={styles.roomsErrorText}>
+          <h1>Не удалось загрузить данные</h1>
+          <p>Произошла ошибка при загрузке списка переговорных</p>
+        </div>
+        <Button className={styles.errorRetryButton} onClick={() => void rooms.refetch()}>
+          Попробовать снова
+        </Button>
+      </section>
     );
   } else if (rooms.data?.length) {
     results = (
@@ -155,7 +163,7 @@ export function RoomSearchWidget({
   }
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${rooms.isError ? styles.pageRoomsError : ''}`}>
       {bookingSuccess ? (
         <BookingSuccessNotice
           booking={bookingSuccess}

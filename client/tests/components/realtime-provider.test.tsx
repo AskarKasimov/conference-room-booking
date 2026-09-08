@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { ws } from 'msw';
 import { RealtimeProvider, type RealtimeSocket } from '../../src/app/realtime/RealtimeProvider';
@@ -53,6 +53,9 @@ class MockSocket implements RealtimeSocket {
   emitMessage(data: unknown) {
     this.listeners.get('message')?.({ data } as MessageEvent);
   }
+  emit(type: 'open' | 'close' | 'error') {
+    this.listeners.get(type)?.(new Event(type));
+  }
 }
 
 it('creates one socket, applies events, ignores malformed messages, and closes on unmount', async () => {
@@ -92,4 +95,36 @@ it('creates one socket, applies events, ignores malformed messages, and closes o
   );
   unmount();
   expect(socket.close).toHaveBeenCalledTimes(1);
+});
+
+it('shows connection loss and resyncs after the socket reconnects', async () => {
+  vi.useFakeTimers();
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const invalidateQueries = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+  const firstSocket = new MockSocket();
+  const secondSocket = new MockSocket();
+  const sockets = [firstSocket, secondSocket];
+  const factory = vi.fn(() => sockets.shift() ?? new MockSocket());
+  const { unmount } = render(
+    <QueryClientProvider client={client}>
+      <RealtimeProvider socketFactory={factory}>
+        <span>content</span>
+      </RealtimeProvider>
+    </QueryClientProvider>,
+  );
+
+  act(() => firstSocket.emit('close'));
+  expect(screen.getByRole('status')).toHaveTextContent('Соединение потеряно. Переподключение...');
+
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(1000);
+  });
+  expect(factory).toHaveBeenCalledTimes(2);
+
+  act(() => secondSocket.emit('open'));
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  expect(invalidateQueries).toHaveBeenCalledWith();
+
+  unmount();
+  vi.useRealTimers();
 });

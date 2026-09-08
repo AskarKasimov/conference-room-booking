@@ -1,10 +1,13 @@
 import type { PropsWithChildren } from 'react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { applyRealtimeEvent, parseRealtimeEvent } from './events';
 import { parseRealtimeActiveContext, type RealtimeActiveContext } from './activeContext';
 import { getRealtimeUrl } from './wsUrl';
 import { ContextRegistration } from '../../shared/lib';
+import { RealtimeConnectionBanner } from './RealtimeConnectionBanner';
+
+const RECONNECT_DELAY_MS = 1000;
 
 export interface RealtimeSocket {
   addEventListener(type: string, listener: EventListener): void;
@@ -23,6 +26,7 @@ export function RealtimeProvider({
   socketFactory,
 }: RealtimeProviderProps) {
   const client = useQueryClient();
+  const [isDisconnected, setIsDisconnected] = useState(false);
   const activeContextRef = useRef(activeContext);
   activeContextRef.current = activeContext;
   const registerActiveContext = useCallback((context: unknown) => {
@@ -35,31 +39,91 @@ export function RealtimeProvider({
     }
 
     const createSocket = socketFactory ?? ((url: string) => new WebSocket(url));
-    const socket = createSocket(getRealtimeUrl());
-    const onMessage: EventListener = (event) => {
-      let raw: unknown;
+    let socket: RealtimeSocket | undefined;
+    let removeSocketListeners: (() => void) | undefined;
+    let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+    let disposed = false;
+    let disconnected = false;
+
+    const markDisconnected = () => {
+      if (disposed) return;
+      disconnected = true;
+      setIsDisconnected(true);
+      if (reconnectTimer !== undefined) return;
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = undefined;
+        connect();
+      }, RECONNECT_DELAY_MS);
+    };
+
+    const connect = () => {
+      if (disposed) return;
+      let nextSocket: RealtimeSocket;
       try {
-        raw = JSON.parse((event as MessageEvent<string>).data) as unknown;
+        nextSocket = createSocket(getRealtimeUrl());
       } catch {
+        markDisconnected();
         return;
       }
-      const parsed = parseRealtimeEvent(raw);
-      if (parsed) void applyRealtimeEvent(client, parsed, activeContextRef.current);
-    };
-    const onError: EventListener = () => undefined;
+      socket = nextSocket;
+      const onMessage: EventListener = (event) => {
+        let raw: unknown;
+        try {
+          raw = JSON.parse((event as MessageEvent<string>).data) as unknown;
+        } catch {
+          return;
+        }
+        const parsed = parseRealtimeEvent(raw);
+        if (parsed) void applyRealtimeEvent(client, parsed, activeContextRef.current);
+      };
+      const onOpen: EventListener = () => {
+        if (disposed || !disconnected) return;
+        disconnected = false;
+        setIsDisconnected(false);
+        void client.invalidateQueries();
+      };
+      const onClose: EventListener = () => {
+        if (socket !== nextSocket) return;
+        removeListeners();
+        socket = undefined;
+        markDisconnected();
+      };
+      const onError: EventListener = () => {
+        if (socket !== nextSocket) return;
+        removeListeners();
+        socket = undefined;
+        nextSocket.close();
+        markDisconnected();
+      };
+      const removeListeners = () => {
+        nextSocket.removeEventListener('message', onMessage);
+        nextSocket.removeEventListener('open', onOpen);
+        nextSocket.removeEventListener('close', onClose);
+        nextSocket.removeEventListener('error', onError);
+      };
+      removeSocketListeners = removeListeners;
 
-    socket.addEventListener('message', onMessage);
-    socket.addEventListener('error', onError);
+      nextSocket.addEventListener('message', onMessage);
+      nextSocket.addEventListener('open', onOpen);
+      nextSocket.addEventListener('close', onClose);
+      nextSocket.addEventListener('error', onError);
+    };
+
+    connect();
     return () => {
-      socket.removeEventListener('message', onMessage);
-      socket.removeEventListener('error', onError);
-      socket.close();
+      disposed = true;
+      if (reconnectTimer !== undefined) clearTimeout(reconnectTimer);
+      removeSocketListeners?.();
+      socket?.close();
     };
   }, [client, socketFactory]);
 
   return (
-    <ContextRegistration.Provider value={registerActiveContext}>
-      {children}
-    </ContextRegistration.Provider>
+    <>
+      {isDisconnected ? <RealtimeConnectionBanner /> : null}
+      <ContextRegistration.Provider value={registerActiveContext}>
+        {children}
+      </ContextRegistration.Provider>
+    </>
   );
 }

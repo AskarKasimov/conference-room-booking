@@ -211,9 +211,12 @@ describe('room search route', () => {
     renderRooms(`/rooms?officeId=${officeFixture.id}`);
 
     expect(
-      await screen.findByRole('heading', { name: 'Не удалось загрузить комнаты' }),
+      await screen.findByRole('heading', { name: 'Не удалось загрузить данные' }),
     ).toBeInTheDocument();
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Повторить' }));
+    expect(
+      screen.getByText('Произошла ошибка при загрузке списка переговорных'),
+    ).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Попробовать снова' }));
     expect(await screen.findByRole('heading', { name: 'Эверест' })).toBeInTheDocument();
     expect(attempts).toBe(2);
   });

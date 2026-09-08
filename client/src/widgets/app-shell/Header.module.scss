@@ -44,7 +44,7 @@
   align-self: stretch;
   display: inline-flex;
   align-items: center;
-  border-bottom: 3px solid transparent;
+  border-bottom: 2px solid transparent;
   color: var(--color-muted);
   font-size: 0.9375rem;
   font-weight: 500;
@@ -62,7 +62,7 @@
   bottom: 0;
   left: 0;
   width: var(--indicator-width);
-  height: 3px;
+  height: 2px;
   background: var(--color-primary);
   transform: translateX(var(--indicator-left));
   pointer-events: none;
