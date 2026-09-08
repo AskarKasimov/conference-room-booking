@@ -127,6 +127,10 @@
   flex-direction: column;
   margin-bottom: calc(var(--space-10) * -1);
 }
+.page .roomError.roomError,
+.page .roomEmpty.roomEmpty {
+  transform: none;
+}
 .results {
   min-height: 42rem;
   margin-inline: calc(var(--page-gutter) * -1);
